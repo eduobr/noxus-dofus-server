@@ -397,7 +397,7 @@ export default class DBManager {
     }
 
     static getNpcs(callback) {
-        var collection = DBManager.db.collection('npcs');
+        var collection = DBManager.db.collection('Npcs');
         collection.find({}).toArray(function(err, npcs){
             callback(npcs);
         });

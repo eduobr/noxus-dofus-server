@@ -4,7 +4,7 @@ import ConfigManager from "./utils/configmanager.js"
 import Logger from "./io/logger"
 import DBManager from "./database/dbmanager"
 import Datacenter from "./database/datacenter"
-import Common from "./Common"
+import Common from "./common"
 
 class App {
 

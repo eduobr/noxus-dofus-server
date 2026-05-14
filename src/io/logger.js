@@ -1,5 +1,5 @@
 require('colors');
-import Common from "../Common"
+import Common from "../common"
 
 export default class Logger {
 

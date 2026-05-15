@@ -83,7 +83,7 @@ las skills para que apunten al repo correcto.
 
 **Objetivo**: Decidir el stack técnico del cliente Godot antes de escribir código.
 
-Estado: pendiente. Requiere decisión del usuario.
+Estado: completado (2026-05-15). Decisión: Godot 4.6 Mono con C# para la capa de protocolo/red. UI inicialmente en C# con opción de GDScript más adelante.
 
 #### Opciones de lenguaje en Godot 4.x:
 
@@ -133,7 +133,13 @@ noxus-godot-client/
 
 **Objetivo**: Separar servidor y cliente en dos repos independientes.
 
-Estado: pendiente.
+Estado: completado (2026-05-15).
+
+Resultado:
+- Servidor: `/home/enoh/Documentos/mis-proyectos/noxus-server` (`main`, commit `4c8315b`).
+- Cliente Godot: `/home/enoh/Documentos/mis-proyectos/noxus-godot-client` (`main`, commit `7651ea9`).
+- Repos verificados: `node client-test.js` pasa en `noxus-server`; `dotnet build` y `godot-mono --headless --path ... --quit` pasan en `noxus-godot-client`.
+- Skill `noxus-dev` actualizada para apuntar al repo servidor split.
 
 #### G.1.1 — Crear `noxus-server`
 
@@ -192,7 +198,7 @@ Skills que requieren actualización:
 
 **Objetivo**: Implementar las primitivas binarias del protocolo Dofus en Godot.
 
-Estado: pendiente. Es la fase más crítica y laboriosa.
+Estado: iniciado (2026-05-15). Ajuste de arquitectura: el port inicial está en C#, no GDScript, por decisión de G.0. Ya existen `DofusBuffer`, `BooleanByteWrapper`, `NetworkMessage`, `ProtocolMessage`, mensajes MVP iniciales y `DofusTcpClient` compilando correctamente.
 
 #### G.2.1 — Port de `bytearray.js`
 

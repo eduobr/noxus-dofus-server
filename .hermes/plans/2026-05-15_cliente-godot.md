@@ -136,8 +136,8 @@ noxus-godot-client/
 Estado: completado (2026-05-15).
 
 Resultado:
-- Servidor: `/home/enoh/Documentos/mis-proyectos/noxus-server` (`main`, commit `4c8315b`).
-- Cliente Godot: `/home/enoh/Documentos/mis-proyectos/noxus-godot-client` (`main`, commit `7651ea9`).
+- Servidor: `/home/enoh/Documentos/mis-proyectos/Dofus/noxus-server` (`main`, commit `4c8315b`).
+- Cliente Godot: `/home/enoh/Documentos/mis-proyectos/Dofus/noxus-godot-client` (`main`, commit `7651ea9`).
 - Repos verificados: `node client-test.js` pasa en `noxus-server`; `dotnet build` y `godot-mono --headless --path ... --quit` pasan en `noxus-godot-client`.
 - Skill `noxus-dev` actualizada para apuntar al repo servidor split.
 

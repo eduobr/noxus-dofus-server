@@ -1,4 +1,5 @@
-const Datacenter = require("../../database/datacenter")
+// Lazy require para romper ciclo: Datacenter → ItemManager → Datacenter
+function getDatacenter() { return require("../../database/datacenter"); }
 const ItemDiceEffect = require("./item_dice_effect")
 const ItemEffectInteger = require("./item_effect_integer")
 const Basic = require("../../utils/basic")
@@ -8,7 +9,7 @@ const Types = require("../../io/dofus/types")
 class ItemManager {
 
     static getItemTemplateById(id) {
-        return Datacenter.items.filter(function (x) {
+        return getDatacenter().items.filter(function (x) {
             if (x._id == id) return x;
         })[0];
     }

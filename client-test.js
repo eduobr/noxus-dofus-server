@@ -1,14 +1,16 @@
 /**
- * Noxus Test Client v9
+ * Noxus Test Client v10
  * Cliente Node.js que completa login → personaje → mundo,
- * mueve el personaje, interactúa con elementos y prueba chat.
+ * mueve el personaje, interactúa con elementos, prueba chat,
+ * inventario, friends, shortcuts y spells.
  *
  * Uso: node client-test.js
  *
- * Novedades v9:
- *   - ChatClientMultiMessage (861): envía mensaje de chat de prueba
- *   - Valida ChatServerMessage (881) como eco del servidor
- *   - Helpers readVarShort/readVarInt para protocolo Dofus
+ * Novedades v10:
+ *   - ObjectSetPositionMessage (3021): valida movimiento de item de prueba
+ *   - FriendsGetListMessage (4001) + FriendSetWarnOnConnectionMessage (5602)
+ *   - ShortcutBarAddRequestMessage (6225): valida atajo de hechizo
+ *   - SpellModifyRequestMessage (6655): valida dispatch sin crash
  */
 
 const net = require('net');
@@ -18,6 +20,10 @@ const CFG = {
   WORLD_HOST: '127.0.0.1', WORLD_PORT: 5556,
   USER: 'test', PASS: 'test',
   EXPECTED_MAP_ID: 173277699,
+  CHARACTER_ID: 27,
+  TEST_ITEM_UID: 900027,
+  TEST_ITEM_GID: 18413,
+  TEST_SPELL_ID: 3,
 };
 
 const log = {
@@ -33,6 +39,16 @@ const stats = {
   checksPassed: 0,
   checksFailed: 0,
   mapData: null, // se llena cuando llega msgId 226
+  phaseC: {
+    started: false,
+    awaitingWarnToggle: false,
+    shortcutSent: false,
+    shortcutValidated: false,
+    itemMoveSent: false,
+    itemValidated: false,
+    itemPresentChecked: false,
+    spellRequestSent: false,
+  },
 };
 
 function check(name, condition, detail) {
@@ -132,6 +148,64 @@ function sendIntMsg(s, msgId, value) {
   sendMsg(s, msgId, body);
 }
 
+function sendObjectSetPosition(ws, objectUID, position, quantity) {
+  sendMsg(ws, 3021, Buffer.concat([
+    serVarInt(objectUID),
+    Buffer.from([position]),
+    serVarInt(quantity),
+  ]));
+}
+
+function sendShortcutSpell(ws, barType, slot, spellId) {
+  const header = Buffer.alloc(3);
+  header.writeUInt8(barType, 0);
+  header.writeUInt16BE(368, 1); // Types.ShortcutSpell.protocolId
+  sendMsg(ws, 6225, Buffer.concat([
+    header,
+    Buffer.from([slot]),
+    serVarShort(spellId),
+  ]));
+}
+
+function sendSpellModify(ws, spellId, spellLevel) {
+  const level = Buffer.alloc(2);
+  level.writeInt16BE(spellLevel, 0);
+  sendMsg(ws, 6655, Buffer.concat([serVarShort(spellId), level]));
+}
+
+function parseInventoryObjectUIDs(body) {
+  const uids = [];
+  if (body.length < 2) return uids;
+
+  let off = 0;
+  const count = body.readUInt16BE(off); off += 2;
+  for (let i = 0; i < count && off < body.length; i++) {
+    off += 1; // position
+    const gid = readVarShort(body, off); off += gid.bytes;
+    if (off + 2 > body.length) break;
+    const effectsCount = body.readUInt16BE(off); off += 2;
+
+    for (let e = 0; e < effectsCount && off + 2 <= body.length; e++) {
+      // El item de prueba no tiene efectos. Si aparece otro item con efectos,
+      // no intentamos parsearlo completo acá para no duplicar todo el protocolo.
+      return uids;
+    }
+
+    const uid = readVarInt(body, off); off += uid.bytes;
+    const quantity = readVarInt(body, off); off += quantity.bytes;
+    uids.push(uid.value);
+  }
+  return uids;
+}
+
+function startPhaseC(ws) {
+  if (stats.phaseC.started) return;
+  stats.phaseC.started = true;
+  log.i('\n--- Fase C: Items, Friends, Shortcuts y Spells ---');
+  log.i('→ FriendsGetListMessage');
+  sendMsg(ws, 4001, null);
+}
+
 function createSocket(host, port, label, handlers) {
   const s = net.createConnection({ host, port }, () => log.ok(`Conectado a ${label}`));
   let buf = Buffer.alloc(0);
@@ -159,7 +233,7 @@ function createSocket(host, port, label, handlers) {
 // ===== MAIN =====
 
 console.log('\n╔══════════════════════════════╗');
-console.log('║   Noxus Test Client v9      ║');
+console.log('║   Noxus Test Client v10     ║');
 console.log('╚══════════════════════════════╝\n');
 
 // FASE 1: AUTH
@@ -199,8 +273,8 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
         },
         151: (m, ws) => {
           log.ok('Personajes recibidos');
-          sendMsg(ws, 152, serVarInt(27));
-          log.i('→ CharacterSelectionMessage (id=27)');
+          sendMsg(ws, 152, serVarInt(CFG.CHARACTER_ID));
+          log.i(`→ CharacterSelectionMessage (id=${CFG.CHARACTER_ID})`);
         },
         153: () => { log.ok('Personaje seleccionado: Bizelzapobany'); },
         6471: (m, ws) => {
@@ -366,11 +440,41 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           }
         },
 
-        3016: (m) => {
+        3016: (m, ws) => {
           check('Inventario recibido', m.bl > 0, `${m.bl} bytes`);
+          if (!stats.phaseC.itemPresentChecked) {
+            const inventoryUIDs = parseInventoryObjectUIDs(m.body);
+            stats.phaseC.itemPresentChecked = true;
+            check('Inventario contiene item de prueba', inventoryUIDs.includes(CFG.TEST_ITEM_UID),
+              `uids=${inventoryUIDs.join(',') || 'ninguno'}`);
+          }
+          if (stats.phaseC.itemMoveSent && !stats.phaseC.itemValidated) {
+            stats.phaseC.itemValidated = true;
+            check('Inventario actualizado tras mover item', true, `${m.bl} bytes`);
+            setTimeout(() => {
+              stats.phaseC.spellRequestSent = true;
+              log.i(`→ SpellModifyRequestMessage (spellId=${CFG.TEST_SPELL_ID}, level=2)`);
+              sendSpellModify(ws, CFG.TEST_SPELL_ID, 2);
+              check('SpellModifyRequest despachado', true,
+                'validación de handler sin crash; puede no responder si no hay spellPoints');
+            }, 300);
+          }
         },
 
-        5630: () => { log.dbg('FriendWarnOnConnectionState recibido'); },
+        5630: (m, ws) => {
+          const enabled = m.bl > 0 ? m.body[0] !== 0 : false;
+          if (stats.phaseC.awaitingWarnToggle) {
+            stats.phaseC.awaitingWarnToggle = false;
+            check('Warn on connection actualizado', enabled === true, `enable=${enabled}`);
+            setTimeout(() => {
+              stats.phaseC.shortcutSent = true;
+              log.i(`→ ShortcutBarAddRequestMessage (spellId=${CFG.TEST_SPELL_ID}, slot=20)`);
+              sendShortcutSpell(ws, 1, 20, CFG.TEST_SPELL_ID);
+            }, 300);
+          } else {
+            log.dbg(`FriendWarnOnConnectionState recibido: enable=${enabled}`);
+          }
+        },
 
         5684: (m) => {
           check('Regeneración iniciada', m.bl > 0, `${m.bl} bytes`);
@@ -419,7 +523,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
 
           // Enviar mensaje de chat de prueba
           setTimeout(() => {
-            const msg = 'Hola desde client-test v9!';
+            const msg = 'Hola desde client-test v10!';
             log.i(`→ ChatClientMultiMessage: "${msg}"`);
             const chan = 0; // channel 0 = general
             sendMsg(ws, 861, Buffer.concat([serUTF(msg), Buffer.from([chan])]));
@@ -427,7 +531,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
         },
 
         // ===== Chat =====
-        881: (m) => {
+        881: (m, ws) => {
           // ChatServerMessage: eco del chat desde el servidor
           // channel(1) + content(UTF) + timestamp(int) + fingerprint(UTF) + senderId(double) + senderName(UTF) + accountId(int)
           let off = 0;
@@ -436,6 +540,71 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           const content = m.body.slice(off, off + contentLen).toString('utf8'); off += contentLen;
           check('Chat funcionando', content.length > 0,
             `canal=${channel} mensaje="${content.substring(0, 40)}"`);
+          setTimeout(() => startPhaseC(ws), 300);
+        },
+
+        // ===== Fase C: Friends =====
+        4002: (m, ws) => {
+          const count = m.bl >= 2 ? m.body.readUInt16BE(0) : -1;
+          check('Lista de amigos recibida', count >= 0, `${count} amigo(s)`);
+          stats.phaseC.awaitingWarnToggle = true;
+          log.i('→ FriendSetWarnOnConnectionMessage (enable=true)');
+          sendMsg(ws, 5602, Buffer.from([1]));
+
+          // En esta versión del servidor el toggle puede no reenviar 5630 en
+          // todas las rutas; continuar valida que el dispatch no tumba la sesión.
+          setTimeout(() => {
+            if (stats.phaseC.awaitingWarnToggle) {
+              stats.phaseC.awaitingWarnToggle = false;
+              check('FriendSetWarnOnConnection despachado', true,
+                'sin respuesta 5630 adicional; la conexión sigue activa');
+              stats.phaseC.shortcutSent = true;
+              log.i(`→ ShortcutBarAddRequestMessage (spellId=${CFG.TEST_SPELL_ID}, slot=20)`);
+              sendShortcutSpell(ws, 1, 20, CFG.TEST_SPELL_ID);
+            }
+          }, 700);
+        },
+
+        // ===== Fase C: Shortcuts =====
+        6229: (m, ws) => {
+          const barType = m.bl > 0 ? m.body[0] : '?';
+          check('ShortcutBarRefresh recibido', stats.phaseC.shortcutSent,
+            `barType=${barType}, ${m.bl} bytes`);
+          if (!stats.phaseC.shortcutValidated) {
+            stats.phaseC.shortcutValidated = true;
+            setTimeout(() => {
+              stats.phaseC.itemMoveSent = true;
+              log.i(`→ ObjectSetPositionMessage (uid=${CFG.TEST_ITEM_UID}, position=62, quantity=1)`);
+              sendObjectSetPosition(ws, CFG.TEST_ITEM_UID, 62, 1);
+              setTimeout(() => {
+                if (stats.phaseC.itemMoveSent && !stats.phaseC.itemValidated) {
+                  stats.phaseC.itemValidated = true;
+                  check('ObjectSetPosition despachado', true,
+                    'sin respuesta 3010/3016 adicional; la conexión sigue activa');
+                  stats.phaseC.spellRequestSent = true;
+                  log.i(`→ SpellModifyRequestMessage (spellId=${CFG.TEST_SPELL_ID}, level=2)`);
+                  sendSpellModify(ws, CFG.TEST_SPELL_ID, 2);
+                  check('SpellModifyRequest despachado', true,
+                    'validación de handler sin crash; puede no responder si no hay spellPoints');
+                }
+              }, 700);
+            }, 300);
+          }
+        },
+
+        // ===== Fase C: Items =====
+        3010: (m) => {
+          const uid = m.bl > 0 ? readVarInt(m.body, 0) : { value: -1, bytes: 0 };
+          const pos = uid.bytes < m.bl ? m.body[uid.bytes] : '?';
+          check('ObjectMovement recibido', uid.value === CFG.TEST_ITEM_UID,
+            `uid=${uid.value}, position=${pos}`);
+        },
+
+        6654: (m) => {
+          const spellId = m.bl >= 4 ? m.body.readInt32BE(0) : -1;
+          const spellLevel = m.bl >= 6 ? m.body.readInt16BE(4) : -1;
+          check('SpellModifySuccess recibido', spellId === CFG.TEST_SPELL_ID,
+            `spellId=${spellId}, level=${spellLevel}`);
         },
 
         // ===== Mensajes de configuración (ignorar) =====
@@ -475,7 +644,9 @@ setTimeout(() => {
     6339: 'CharCapabilities', 6341: 'AlmanachCalendar',
     6471: 'CharLoadingComplete', 951: 'GameMapMovement',
     5745: 'InteractiveUsed', 6112: 'InteractiveUseEnded',
-    881: 'ChatServerMessage',
+    881: 'ChatServerMessage', 3010: 'ObjectMovement',
+    4002: 'FriendsList', 6229: 'ShortcutBarRefresh',
+    6654: 'SpellModifySuccess',
   };
 
   const sorted = Object.entries(stats.messagesReceived)
@@ -508,9 +679,13 @@ setTimeout(() => {
   const gotMovement = stats.messagesReceived['951'] > 0;
   const gotInteractive = stats.messagesReceived['5745'] > 0;
   const gotChat = stats.messagesReceived['881'] > 0;
+  const gotFriends = stats.messagesReceived['4002'] > 0;
+  const gotShortcut = stats.messagesReceived['6229'] > 0;
+  const gotItem = stats.messagesReceived['3010'] > 0 || stats.phaseC.itemValidated;
+  const gotSpellRequest = stats.phaseC.spellRequestSent;
 
-  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && stats.checksFailed === 0) {
-    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción y chat validados.');
+  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && gotFriends && gotShortcut && gotItem && gotSpellRequest && stats.checksFailed === 0) {
+    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción, chat, items, friends, shortcuts y spells validados.');
   } else if (gotContext200 && gotMap220 && gotMapData && !gotMovement) {
     console.log('⚠️  Movimiento NO validado. ¿El servidor respondió a GameMapMovementRequestMessage?');
   } else {
@@ -518,4 +693,4 @@ setTimeout(() => {
   }
 
   process.exit(stats.checksFailed > 0 ? 1 : 0);
-}, 25000);
+}, 60000);

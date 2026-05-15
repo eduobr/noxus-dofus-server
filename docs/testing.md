@@ -22,14 +22,22 @@ Actualmente no hay suite automatizada. El comando `pnpm test` es un placeholder
 que imprime `TODO: tests`.
 
 Sí existe un cliente de integración manual, `client-test.js`, que valida el
-flujo TCP completo auth → world → selección de personaje → contexto de juego:
+flujo TCP completo auth → world → selección de personaje → contexto de juego,
+stats, mapa, movimiento, interacción, chat e integraciones de Fase C
+(items, friends, shortcuts y spells):
 
 ```bash
 node client-test.js
 ```
 
-Llegar a `GameContextCreateMessage` / `¡CONTEXTO DE JUEGO CREADO!` cuenta como
-éxito funcional aunque el proceso termine luego por timeout.
+Para Fase C, el personaje de prueba (`_id=27`) debe tener en su bolsa el item
+de prueba `objectUID=900027` / `templateId=18413`. El cliente valida que el
+inventario inicial contiene ese item antes de despachar mensajes de inventario.
+
+Llegar al veredicto `SERVIDOR FUNCIONAL` cuenta como éxito funcional. Si solo se
+necesita validar arranque básico, llegar a `GameContextCreateMessage` /
+`¡CONTEXTO DE JUEGO CREADO!` sigue siendo una señal útil de que auth y world
+funcionan.
 
 ## Convenciones para crear pruebas (recomendación)
 

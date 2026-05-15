@@ -1,6 +1,7 @@
 const Types = require("../../io/dofus/types")
 const Messages = require("../../io/dofus/messages")
-const ItemManager = require("../../game/item/item_manager")
+// Lazy require para romper ciclo: ItemManager → CharacterItem → ItemManager
+function getItemManager() { return require("../../game/item/item_manager"); }
 const ItemDiceEffect = require("../../game/item/item_dice_effect")
 const ItemEffectInteger = require("../../game/item/item_effect_integer")
 // Lazy require para romper ciclo con DBManager
@@ -24,7 +25,7 @@ class CharacterItem {
     }
 
     getTemplate() {
-        return ItemManager.getItemTemplateById(this.templateId);
+        return getItemManager().getItemTemplateById(this.templateId);
     }
 
     getObjectItem() {

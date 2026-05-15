@@ -3,7 +3,8 @@ const Messages = require("../io/dofus/messages")
 const Types = require("../io/dofus/types")
 const IO = require("../io/custom_data_wrapper")
 const Formatter = require("../utils/formatter")
-const DBManager = require("../database/dbmanager")
+// Lazy require para romper ciclo: dbmanager → account → friend_handler → dbmanager
+function getDBManager() { return require("../database/dbmanager"); }
 const ConfigManager = require("../utils/configmanager")
 // Lazy require para romper ciclo: world → world_client → processor → handlers → world
 function getWorldServer() { return require("../network/world"); }
@@ -49,7 +50,7 @@ class FriendHandler {
                     if (!FriendHandler.isAlreadyFriend(client, target.account))
                     {
                         var friend = new AccountFriend({_id: 0, accountId: client.account.uid, friendAccountId: target.account.uid});
-                        DBManager.createFriend(friend, function(friend){
+                        getDBManager().createFriend(friend, function(friend){
                             client.account.friends.push(friend);
                             FriendHandler.sendFriendsList(client);
                         });
@@ -121,7 +122,7 @@ class FriendHandler {
         {
             if (client.account.friends)
             {
-                DBManager.getAccount({uid: packet.accountId}, function(friendAccount)
+                getDBManager().getAccount({uid: packet.accountId}, function(friendAccount)
                     {
                         if (friendAccount)
                         {
@@ -134,7 +135,7 @@ class FriendHandler {
                                     if (index != -1)
                                          client.account.friends.splice(index, 1);
 
-                                    DBManager.removeFriend({accountId: client.account.uid, friendAccountId: friendAccount.uid}, function(result)
+                                    getDBManager().removeFriend({accountId: client.account.uid, friendAccountId: friendAccount.uid}, function(result)
                                     {
                                         if (result)
                                             FriendHandler.sendFriendsList(client);
@@ -169,7 +170,7 @@ class FriendHandler {
 
         static handleFriendSetWarnOnConnectionMessage(client, packet) {
             client.account.warnOnConnection = packet.enable;
-            DBManager.updateAccount(client.account.uid, {warnOnConnection: client.account.warnOnConnection}, function () {
+            getDBManager().updateAccount(client.account.uid, {warnOnConnection: client.account.warnOnConnection}, function () {
                 client.character.sendWarnOnStateMessages();
             });
         }
@@ -190,9 +191,9 @@ class FriendHandler {
         static handleMoodSmileyRequestMessage(client, packet) {
             if (packet.smileyId > 0)
             {
-                DBManager.getSmiley({_id: packet.smileyId}, function(smiley) {
+                getDBManager().getSmiley({_id: packet.smileyId}, function(smiley) {
                     if (smiley) {
-                        DBManager.updateAccount(client.account.uid, {moodSmileyId: smiley._id}, function () {
+                        getDBManager().updateAccount(client.account.uid, {moodSmileyId: smiley._id}, function () {
                             client.account.moodSmileyId = smiley._id;
                             client.character.replyText("Votre humeur a été mis à jour !");
                         });

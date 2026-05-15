@@ -739,6 +739,15 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           if (stats.phaseC.itemMoveSent && !stats.phaseC.itemValidated) {
             stats.phaseC.itemValidated = true;
             check('Inventario actualizado tras mover item', true, `${m.bl} bytes`);
+            // Fase F.1: ObjectDeleteMessage
+            if (!stats.phaseF.deleteSent) {
+              stats.phaseF.deleteSent = true;
+              setTimeout(() => {
+                log.i(`→ ObjectDeleteMessage (uid=${CFG.TEST_ITEM_UID}, quantity=1)`);
+                sendObjectDelete(ws, CFG.TEST_ITEM_UID, 1);
+                check('ObjectDelete despachado', true, `uid=${CFG.TEST_ITEM_UID}`);
+              }, 200);
+            }
             setTimeout(() => {
               stats.phaseC.spellRequestSent = true;
               log.i(`→ SpellModifyRequestMessage (spellId=${CFG.TEST_SPELL_ID}, level=2)`);

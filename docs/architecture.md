@@ -211,10 +211,9 @@ Dofus/
 ├── patch/                     # DofusInvoker.swf modificado
 ├── docs/                      # Documentación del proyecto
 ├── config.json                # Configuración del servidor
-├── package.json               # Dependencias NPM
-├── .babelrc                   # Babel: preset es2015 + class-properties
-├── .gitignore                 # Ignora node_modules, dist/
-└── compilation.sh             # Build: babel src → dist (watch)
+├── package.json               # Dependencias y scripts Node 25
+├── pnpm-lock.yaml             # Lockfile pnpm
+└── .gitignore                 # Ignora node_modules y artefactos locales
 ```
 
 ---
@@ -481,7 +480,7 @@ Game Logic → Managers / Database
   └── ItemManager → Datacenter, DBManager
 ```
 
-### Dependencias npm externas usadas en runtime
+### Dependencias externas usadas en runtime
 
 | Paquete                  | Usado en                                  |
 |--------------------------|-------------------------------------------|
@@ -500,9 +499,9 @@ Game Logic → Managers / Database
 
 | Dependencia        | Versión    | Tipo        | Impacto si falta                          |
 |--------------------|------------|-------------|-------------------------------------------|
-| MongoDB            | 2.2.x      | Runtime     | El servidor no arranca.                   |
-| Node.js            | 6-8 (est.) | Runtime     | APIs deprecadas en Node moderno.          |
-| Babel 6            | 6.18       | Build       | No se puede compilar ES6 → ES5.           |
+| MongoDB            | 4.2        | Runtime     | El servidor no arranca.                   |
+| Node.js            | 25.3.0     | Runtime     | Ejecuta `src/app.js` directamente.        |
+| pnpm               | 11.1.2     | Dependencias| No se instalan paquetes reproducibles.    |
 | Cliente Dofus .swf | 2.39       | Runtime     | Sin cliente no hay forma de probar.       |
 | Datos .d2o         | 2.39       | Importación | Sin datos el mundo está vacío.            |
 
@@ -787,7 +786,8 @@ Model → Handler (dependencia circular en Map)
 
 | Problema                            | Impacto   | Detalle                                       |
 |-------------------------------------|-----------|-----------------------------------------------|
-| Sin tests                           | CRÍTICO   | `npm test` devuelve error. 0 tests.           |
+| Sin suite de tests automatizada      | CRÍTICO   | `pnpm test` es placeholder. `client-test.js`  |
+|                                     |           | cubre integración manual TCP.                 |
 | Callback hell                       | ALTO      | ~450 líneas de DBManager son callbacks        |
 |                                     |           | anidados. Difícil de debuggear.               |
 | Estado global mutable               | ALTO      | Arrays estáticos en AuthServer, WorldServer,  |
@@ -804,8 +804,8 @@ Model → Handler (dependencia circular en Map)
 | Archivos con conflictos de merge    | BAJO      | `app (Copie en conflit...).js`,               |
 |                                     |           | `.idea/workspace*.xml` con copias de conflicto|
 | map_instance.js vacío               | BAJO      | 0 bytes. Probablemente planeado, no usado.    |
-| Dependencias de 2016                | BAJO      | Babel 6, MongoDB driver 2.2. Con Node moderno |
-|                                     |           | pueden fallar APIs deprecadas.                |
+| Grafo CommonJS con ciclos           | MEDIO     | La migración Node 25 requiere lazy `require`  |
+|                                     |           | en módulos con dependencias circulares.       |
 
 ### 10.3 Limitaciones de escalabilidad
 
@@ -817,8 +817,8 @@ Model → Handler (dependencia circular en Map)
 |                                     | Crece con el contenido del juego.             |
 | Sin connection pooling visible      | Una sola conexión MongoDB para todo.          |
 | Sin sharding ni clustering          | Un solo proceso = un solo núcleo.             |
-| Sin hot reload                      | Cualquier cambio requiere recompilar y        |
-|                                     | reiniciar el proceso completo.                |
+| Hot reload limitado                 | `node --watch src/app.js` existe, pero        |
+|                                     | cambios de estado requieren reiniciar.        |
 
 ### 10.4 Deuda de documentación (cubierta parcialmente por docs/)
 

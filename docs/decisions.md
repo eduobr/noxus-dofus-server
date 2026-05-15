@@ -13,7 +13,8 @@ Cuando la razón no es explícita en el código, se marca como **[Inferido]**.
 - JavaScript es accesible y el equipo tenía experiencia en él
 - El ecosistema npm ofrece librerías para sockets TCP, MongoDB y manipulación
   binaria sin depender de lenguajes compilados
-- Permite iteración rápida (sin compilación, hot reload con babel --watch)
+- Permite iteración rápida. En la migración actual se ejecuta directamente con
+  `node src/app.js` y opcionalmente `node --watch src/app.js`.
 
 **Trade-off**: Node.js es monohilo. Las operaciones bloqueantes (cálculo de
 paths, procesamiento de combate) se ejecutan en el event loop. No se usa
@@ -21,17 +22,24 @@ paths, procesamiento de combate) se ejecutan en el event loop. No se usa
 
 ---
 
-## 2. Babel para transpilación ES6 → ES5
+## 2. Node 25 sin Babel
 
-**Decisión**: Usar Babel 6 con preset es2015 en lugar de escribir ES5 nativo.
+**Decisión actual**: Ejecutar `src/app.js` directamente con Node 25 y CommonJS,
+sin Babel ni carpeta `dist/`.
 
-**[Inferido]** Razones probables:
-- En 2016, el soporte de ES6 en Node.js era parcial
-- Babel permitía usar imports, clases y arrow functions con compatibilidad
-- `compilation.sh` genera la carpeta `dist/` para producción
+**Contexto histórico**: En 2016 el proyecto usaba Babel 6 con preset es2015
+porque el soporte de ES6 en Node era parcial. La migración de 2026 eliminó ese
+paso de build.
 
-**Trade-off**: Agrega un paso de build. La carpeta `dist/` está en `.gitignore`,
-lo cual es correcto.
+**Razones**:
+- Node 25 soporta las features necesarias sin transpilación.
+- Menos artefactos generados (`dist/`) y menos tooling legacy.
+- El flujo de desarrollo y despliegue se simplifica a `pnpm install` +
+  `node src/app.js`.
+
+**Trade-off**: La conversión a CommonJS nativo expone ciclos que Babel toleraba.
+Se resolvieron con lazy `require`, pero el grafo de dependencias sigue siendo
+frágil y debe modificarse con cuidado.
 
 ---
 
@@ -118,9 +126,9 @@ global.
 **Evidencia**: Todo `DBManager` recibe un callback como último parámetro.
 Las operaciones anidadas crean "callback hell".
 
-**Contexto**: En 2016, async/await no estaba estandarizado. La dependencia
-`babel-plugin-transform-async-to-generator` está en package.json pero no se
-usa en el código (solo hay un uso comentado de `async` en `world_manager.js`).
+**Contexto**: En 2016, async/await no estaba estandarizado. En la migración a
+Node 25, `DBManager` usa Promises internamente donde lo exige `mongodb` 6.x,
+pero conserva callbacks públicos para minimizar cambios en handlers/managers.
 
 **Trade-off**:
 - Legibilidad reducida en operaciones anidadas

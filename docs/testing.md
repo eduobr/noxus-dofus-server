@@ -18,7 +18,18 @@ Jasmine, etc.) en `package.json`.
 
 ## Cómo correr tests
 
-Actualmente no hay tests que ejecutar. El comando `npm test` devolverá error.
+Actualmente no hay suite automatizada. El comando `pnpm test` es un placeholder
+que imprime `TODO: tests`.
+
+Sí existe un cliente de integración manual, `client-test.js`, que valida el
+flujo TCP completo auth → world → selección de personaje → contexto de juego:
+
+```bash
+node client-test.js
+```
+
+Llegar a `GameContextCreateMessage` / `¡CONTEXTO DE JUEGO CREADO!` cuenta como
+éxito funcional aunque el proceso termine luego por timeout.
 
 ## Convenciones para crear pruebas (recomendación)
 
@@ -63,14 +74,7 @@ Dofus/
 ### Setup de tests
 
 ```bash
-npm install --save-dev jest @babel/preset-env
-```
-
-`.babelrc` para tests:
-```json
-{
-  "presets": ["@babel/preset-env"]
-}
+pnpm add -D jest
 ```
 
 Script en `package.json`:
@@ -84,7 +88,7 @@ Script en `package.json`:
 ### Ejemplo de test unitario para pathfinding
 
 ```js
-import Pathfinding from '../src/game/pathfinding/pathfinding'
+const Pathfinding = require('../src/game/pathfinding/pathfinding')
 
 describe('Pathfinding', () => {
     it('debería encontrar ruta entre celdas adyacentes', () => {

@@ -92,8 +92,10 @@ Si vas a trabajar en una funcionalidad, lee estos archivos primero:
 2. **Cambiar el orden de campos en serialize/deserialize**: el protocolo es
    posicional. Un campo fuera de orden = datos corruptos.
 
-3. **Usar `require` en archivos que usan `import`**: la mezcla ya existe pero
-   es frágil. Prefiere `import`.
+3. **Romper ciclos CommonJS**: tras la migración a Node 25, el proyecto usa
+   `require` / `module.exports`. En módulos con dependencias circulares usa
+   lazy `require` (`function getX() { return require(...) }`) en vez de imports
+   de nivel superior que devuelvan `{}` parcialmente inicializado.
 
 4. **Asumir que los callbacks manejan errores**: la mayoría no lo hacen.
    Agrega try/catch defensivo.
@@ -110,8 +112,10 @@ Si vas a trabajar en una funcionalidad, lee estos archivos primero:
 
 - Archivos: `snake_case.js`
 - Clases: `PascalCase`
-- Imports de proyecto: `import X from "../ruta/x"`
-- Módulos nativos: `var x = require('x')`
+- Imports de proyecto: `const X = require("../ruta/x")`, salvo ciclos donde se
+  usa lazy `require`
+- Módulos nativos: `const x = require('x')` o `var x = require('x')` en código
+  heredado
 - Logging: `Logger.infos()`, `Logger.error()`, `Logger.debug()`
 - Handlers: métodos `static` que reciben `(client, packet)`
 - Respuestas: `client.send(new Messages.TipoMensaje(params))`

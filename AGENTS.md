@@ -90,8 +90,8 @@ Antes de modificar cualquier archivo, el agente debe leer:
     3. Efectos de hechizos y buffs — lógica de daño, modificadores de stats
     4. Handlers — mockear `client` y verificar respuestas
 
-4.4 **Usa el mismo estilo del proyecto**: ES6 imports, clases, sin TypeScript
-    (a menos que se decida migrar explícitamente).
+4.4 **Usa el mismo estilo del proyecto**: CommonJS (`require` / `module.exports`),
+    clases, sin TypeScript (a menos que se decida migrar explícitamente).
 
 ---
 
@@ -137,8 +137,14 @@ Antes de modificar cualquier archivo, el agente debe leer:
 6.6 **Prueba tus cambios.**
     - Como mínimo, verifica que el servidor arranca sin errores:
       ```bash
-      ./node_modules/.bin/babel src --out-dir dist && node dist/app.js
+      node src/app.js
       ```
+    - Para validar el flujo TCP completo sin cliente Flash, usa:
+      ```bash
+      node client-test.js
+      ```
+      Llegar a `GameContextCreateMessage` / `¡CONTEXTO DE JUEGO CREADO!` cuenta
+      como éxito funcional aunque el cliente de prueba cierre luego por timeout.
     - Si tu cambio afecta la comunicación cliente-servidor, necesitas un
       cliente Dofus real para verificar (el `.swf` en `patch/`).
 

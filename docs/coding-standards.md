@@ -4,8 +4,9 @@
 
 ### Estilo general
 
-El código mezcla convenciones ES6 y patrones más antiguos. No hay un linter
-configurado ni guía de estilo explícita. Lo siguiente se infiere del código:
+El código fue migrado de ES6+Babel a CommonJS nativo para Node 25. No hay un
+linter configurado ni guía de estilo explícita. Lo siguiente se infiere del
+código:
 
 ### Naming
 
@@ -23,11 +24,11 @@ configurado ni guía de estilo explícita. Lo siguiente se infiere del código:
 Un handler típico (`src/handlers/ejemplo_handler.js`):
 
 ```js
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
+const Logger = require("../io/logger");
+const Messages = require("../io/dofus/messages");
+const Types = require("../io/dofus/types");
 
-export default class EjemploHandler {
+class EjemploHandler {
 
     static handleEjemploMessage(client, packet) {
         Logger.debug("Procesando mensaje de ejemplo");
@@ -35,24 +36,30 @@ export default class EjemploHandler {
         client.send(new Messages.RespuestaMessage(/* ... */));
     }
 }
+
+module.exports = EjemploHandler;
 ```
 
 Un modelo de datos típico (`src/database/models/ejemplo.js`):
 
 ```js
-export default class Ejemplo {
+class Ejemplo {
     constructor(data) {
         this._id = data._id;
         // ... resto de campos
     }
 }
+
+module.exports = Ejemplo;
 ```
 
 ### Imports
 
-- Usar `import` para módulos del proyecto (ES6)
-- Usar `require()` solo para módulos nativos de Node.js (`net`, `fs`, `crypto`)
-  y dependencias legacy que no soportan `import`
+- Usar `require()` / `module.exports` para módulos del proyecto.
+- Usar lazy `require` en ciclos conocidos:
+  `function getWorldServer() { return require("../network/world"); }`
+- Evitar reintroducir `import` / `export` mientras `package.json` tenga
+  `"type": "commonjs"`.
 - Los imports no se ordenan alfabéticamente en el código existente
 - No se usa index.js para re-exportar; cada archivo se importa directamente
 
@@ -76,7 +83,7 @@ export default class Ejemplo {
 Usar los métodos estáticos de `Logger`:
 
 ```js
-import Logger from "../io/logger"
+const Logger = require("../io/logger");
 
 Logger.infos("Mensaje informativo");
 Logger.error("Mensaje de error");
@@ -91,7 +98,7 @@ Cada mensaje del protocolo extiende `ProtocolMessage` y define `serialize()`
 y/o `deserialize()`:
 
 ```js
-export class IdentificationMessage extends ProtocolMessage {
+class IdentificationMessage extends ProtocolMessage {
     constructor() {
         super(4);  // messageId
     }
@@ -102,6 +109,8 @@ export class IdentificationMessage extends ProtocolMessage {
         // ... leer cada campo binario
     }
 }
+
+exports.IdentificationMessage = IdentificationMessage;
 ```
 
 ### Registro de nuevos mensajes
@@ -124,7 +133,8 @@ Estas son recomendaciones para código nuevo, no reflejan el estado actual:
 - **Un handler por dominio funcional** (ya se sigue: auth, chat, fight, etc.)
 - **No mezclar lógica de negocio con serialización** (no se sigue actualmente:
   algunos handlers contienen lógica de negocio extensa)
-- **Preferir `import` sobre `require`** para consistencia (parcialmente seguido)
+- **Mantener CommonJS** (`require` / `module.exports`) para consistencia con
+  Node 25 sin Babel
 - **Documentar messageId en comentarios** (se hace parcialmente en processor.js)
 - **No usar `var`; preferir `let`/`const`** (no se sigue: hay muchos `var`)
 

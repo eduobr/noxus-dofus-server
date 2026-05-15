@@ -1,13 +1,15 @@
 /**
- * Noxus Test Client v7
+ * Noxus Test Client v8
  * Cliente Node.js que completa login → personaje → mundo,
- * solicita datos del mapa y envía un movimiento de prueba.
+ * solicita datos del mapa, mueve el personaje y prueba
+ * interacción con elementos interactivos.
  *
  * Uso: node client-test.js
  *
- * Novedades v7:
- *   - GameMapMovementRequestMessage (950) tras recibir datos del mapa
- *   - Valida GameMapMovementMessage (951) de respuesta del servidor
+ * Novedades v8:
+ *   - Comando admin "moveto" (5662) para teletransporte a mapa 144931
+ *   - InteractiveUseRequestMessage (5001) sobre elemento Teleport 415349
+ *   - Valida InteractiveUsedMessage (5745) e InteractiveUseEndedMessage (6112)
  *   - Helpers readVarShort/readVarInt para protocolo Dofus
  */
 
@@ -159,7 +161,7 @@ function createSocket(host, port, label, handlers) {
 // ===== MAIN =====
 
 console.log('\n╔══════════════════════════════╗');
-console.log('║   Noxus Test Client v7      ║');
+console.log('║   Noxus Test Client v8      ║');
 console.log('╚══════════════════════════════╝\n');
 
 // FASE 1: AUTH
@@ -219,8 +221,13 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
         220: (m, ws) => {
           // CurrentMapMessage: mapId (int32BE, 4 bytes) + mapKey (UTF string)
           const mapId = m.body.readInt32BE(0);
-          check('Mapa correcto', mapId === CFG.EXPECTED_MAP_ID,
-            `mapId=${mapId} (esperado ${CFG.EXPECTED_MAP_ID})`);
+          const isFirstMap = !stats.messagesReceived['220'] || stats.messagesReceived['220'] <= 1;
+          if (isFirstMap) {
+            check('Mapa inicial correcto', mapId === CFG.EXPECTED_MAP_ID,
+              `mapId=${mapId} (esperado ${CFG.EXPECTED_MAP_ID})`);
+          } else {
+            log.dbg(`Cambio de mapa: mapId=${mapId}`);
+          }
 
           // Solicitar datos completos del mapa tras 300ms
           setTimeout(() => {
@@ -279,27 +286,53 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           log.dbg(`  Mapa complementario: ${m.bl} bytes total, ${actorCount} actor(es)`);
 
           // Store for final report
-          stats.mapData = {
+          stats.mapData = stats.mapData || {};
+          stats.mapData[dataMapId] = {
             subAreaId: subAreaId.value,
-            mapId: dataMapId,
             actorCount,
             totalBytes: m.bl,
           };
 
-          // Enviar movimiento de prueba tras recibir datos del mapa
-          setTimeout(() => {
-            log.i('→ GameMapMovementRequestMessage (moviendo personaje)');
-            // keyMovement = (direction << 12) | cellId
-            // Desde cellId 328, dir=1 (DOWN_RIGHT), hacia cellId 329
-            const key1 = (1 << 12) | 328;  // start: dir=DOWN_RIGHT, cell=328
-            const key2 = (0 << 12) | 329;  // end: dir=RIGHT, cell=329
-            const body = Buffer.alloc(2 + 2 + 2 + 4);  // count(short) + 2×keys(short) + mapId(int)
-            body.writeUInt16BE(2, 0);       // 2 key movements
-            body.writeUInt16BE(key1, 2);    // first key
-            body.writeUInt16BE(key2, 4);    // second key
-            body.writeInt32BE(dataMapId, 6); // mapId
-            sendMsg(ws, 950, body);
-          }, 500);
+          if (dataMapId === CFG.EXPECTED_MAP_ID) {
+            // Primer mapa: enviar movimiento
+            setTimeout(() => {
+              log.i('→ GameMapMovementRequestMessage (moviendo personaje)');
+              const key1 = (1 << 12) | 328;
+              const key2 = (0 << 12) | 329;
+              const body = Buffer.alloc(2 + 2 + 2 + 4);
+              body.writeUInt16BE(2, 0);
+              body.writeUInt16BE(key1, 2);
+              body.writeUInt16BE(key2, 4);
+              body.writeInt32BE(dataMapId, 6);
+              sendMsg(ws, 950, body);
+            }, 500);
+          } else if (dataMapId === 144931) {
+            // Mapa con interactivos: probar elemento Teleport (id=415349)
+            setTimeout(() => {
+              const elemId = 415349;
+              const skillUid = 114;
+              log.i(`→ InteractiveUseRequestMessage (elemento=${elemId} skill=${skillUid})`);
+              const body = Buffer.alloc(10);
+              let off = 0;
+              // elemId como varInt
+              let v = elemId;
+              while (true) {
+                let b = v & 0x7F; v >>>= 7;
+                if (v > 0) b |= 0x80;
+                body[off++] = b;
+                if (v === 0) break;
+              }
+              // skillInstanceUid como varInt
+              v = skillUid;
+              while (true) {
+                let b = v & 0x7F; v >>>= 7;
+                if (v > 0) b |= 0x80;
+                body[off++] = b;
+                if (v === 0) break;
+              }
+              sendMsg(ws, 5001, body.slice(0, off));
+            }, 500);
+          }
         },
 
         500: (m) => {
@@ -359,13 +392,32 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           const count = m.bl >= 2 ? m.body.readUInt16BE(0) : 0;
           log.dbg(`EmoteList: ${count} emote(s), ${m.bl} bytes`);
         },
-        951: (m) => {
+        951: (m, ws) => {
           // GameMapMovementMessage: respuesta del servidor al movimiento
           const keyCount = m.bl >= 2 ? m.body.readUInt16BE(0) : 0;
           const actorId = m.bl >= 2 + keyCount * 2 + 8
             ? m.body.readDoubleBE(2 + keyCount * 2) : 0;
           check('Movimiento aceptado', keyCount > 0,
             `${keyCount} keys, actorId=${actorId}`);
+
+          // Tras el movimiento, teletransportar a mapa con interactivos
+          setTimeout(() => {
+            const cmd = 'moveto 144931';
+            log.i(`→ AdminQuietCommandMessage: "${cmd}" (teletransporte a mapa con interactivos)`);
+            sendMsg(ws, 5662, serUTF(cmd));
+          }, 500);
+        },
+
+        // ===== Interacción con elementos =====
+        5745: (m) => {
+          // InteractiveUsedMessage: entidad usó un elemento interactivo
+          // entityId (varInt) + elemId (varInt) + skillId (varInt) + duration (varShort) + canMove (bool)
+          check('Elemento interactivo usado', m.bl > 0,
+            `${m.bl} bytes — ¡interacción aceptada por el servidor!`);
+        },
+        6112: (m) => {
+          // InteractiveUseEndedMessage: fin de uso del elemento
+          log.dbg(`InteractiveUseEnded: ${m.bl} bytes`);
         },
 
         // ===== Mensajes de configuración (ignorar) =====
@@ -404,6 +456,7 @@ setTimeout(() => {
     6231: 'ShortcutBarContent', 6267: 'TrustStatus',
     6339: 'CharCapabilities', 6341: 'AlmanachCalendar',
     6471: 'CharLoadingComplete', 951: 'GameMapMovement',
+    5745: 'InteractiveUsed', 6112: 'InteractiveUseEnded',
   };
 
   const sorted = Object.entries(stats.messagesReceived)
@@ -415,10 +468,12 @@ setTimeout(() => {
 
   // Mostrar datos del mapa si se recibieron
   if (stats.mapData) {
-    console.log(`\n📦 Datos del mapa ${stats.mapData.mapId}:`);
-    console.log(`   SubÁrea: ${stats.mapData.subAreaId}`);
-    console.log(`   Actores (NPCs/players): ${stats.mapData.actorCount}`);
-    console.log(`   Tamaño total: ${stats.mapData.totalBytes} bytes`);
+    for (const [mapId, data] of Object.entries(stats.mapData)) {
+      console.log(`\n📦 Datos del mapa ${mapId}:`);
+      console.log(`   SubÁrea: ${data.subAreaId}`);
+      console.log(`   Actores (NPCs/players): ${data.actorCount}`);
+      console.log(`   Tamaño total: ${data.totalBytes} bytes`);
+    }
   }
 
   console.log(`\n✅ Checks pasados: ${stats.checksPassed}`);
@@ -432,9 +487,10 @@ setTimeout(() => {
   const gotMap220 = stats.messagesReceived['220'] > 0;
   const gotStats = stats.messagesReceived['500'] > 0;
   const gotMovement = stats.messagesReceived['951'] > 0;
+  const gotInteractive = stats.messagesReceived['5745'] > 0;
 
-  if (gotContext200 && gotMap220 && gotMapData && gotMovement && stats.checksFailed === 0) {
-    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, datos del mapa y movimiento validados.');
+  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && stats.checksFailed === 0) {
+    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento e interacción validados.');
   } else if (gotContext200 && gotMap220 && gotMapData && !gotMovement) {
     console.log('⚠️  Movimiento NO validado. ¿El servidor respondió a GameMapMovementRequestMessage?');
   } else {
@@ -442,4 +498,4 @@ setTimeout(() => {
   }
 
   process.exit(stats.checksFailed > 0 ? 1 : 0);
-}, 15000);
+}, 25000);

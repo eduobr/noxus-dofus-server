@@ -180,7 +180,7 @@ class SpawnManager {
     {
         if (map.monsters.length > 0)
         {
-            var groupsLength = ConfigManager.configData.monsters.groups_per_map;
+            var groupsLength = (ConfigManager.configData.monsters && ConfigManager.configData.monsters.groups_per_map) || 0;
 
             while (groupsLength > 0)
             {

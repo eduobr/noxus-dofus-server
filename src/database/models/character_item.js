@@ -6,7 +6,6 @@ const ItemDiceEffect = require("../../game/item/item_dice_effect")
 const ItemEffectInteger = require("../../game/item/item_effect_integer")
 // Lazy require para romper ciclo con DBManager
 function getDBManager() { return require("../../database/dbmanager"); }
-var autoIncrement = require("mongodb-autoincrement");
 
 class CharacterItem {
 
@@ -69,9 +68,11 @@ class CharacterItem {
     create(callback) {
         var self = this;
         if(this._id == -1) {
-            autoIncrement.getNextSequence(getDBManager().db, "items_players_bags", function (err, autoIndex) {
+            getDBManager().getNextSequence("items_players_bags").then(autoIndex => {
                 self._id = autoIndex;
                 callback();
+            }).catch(err => {
+                callback(err);
             });
         }
         else{

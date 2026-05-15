@@ -1,15 +1,13 @@
 /**
- * Noxus Test Client v8
+ * Noxus Test Client v9
  * Cliente Node.js que completa login → personaje → mundo,
- * solicita datos del mapa, mueve el personaje y prueba
- * interacción con elementos interactivos.
+ * mueve el personaje, interactúa con elementos y prueba chat.
  *
  * Uso: node client-test.js
  *
- * Novedades v8:
- *   - Comando admin "moveto" (5662) para teletransporte a mapa 144931
- *   - InteractiveUseRequestMessage (5001) sobre elemento Teleport 415349
- *   - Valida InteractiveUsedMessage (5745) e InteractiveUseEndedMessage (6112)
+ * Novedades v9:
+ *   - ChatClientMultiMessage (861): envía mensaje de chat de prueba
+ *   - Valida ChatServerMessage (881) como eco del servidor
  *   - Helpers readVarShort/readVarInt para protocolo Dofus
  */
 
@@ -161,7 +159,7 @@ function createSocket(host, port, label, handlers) {
 // ===== MAIN =====
 
 console.log('\n╔══════════════════════════════╗');
-console.log('║   Noxus Test Client v8      ║');
+console.log('║   Noxus Test Client v9      ║');
 console.log('╚══════════════════════════════╝\n');
 
 // FASE 1: AUTH
@@ -415,9 +413,29 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           check('Elemento interactivo usado', m.bl > 0,
             `${m.bl} bytes — ¡interacción aceptada por el servidor!`);
         },
-        6112: (m) => {
+        6112: (m, ws) => {
           // InteractiveUseEndedMessage: fin de uso del elemento
           log.dbg(`InteractiveUseEnded: ${m.bl} bytes`);
+
+          // Enviar mensaje de chat de prueba
+          setTimeout(() => {
+            const msg = 'Hola desde client-test v9!';
+            log.i(`→ ChatClientMultiMessage: "${msg}"`);
+            const chan = 0; // channel 0 = general
+            sendMsg(ws, 861, Buffer.concat([serUTF(msg), Buffer.from([chan])]));
+          }, 300);
+        },
+
+        // ===== Chat =====
+        881: (m) => {
+          // ChatServerMessage: eco del chat desde el servidor
+          // channel(1) + content(UTF) + timestamp(int) + fingerprint(UTF) + senderId(double) + senderName(UTF) + accountId(int)
+          let off = 0;
+          const channel = m.body[off]; off += 1;
+          const contentLen = m.body.readUInt16BE(off); off += 2;
+          const content = m.body.slice(off, off + contentLen).toString('utf8'); off += contentLen;
+          check('Chat funcionando', content.length > 0,
+            `canal=${channel} mensaje="${content.substring(0, 40)}"`);
         },
 
         // ===== Mensajes de configuración (ignorar) =====
@@ -457,6 +475,7 @@ setTimeout(() => {
     6339: 'CharCapabilities', 6341: 'AlmanachCalendar',
     6471: 'CharLoadingComplete', 951: 'GameMapMovement',
     5745: 'InteractiveUsed', 6112: 'InteractiveUseEnded',
+    881: 'ChatServerMessage',
   };
 
   const sorted = Object.entries(stats.messagesReceived)
@@ -488,9 +507,10 @@ setTimeout(() => {
   const gotStats = stats.messagesReceived['500'] > 0;
   const gotMovement = stats.messagesReceived['951'] > 0;
   const gotInteractive = stats.messagesReceived['5745'] > 0;
+  const gotChat = stats.messagesReceived['881'] > 0;
 
-  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && stats.checksFailed === 0) {
-    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento e interacción validados.');
+  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && stats.checksFailed === 0) {
+    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción y chat validados.');
   } else if (gotContext200 && gotMap220 && gotMapData && !gotMovement) {
     console.log('⚠️  Movimiento NO validado. ¿El servidor respondió a GameMapMovementRequestMessage?');
   } else {

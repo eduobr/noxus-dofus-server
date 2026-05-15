@@ -1,4 +1,4 @@
-export default class NetworkMessage {
+class NetworkMessage {
 
     static BIT_RIGHT_SHIFT_LEN_PACKET_ID = 2;
     static BIT_MASK = 3;
@@ -69,3 +69,4 @@ export default class NetworkMessage {
         return packetLen;
     }
 }
+module.exports = NetworkMessage

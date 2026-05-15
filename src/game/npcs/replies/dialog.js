@@ -1,4 +1,4 @@
-export default class Dialog{
+class Dialog{
 
     static execute(character,npc,reply){
         if(reply.param1 != null){
@@ -11,3 +11,4 @@ export default class Dialog{
     }
 
 }
+module.exports = Dialog

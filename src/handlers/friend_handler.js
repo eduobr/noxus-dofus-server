@@ -1,22 +1,21 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import ConfigManager from "../utils/configmanager.js"
-import WorldServer from "../network/world"
-import AuthServer from "../network/auth"
-import PlayableBreedEnum from "../enums/playable_breed_enum"
-import Character from "../database/models/character"
-import WorldManager from "../managers/world_manager"
-import AccountFriend from "../database/models/account_friend"
-import FriendFailureEnum from "../enums/friend_failure_enum"
-import PlayerStateEnum from "../enums/player_state_enum"
-import IgnoredHandler from "../handlers/ignored_handler"
- 
- 
-export default class FriendHandler {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+const DBManager = require("../database/dbmanager")
+const ConfigManager = require("../utils/configmanager")
+// Lazy require para romper ciclo: world → world_client → processor → handlers → world
+function getWorldServer() { return require("../network/world"); }
+const AuthServer = require("../network/auth")
+const PlayableBreedEnum = require("../enums/playable_breed_enum")
+const Character = require("../database/models/character")
+const WorldManager = require("../managers/world_manager")
+const AccountFriend = require("../database/models/account_friend")
+const FriendFailureEnum = require("../enums/friend_failure_enum")
+const PlayerStateEnum = require("../enums/player_state_enum")
+const IgnoredHandler = require("../handlers/ignored_handler")
+class FriendHandler {
      
         static isAlreadyFriend(client, friendAccount)
         {
@@ -37,9 +36,9 @@ export default class FriendHandler {
                     client.character.replyText("Impossible de vous ajouter vous-même à votre liste.");
                     return;
                 }
-                var target = WorldServer.getOnlineClientByCharacterName(packet.name);
+                var target = getWorldServer().getOnlineClientByCharacterName(packet.name);
                 if (target == null)
-                    target = WorldServer.getOnlineClientByNickName(packet.name);
+                    target = getWorldServer().getOnlineClientByNickName(packet.name);
                  
                 if (target)
                 {
@@ -70,7 +69,7 @@ export default class FriendHandler {
             {
                 for (var i in client.account.friends)
                 {
-                    var friendCharacter = WorldServer.getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
+                    var friendCharacter = getWorldServer().getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
                     if (friendCharacter)
                     {
                         var state = PlayerStateEnum.UNKNOWN_STATE;
@@ -159,7 +158,7 @@ export default class FriendHandler {
             {
                  for (var i in client.account.friends)
                 {
-                    var character = WorldServer.getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
+                    var character = getWorldServer().getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
                     if (character)
                     {
                         FriendHandler.sendFriendsList(character.client);
@@ -179,7 +178,7 @@ export default class FriendHandler {
         {
             if (client.account.friends) {
                 for (var i in client.account.friends) {
-                    var friendCharacter = WorldServer.getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
+                    var friendCharacter = getWorldServer().getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
                     if (friendCharacter) {
                         if (friendCharacter.client.account.warnOnConnection == true && FriendHandler.isAlreadyFriend(friendCharacter.client, client.account))
                             friendCharacter.client.send(new Messages.TextInformationMessage(0, 143, [client.account.nickname, client.character.name, client.character._id]));
@@ -202,3 +201,4 @@ export default class FriendHandler {
             }
         }
 }
+module.exports = FriendHandler

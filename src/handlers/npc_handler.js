@@ -1,7 +1,6 @@
 
-import DataCenter from "../database/datacenter"
-
-export default class NpcHandler {
+const DataCenter = require("../database/datacenter")
+class NpcHandler {
 
     static handleNpcGenericActionRequestMessage(client, packet) {
         var npcs = client.character.getMap().getNpcMap(packet.npcId);
@@ -34,3 +33,4 @@ export default class NpcHandler {
         }
     }
 }
+module.exports = NpcHandler

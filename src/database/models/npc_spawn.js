@@ -1,7 +1,7 @@
-import NpcBuySell from "../../game/npcs/actions/npcBuySell"
-import NpcTalk from "../../game/npcs/actions/npcTalk"
-import Datacenter from "../../database/datacenter"
-export default class NpcSpawn {
+const NpcBuySell = require("../../game/npcs/actions/npcBuySell")
+const NpcTalk = require("../../game/npcs/actions/npcTalk")
+function getDC() { return require("../../database/datacenter"); }
+class NpcSpawn {
 
 
     static handlerAction =
@@ -27,7 +27,7 @@ export default class NpcSpawn {
         if (replies != null) {
             this.currentMessage = replies.messageId;
         }
-        var items = Datacenter.getNpcItems(this.npcId);
+        var items = getDC().getNpcItems(this.npcId);
 
         if (items.length > 0) {
             for (var i in items) {
@@ -38,7 +38,7 @@ export default class NpcSpawn {
     }
 
     getReplies(messageId) {
-        return Datacenter.getNpcReplies(messageId);
+        return getDC().getNpcReplies(messageId);
     }
 
     open(character, action) {
@@ -96,3 +96,4 @@ export default class NpcSpawn {
 
 
 }
+module.exports = NpcSpawn

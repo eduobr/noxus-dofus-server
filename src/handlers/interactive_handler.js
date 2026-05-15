@@ -1,13 +1,12 @@
 
-import * as Messages from "../io/dofus/messages"
-import Logger from "../io/logger"
-import Datacenter from "../database/datacenter"
-import WorldManager from "../managers/world_manager"
-import ConfigManager from "../utils/configmanager.js"
-import ZaapDialog from "../game/dialog/zaap_dialog.js"
-import ZaapiDialog from "../game/dialog/zaapi_dialog.js"
-
-export default class InteractiveHandler {
+const Messages = require("../io/dofus/messages")
+const Logger = require("../io/logger")
+const Datacenter = require("../database/datacenter")
+const WorldManager = require("../managers/world_manager")
+const ConfigManager = require("../utils/configmanager")
+const ZaapDialog = require("../game/dialog/zaap_dialog")
+const ZaapiDialog = require("../game/dialog/zaapi_dialog")
+class InteractiveHandler {
 
     static ActionInteractive  =
     {
@@ -138,3 +137,4 @@ export default class InteractiveHandler {
         }
     }
 }
+module.exports = InteractiveHandler

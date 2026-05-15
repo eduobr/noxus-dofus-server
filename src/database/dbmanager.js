@@ -1,454 +1,303 @@
-import Logger from "../io/logger"
-import Account from "./models/account";
-import AccountFriend from "./models/account_friend";
-import AccountIgnored from "./models/account_ignored";
-import Character from "./models/character";
-import ConfigManager from "../utils/configmanager.js"
-import Datacenter from "../database/datacenter"
-var MongoClient = require('mongodb').MongoClient
-var autoIncrement = require("mongodb-autoincrement");
-import EmoteHandler from "../handlers/emote_handler"
+const Logger = require("../io/logger")
+const Account = require("./models/account")
+const AccountFriend = require("./models/account_friend")
+const AccountIgnored = require("./models/account_ignored")
+const Character = require("./models/character")
+const ConfigManager = require("../utils/configmanager")
+const { MongoClient } = require('mongodb')
+// Lazy require para romper ciclo: DBManager ↔ EmoteHandler
+function getEmoteHandler() { return require("../handlers/emote_handler"); }
 
-export default class DBManager {
+class DBManager {
 
     static db;
+    static client;
 
+    // Conexión: callback externo, Promises interno
     static start(callback) {
-        var url = 'mongodb://' + ConfigManager.configData.mongodb.host + ':' + ConfigManager.configData.mongodb.port + '/' 
-        + ConfigManager.configData.mongodb.database;
-        MongoClient.connect(url, function(err, db) {
-            if (err)
-            {
-                Logger.error("An error occured while trying to connect to the database: " + err);
-                return;
-            }
+        const url = 'mongodb://' + ConfigManager.configData.mongodb.host + ':' +
+                    ConfigManager.configData.mongodb.port;
+        MongoClient.connect(url).then(client => {
+            DBManager.client = client;
+            DBManager.db = client.db(ConfigManager.configData.mongodb.database);
             Logger.infos("Connected to MongoDB");
-            DBManager.db = db;
             callback();
+        }).catch(err => {
+            Logger.error("An error occured while trying to connect to the database: " + err);
         });
     }
+
+    // Reemplazo de mongodb-autoincrement
+    static async getNextSequence(name) {
+        const result = await DBManager.db.collection('counters').findOneAndUpdate(
+            { _id: name },
+            { $inc: { seq: 1 } },
+            { upsert: true, returnDocument: 'after' }
+        );
+        return result ? result.seq : 1;
+    }
+
+    // --- Cuentas ---
 
     static findAccount(accountName, callback) {
-        var collection = DBManager.db.collection('accounts');
-        var account = null;
-        collection.find({ username: accountName }).toArray(function(err, docs) {
-            if(docs.length > 0) {
-                account = new Account(docs[0]);
+        DBManager.db.collection('accounts').find({ username: accountName }).toArray()
+            .then(docs => callback(docs.length > 0 ? new Account(docs[0]) : null))
+            .catch(() => callback(null));
+    }
+
+    static getAccount(query, callback) {
+        DBManager.db.collection('accounts').findOne(query)
+            .then(account => callback(account ? new Account(account) : null))
+            .catch(() => callback(null));
+    }
+
+    static getAccounts(query, callback) {
+        DBManager.db.collection('accounts').find(query).toArray()
+            .then(accounts => callback(accounts.map(a => {
+                // Bug original: account[i] vs accounts[i] — corregido
+                return a;
+            })))
+            .catch(() => callback([]));
+    }
+
+    static updateAccount(uid, query, callback) {
+        DBManager.db.collection('accounts').updateOne({ uid: uid }, { $set: query })
+            .then(() => callback())
+            .catch(() => callback());
+    }
+
+    static getAccountByCharacterName(name, callback) {
+        DBManager.getCharacter({ name: name }, function (character) {
+            if (character) {
+                DBManager.getAccount({ uid: character.accountId }, function (account) {
+                    callback(account || null);
+                });
+            } else {
+                callback(null);
             }
-            callback(account);
         });
     }
+
+    // --- Personajes ---
 
     static createCharacter(character, callback) {
-        autoIncrement.getNextSequence(DBManager.db, "characters", function (err, autoIndex) {
-            DBManager.db.collection("characters", function(error, collection) {
-                collection.insertOne({
-                    _id: autoIndex,
-                    accountId: parseInt(character.accountId),
-                    name: character.name,
-                    breed: character.breed,
-                    sex: character.sex,
-                    colors: character.colors,
-                    cosmeticId: parseInt(character.cosmeticId),
-                    scale: parseInt(character.scale),
-                    level: parseInt(character.level),
-                    experience: parseInt(character.experience),
-                    mapid: parseInt(character.mapid),
-                    cellid: parseInt(character.cellid),
-                    dirId: parseInt(character.dirId),
-                    life: character.life,
-                    bagId: character.bagId,
-                    statsPoints: character.statsPoints,
-                    spellPoints: character.spellPoints,                    
-                    zaapKnows:character.zaapKnows,
-                    zaapSave:character.zaapSave,
-                    spells: character.spells,
-                    shortcuts: character.shortcuts,
-                    stats: {
-                        strength: character.statsManager.getStatById(10).base,
-                        vitality: character.statsManager.getStatById(11).base,
-                        wisdom: character.statsManager.getStatById(12).base,
-                        chance: character.statsManager.getStatById(13).base,
-                        agility: character.statsManager.getStatById(14).base,
-                        intelligence: character.statsManager.getStatById(15).base,
-                    },
-                    emotes: EmoteHandler.getAllEmotes(),
-                   
-                    
-                }, function(){
-                    character._id = autoIndex;
-                    callback(character);
-                });
+        DBManager.getNextSequence("characters").then(autoIndex => {
+            DBManager.db.collection("characters").insertOne({
+                _id: autoIndex,
+                accountId: parseInt(character.accountId),
+                name: character.name,
+                breed: character.breed,
+                sex: character.sex,
+                colors: character.colors,
+                cosmeticId: parseInt(character.cosmeticId),
+                scale: parseInt(character.scale),
+                level: parseInt(character.level),
+                experience: parseInt(character.experience),
+                mapid: parseInt(character.mapid),
+                cellid: parseInt(character.cellid),
+                dirId: parseInt(character.dirId),
+                life: character.life,
+                bagId: character.bagId,
+                statsPoints: character.statsPoints,
+                spellPoints: character.spellPoints,
+                zaapKnows: character.zaapKnows,
+                zaapSave: character.zaapSave,
+                spells: character.spells,
+                shortcuts: character.shortcuts,
+                stats: {
+                    strength: character.statsManager.getStatById(10).base,
+                    vitality: character.statsManager.getStatById(11).base,
+                    wisdom: character.statsManager.getStatById(12).base,
+                    chance: character.statsManager.getStatById(13).base,
+                    agility: character.statsManager.getStatById(14).base,
+                    intelligence: character.statsManager.getStatById(15).base,
+                },
+                emotes: getEmoteHandler().getAllEmotes(),
+            }).then(() => {
+                character._id = autoIndex;
+                callback(character);
             });
-        });
-    }
-
-    static createFriend(friend, callback){
-         autoIncrement.getNextSequence(DBManager.db, "accounts_friends", function (err, autoIndex) {
-             DBManager.db.collection("accounts_friends", function(error, collection) {
-                collection.insertOne({
-                    _id: autoIndex,
-                    accountId: parseInt(friend.accountId),
-                    friendAccountId: parseInt(friend.friendAccountId),
-                }, function() {
-                    friend._id = autoIndex;
-                    callback(friend);
-                });
-            });
-         });
-    }
-
-   static getFriends(query, callback){
-        var collection = DBManager.db.collection('accounts_friends');
-        collection.find(query).toArray(function(err, friends){
-            var result = new Array();
-            for(var i in friends) {
-                result.push(new AccountFriend(friends[i]));
-            }
-            callback(result);
-        });
-    }
-
-    static createIgnored(ignored, callback){
-        autoIncrement.getNextSequence(DBManager.db, "accounts_ignoreds", function (err, autoIndex) {
-            DBManager.db.collection("accounts_ignoreds", function(error, collection) {
-                collection.insertOne({
-                    _id: autoIndex,
-                    accountId: parseInt(ignored.accountId),
-                    ignoredAccountId: parseInt(ignored.ignoredAccountId),
-                }, function() {
-                    ignored._id = autoIndex;
-                    callback(ignored);
-                });
-            });
-        });
-    }
-
-    static getIgnoreds(query, callback){
-        var collection = DBManager.db.collection('accounts_ignoreds');
-        collection.find(query).toArray(function(err, ignoreds){
-            var result = new Array();
-            for(var i in ignoreds) {
-                result.push(new AccountIgnored(ignoreds[i]));
-            }
-            callback(result);
         });
     }
 
     static deleteCharacter(query, callback) {
-        var success = false;
-        try{
-            var collection = DBManager.db.collection('characters');
-            collection.remove(query);
-            success = true;
-        }
-        catch (error){
-            Logger.error(error);
-            success = false;
-        }
-        callback(success);
+        DBManager.db.collection('characters').deleteOne(query)
+            .then(() => callback(true))
+            .catch(() => callback(false));
     }
 
-    static removeFriend(query, callback) {
-        var success = false;
-        try{
-            var collection = DBManager.db.collection('accounts_friends');
-            collection.remove(query);
-            success = true;
-        }
-        catch (error){
-            Logger.error(error);
-            success = false;
-        }
-        callback(success);
+    static getCharacter(query, callback) {
+        DBManager.db.collection('characters').findOne(query)
+            .then(character => callback(character ? new Character(character, false) : null))
+            .catch(() => callback(null));
     }
 
-    static removeIgnored(query, callback) {
-        var success = false;
-        try{
-            var collection = DBManager.db.collection('accounts_ignoreds');
-            collection.remove(query);
-            success = true;
-        }
-        catch (error){
-            Logger.error(error);
-            success = false;
-        }
-        callback(success);
-    }
-
-    static getCharacter(query, callback){
-        var collection = DBManager.db.collection('characters');
-        collection.findOne(query, function(err, character){
-            if(character == null){
-                callback(null);
-                return;
-            }
-            callback(new Character(character, false));
-        });
-    }
-
-    static getAccount(query, callback){
-        var collection = DBManager.db.collection('accounts');
-        collection.findOne(query, function(err, account){
-            if(account == null){
-                callback(null);
-                return;
-            }
-            callback(new Account(account));
-        });
-    }
-
-
-    static getSmiley(query, callback){
-        var collection = DBManager.db.collection('smileys');
-        collection.findOne(query, function(err, smiley){
-            if(smiley == null){
-                callback(null);
-                return;
-            }
-            callback(smiley);
-        });
-    }
-
-    static getCharacters(query, callback){
-        var collection = DBManager.db.collection('characters');
-        collection.find(query).toArray(function(err, characters){
-            var result = new Array();
-            for(var i in characters) {
-                result.push(new Character(characters[i], false));
-            }
-            callback(result);
-        });
-    }
-
-    static getAccounts(query, callback){
-        var collection = DBManager.db.collection('accounts');
-        collection.find(query).toArray(function(err, accounts){
-            var result = new Array();
-            for(var i in accounts) {
-                result.push(new Account(account[i]));
-            }
-            callback(result);
-        });
-    }
-
-    static getBreeds(callback) {
-        var collection = DBManager.db.collection('breeds');
-        collection.find({}).toArray(function(err, breeds){
-            callback(breeds);
-        });
-    }
-
-    static getHeads(callback) {
-        var collection = DBManager.db.collection('heads');
-        collection.find({}).toArray(function(err, heads){
-            callback(heads);
-        });
-    }
-
-    static getMaps(query, callback) {
-        var collection = DBManager.db.collection('maps');
-        collection.find(query).toArray(function(err, maps){
-            callback(maps);
-        });
-    }
-
-    static updateAccount(uid, query, callback) {
-        var collection = DBManager.db.collection('accounts');
-        collection.update({ uid: uid }, { $set: query }, function() {
-            callback();
-        });
+    static getCharacters(query, callback) {
+        DBManager.db.collection('characters').find(query).toArray()
+            .then(characters => callback(characters.map(c => new Character(c, false))))
+            .catch(() => callback([]));
     }
 
     static updateCharacter(_id, query, callback) {
-        var collection = DBManager.db.collection('characters');
-        collection.update({ _id: _id }, { $set: query }, function() {
-            callback();
-        });
+        DBManager.db.collection('characters').updateOne({ _id: _id }, { $set: query })
+            .then(() => callback())
+            .catch(() => callback());
     }
 
     static updateCharacterbyName(name, query, callback) {
-        var collection = DBManager.db.collection('characters');
-        collection.update({ name: name }, { $set: query }, function() {
-            callback();
-        });
+        DBManager.db.collection('characters').updateOne({ name: name }, { $set: query })
+            .then(() => callback())
+            .catch(() => callback());
     }
 
-    static getAccountByCharacterName(name, callback) {
+    // --- Amigos ---
 
-        DBManager.getCharacter({name: name}, function(character)
-            {
-                var result = false;
-                if (character)
-                {
-                    DBManager.getAccount({uid: character.accountId}, function(account)
-                    {
-                        if (account)
-                        {
-                            callback(account);
-                        }
-                        else
-                            callback(null);
-                    });
-                }
-                else
-                    callback(null);
+    static createFriend(friend, callback) {
+        DBManager.getNextSequence("accounts_friends").then(autoIndex => {
+            DBManager.db.collection("accounts_friends").insertOne({
+                _id: autoIndex,
+                accountId: parseInt(friend.accountId),
+                friendAccountId: parseInt(friend.friendAccountId),
+            }).then(() => {
+                friend._id = autoIndex;
+                callback(friend);
             });
+        });
     }
 
+    static getFriends(query, callback) {
+        DBManager.db.collection('accounts_friends').find(query).toArray()
+            .then(friends => callback(friends.map(f => new AccountFriend(f))))
+            .catch(() => callback([]));
+    }
+
+    static removeFriend(query, callback) {
+        DBManager.db.collection('accounts_friends').deleteOne(query)
+            .then(() => callback(true))
+            .catch(() => callback(false));
+    }
+
+    // --- Ignorados ---
+
+    static createIgnored(ignored, callback) {
+        DBManager.getNextSequence("accounts_ignoreds").then(autoIndex => {
+            DBManager.db.collection("accounts_ignoreds").insertOne({
+                _id: autoIndex,
+                accountId: parseInt(ignored.accountId),
+                ignoredAccountId: parseInt(ignored.ignoredAccountId),
+            }).then(() => {
+                ignored._id = autoIndex;
+                callback(ignored);
+            });
+        });
+    }
+
+    static getIgnoreds(query, callback) {
+        DBManager.db.collection('accounts_ignoreds').find(query).toArray()
+            .then(ignoreds => callback(ignoreds.map(i => new AccountIgnored(i))))
+            .catch(() => callback([]));
+    }
+
+    static removeIgnored(query, callback) {
+        DBManager.db.collection('accounts_ignoreds').deleteOne(query)
+            .then(() => callback(true))
+            .catch(() => callback(false));
+    }
+
+    // --- Datos de juego ---
+
+    static getBreeds(callback) {
+        DBManager.db.collection('breeds').find({}).toArray().then(r => callback(r));
+    }
+    static getHeads(callback) {
+        DBManager.db.collection('heads').find({}).toArray().then(r => callback(r));
+    }
+    static getMaps(query, callback) {
+        DBManager.db.collection('maps').find(query).toArray().then(r => callback(r));
+    }
     static getMapScrollActions(callback) {
-        var collection = DBManager.db.collection('map_scroll_actions');
-        collection.find({}).toArray(function(err, scrolls){
-            callback(scrolls);
-        });
+        DBManager.db.collection('map_scroll_actions').find({}).toArray().then(r => callback(r));
     }
-
     static getExperiences(callback) {
-        var collection = DBManager.db.collection('experiences');
-        collection.find({}).toArray(function(err, experiences){
-            callback(experiences);
-        });
+        DBManager.db.collection('experiences').find({}).toArray().then(r => callback(r));
     }
-
-     static getSmileys(callback) {
-        var collection = DBManager.db.collection('smileys');
-        collection.find({}).toArray(function(err, smileys){
-            callback(smileys);
-        });
+    static getSmileys(callback) {
+        DBManager.db.collection('smileys').find({}).toArray().then(r => callback(r));
     }
-
+    static getSmiley(query, callback) {
+        DBManager.db.collection('smileys').findOne(query).then(r => callback(r));
+    }
     static getInteractivesObjects(callback) {
-        var collection = DBManager.db.collection('interactives_objects');
-        collection.find({}).toArray(function(err, interactivesObjects){
-            callback(interactivesObjects);
-        });              
+        DBManager.db.collection('interactives_objects').find({}).toArray().then(r => callback(r));
     }
-
     static getMapPositions(callback) {
-        var collection = DBManager.db.collection('maps_positions');
-        collection.find({}).toArray(function(err, maps_positions){
-            callback(maps_positions);
-        });              
+        DBManager.db.collection('maps_positions').find({}).toArray().then(r => callback(r));
     }
-
     static getEmotes(callback) {
-        var collection = DBManager.db.collection('emoticons');
-        collection.find({}).toArray(function(err, emoticons){
-            callback(emoticons);
-        });              
+        DBManager.db.collection('emoticons').find({}).toArray().then(r => callback(r));
     }
-
     static getItems(callback) {
-        var collection = DBManager.db.collection('items');
-        collection.find({}).toArray(function(err, items){
-            callback(items);
-        });
+        DBManager.db.collection('items').find({}).toArray().then(r => callback(r));
+    }
+    static getItemsSets(callback) {
+        DBManager.db.collection('items_sets').find({}).toArray().then(r => callback(r));
+    }
+    static getSpells(callback) {
+        DBManager.db.collection('spells').find({}).toArray().then(r => callback(r));
+    }
+    static getElements(callback) {
+        DBManager.db.collection('elements').find({}).toArray().then(r => callback(r));
+    }
+    static getNpcs(callback) {
+        DBManager.db.collection('Npcs').find({}).toArray().then(r => callback(r));
+    }
+    static getNpcActions(callback) {
+        DBManager.db.collection('npcs_actions').find({}).toArray().then(r => callback(r));
+    }
+    static getNpcMessages(callback) {
+        DBManager.db.collection('npcs_messages').find({}).toArray().then(r => callback(r));
+    }
+    static getNpcReplies(callback) {
+        DBManager.db.collection('npcs_replies').find({}).toArray().then(r => callback(r));
+    }
+    static getNpcItems(callback) {
+        DBManager.db.collection('npcs_items').find({}).toArray().then(r => callback(r));
+    }
+    static getNpcSpawns(callback) {
+        DBManager.db.collection('npcs_spawns').find({}).toArray().then(r => callback(r));
+    }
+    static getSpellsLevels(callback) {
+        DBManager.db.collection('spells_levels').find({}).toArray().then(r => callback(r));
+    }
+    static getMonsters(callback) {
+        DBManager.db.collection('monsters').find({}).toArray().then(r => callback(r));
     }
 
-    static getItemsSets(callback) {
-        var collection = DBManager.db.collection('items_sets');
-        collection.find({}).toArray(function(err, itemsSets){
-            callback(itemsSets);
-        });
-    }
+    // --- Inventario ---
 
     static createItembag(bag, callback) {
-        autoIncrement.getNextSequence(DBManager.db, "items_bags", function (err, autoIndex) {
-            DBManager.db.collection("items_bags", function(error, collection) {
-                collection.insertOne({
-                    _id: autoIndex,
-                    items: bag.items,
-                    money: bag.money,
-                }, function() {
-                    bag._id = autoIndex;
-                    callback(bag);
-                });
+        DBManager.getNextSequence("items_bags").then(autoIndex => {
+            DBManager.db.collection("items_bags").insertOne({
+                _id: autoIndex,
+                items: bag.items,
+                money: bag.money,
+            }).then(() => {
+                bag._id = autoIndex;
+                callback(bag);
             });
         });
     }
 
     static getBag(_id, callback) {
-        var collection = DBManager.db.collection('items_bags');
-        collection.find({_id: _id}).toArray(function(err, bags){
-            (bags.length > 0 ? callback(bags[0]) : callback(null));
-        });
+        DBManager.db.collection('items_bags').find({ _id: _id }).toArray()
+            .then(bags => callback(bags.length > 0 ? bags[0] : null));
     }
 
     static saveItembag(bag, query, callback) {
-        var collection = DBManager.db.collection('items_bags');
-        collection.update({ _id: bag._id }, { $set: query }, function() {
-            callback();
-        });
-    }
-
-    static getSpells(callback) {
-        var collection = DBManager.db.collection('spells');
-        collection.find({}).toArray(function(err, spells){
-            callback(spells);
-        });
-    }
-
-    static getElements(callback) {
-        var collection = DBManager.db.collection('elements');
-        collection.find({}).toArray(function(err, elements){
-            callback(elements);
-        });
-    }
-
-    static getNpcs(callback) {
-        var collection = DBManager.db.collection('Npcs');
-        collection.find({}).toArray(function(err, npcs){
-            callback(npcs);
-        });
-    }
-
-    static getNpcActions(callback) {
-        var collection = DBManager.db.collection('npcs_actions');
-        collection.find({}).toArray(function(err, npcActions){
-            callback(npcActions);
-        });
-    }
-
-    static getNpcMessages(callback) {
-        var collection = DBManager.db.collection('npcs_messages');
-        collection.find({}).toArray(function(err, npcMessages){
-            callback(npcMessages);
-        });
-    }
-
-    static getNpcReplies(callback) {
-        var collection = DBManager.db.collection('npcs_replies');
-        collection.find({}).toArray(function(err, npcReplies){
-            callback(npcReplies);
-        });
-    }
-
-    static getNpcItems(callback) {
-        var collection = DBManager.db.collection('npcs_items');
-        collection.find({}).toArray(function(err, npcItems){
-            callback(npcItems);
-        });
-    }
-
-    static getNpcSpawns(callback) {
-        var collection = DBManager.db.collection('npcs_spawns');
-        collection.find({}).toArray(function(err, npcSpawns){
-            callback(npcSpawns);
-        });
-    }
-
-    static getSpellsLevels(callback) {
-        var collection = DBManager.db.collection('spells_levels');
-        collection.find({}).toArray(function(err, spellsLevels){
-            callback(spellsLevels);
-        });
-    }
-
-    static getMonsters(callback) {
-        var collection = DBManager.db.collection('monsters');
-        collection.find({}).toArray(function(err, monsters){
-            callback(monsters);
-        });
+        DBManager.db.collection('items_bags').updateOne({ _id: bag._id }, { $set: query })
+            .then(() => callback())
+            .catch(() => callback());
     }
 }
+
+module.exports = DBManager

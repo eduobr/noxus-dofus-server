@@ -1,11 +1,10 @@
-import AuthServer from "./network/auth"
-import WorldServer from "./network/world"
-import ConfigManager from "./utils/configmanager.js"
-import Logger from "./io/logger"
-import DBManager from "./database/dbmanager"
-import Datacenter from "./database/datacenter"
-import Common from "./common"
-
+const AuthServer = require("./network/auth")
+const WorldServer = require("./network/world")
+const ConfigManager = require("./utils/configmanager")
+const Logger = require("./io/logger")
+const DBManager = require("./database/dbmanager")
+const Datacenter = require("./database/datacenter")
+const Common = require("./common")
 class App {
 
     constructor() {

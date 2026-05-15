@@ -1,8 +1,7 @@
-import ItemDiceEffect from "./item_dice_effect"
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-
-export default class ItemEffectInteger extends ItemDiceEffect {
+const ItemDiceEffect = require("./item_dice_effect")
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+class ItemEffectInteger extends ItemDiceEffect {
 
     constructor(value, effectId, effectType) {
         super(effectId, effectType)
@@ -14,3 +13,4 @@ export default class ItemEffectInteger extends ItemDiceEffect {
     }
 
 }
+module.exports = ItemEffectInteger

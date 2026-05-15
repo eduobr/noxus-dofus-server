@@ -1,9 +1,8 @@
-import Buff from "../buff"
-import * as Messages from "../../../io/dofus/messages"
-import * as Types from "../../../io/dofus/types"
-import InvisbilityStateEnum from "../../../enums/invisibility_state_enum"
-
-export default class InvisiblityBuff extends Buff {
+const Buff = require("../buff")
+const Messages = require("../../../io/dofus/messages")
+const Types = require("../../../io/dofus/types")
+const InvisbilityStateEnum = require("../../../enums/invisibility_state_enum")
+class InvisiblityBuff extends Buff {
 
     static displayId = 133;
 
@@ -40,3 +39,5 @@ export default class InvisiblityBuff extends Buff {
     }
 
 }
+
+module.exports = InvisiblityBuff

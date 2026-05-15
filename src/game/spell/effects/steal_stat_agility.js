@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import AddStatAgilityBuff from "../buffs/add_stat_agility_buff"
-import RemoveStatAgilityBuff from "../buffs/remove_stat_agility_buff"
-
-export default class stealStatAgility {
+const Basic = require("../../../utils/basic")
+const AddStatAgilityBuff = require("../buffs/add_stat_agility_buff")
+const RemoveStatAgilityBuff = require("../buffs/remove_stat_agility_buff")
+class stealStatAgility {
 
     static effectId = 268;
 

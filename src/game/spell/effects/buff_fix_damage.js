@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddDamageFixBuff from "../buffs/add_damage_fix_buff"
-
-export default class BuffFixDamage {
+const Basic = require("../../../utils/basic")
+const AddDamageFixBuff = require("../buffs/add_damage_fix_buff")
+class BuffFixDamage {
 
     static effectId = 112;
 

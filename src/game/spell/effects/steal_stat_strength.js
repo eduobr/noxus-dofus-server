@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import addStatStrengthBuff from "../buffs/add_stat_strength_buff"
-import RemoveStatStrengthBuff from "../buffs/remove_stat_strength_buff"
-
-export default class stealStatStrength {
+const Basic = require("../../../utils/basic")
+const addStatStrengthBuff = require("../buffs/add_stat_strength_buff")
+const RemoveStatStrengthBuff = require("../buffs/remove_stat_strength_buff")
+class stealStatStrength {
 
     static effectId = 271;
 

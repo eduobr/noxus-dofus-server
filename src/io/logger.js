@@ -1,24 +1,24 @@
-require('colors');
-import Common from "../common"
+const chalk = require('chalk');
+const Common = require("../common")
 
-export default class Logger {
+class Logger {
 
     static level = 1;
 
     static drawAscii() {
         var v = "ALPHA VERSION v" + Common.NOXUS_VERSION.major + "." + Common.NOXUS_VERSION.minor;
-        console.log("    _   _                     ".cyan);
-        console.log("   | \\ | |                    ".cyan);
-        console.log("   |  \\| | _____  ___   _ ___ ".cyan);
-        console.log("   | . ` |/ _ \\ \\/ / | | / __|".cyan + "    Emulator for Dofus 2.39".yellow);
-        console.log("   | |\\  | (_) >  <| |_| \\__ \\".cyan + "    By Yuki, Arkalius and Yamisaaf".yellow);
-        console.log("   \\_| \\_/\\___/_/\\_\\\\__,_|___/".cyan + "    " + v.red);
-        console.log(" _________________________________________________________________ \n".yellow)
-
+        console.log(chalk.cyan("    _   _                     "));
+        console.log(chalk.cyan("   | \\ | |                    "));
+        console.log(chalk.cyan("   |  \\| | _____  ___   _ ___ "));
+        console.log(chalk.cyan("   | . ` |/ _ \\ \\/ / | | / __|") + chalk.yellow("    Emulator for Dofus 2.39"));
+        console.log(chalk.cyan("   | |\\  | (_) >  <| |_| \\__ \\") + chalk.yellow("    By Yuki, Arkalius and Yamisaaf"));
+        console.log(chalk.cyan("   \\_| \\_/\\___/_/\\_\\\\__,_|___/") + chalk.red("    " + v));
+        console.log(chalk.yellow(" _________________________________________________________________ \n"));
     }
 
     static log(color, header, message) {
-        console.log("[" + header[color] + "]" + " : " + message.toString().white);
+        const coloredHeader = chalk[color] ? chalk[color](header) : header;
+        console.log("[" + coloredHeader + "]" + " : " + message);
     }
 
     static infos(message) {
@@ -41,3 +41,5 @@ export default class Logger {
         Logger.log("yellow", "WARNING", message);
     }
 }
+
+module.exports = Logger

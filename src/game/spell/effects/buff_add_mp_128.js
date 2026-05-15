@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddMPBuff from "../buffs/add_mp_buff"
-
-export default class BuffAddMP128 {
+const Basic = require("../../../utils/basic")
+const AddMPBuff = require("../buffs/add_mp_buff")
+class BuffAddMP128 {
 
     static effectId = 128;
 

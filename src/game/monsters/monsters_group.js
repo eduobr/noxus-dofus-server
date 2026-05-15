@@ -1,12 +1,11 @@
-import MonstersManager from "./monsters_manager"
-import Monster from "./monster"
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-import Basic from "../../utils/basic"
-import Logger from "../../io/logger"
-import MapPoint from "../pathfinding/map_point"
-
-export default class MonstersGroup {
+const MonstersManager = require("./monsters_manager")
+const Monster = require("./monster")
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+const Basic = require("../../utils/basic")
+const Logger = require("../../io/logger")
+const MapPoint = require("../pathfinding/map_point")
+class MonstersGroup {
 
     constructor(monsters, map, cellId) {
         this.id = map.getNextMonsterGroupsId();
@@ -67,3 +66,4 @@ export default class MonstersGroup {
         return new Types.GroupMonsterStaticInformations(this.monsters[0].getLightInformations(), monsters);
     }
 }
+module.exports = MonstersGroup

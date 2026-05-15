@@ -1,9 +1,8 @@
 var net = require('net');
-import Logger from "../io/logger"
-import WorldClient from "./world_client"
-import * as Messages from "../io/dofus/messages"
-
-export default class WorldServer {
+const Logger = require("../io/logger")
+const WorldClient = require("./world_client")
+const Messages = require("../io/dofus/messages")
+class WorldServer {
 
     static clients = [];
 
@@ -128,3 +127,4 @@ export default class WorldServer {
         return null;
     }
 }
+module.exports = WorldServer

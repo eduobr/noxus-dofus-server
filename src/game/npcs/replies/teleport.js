@@ -1,6 +1,5 @@
-import WorldManager from "../../../managers/world_manager"
-
-export default class Teleport {
+const WorldManager = require("../../../managers/world_manager")
+class Teleport {
 
     static execute(character, npc, reply) {
         if (reply.param1 != null && reply.param2 != null) {
@@ -15,3 +14,4 @@ export default class Teleport {
     }
 
 }
+module.exports = Teleport

@@ -1,4 +1,4 @@
-export default class DataMapProvider {
+class DataMapProvider {
 
     constructor(map) {
         this.map = map;
@@ -23,3 +23,4 @@ export default class DataMapProvider {
         return this.map.cells;
     }
 }
+module.exports = DataMapProvider

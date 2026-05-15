@@ -1,13 +1,13 @@
-import Datacenter from "../database/datacenter"
-import FriendHandler from "../handlers/friend_handler"
-import * as Messages from "../io/dofus/messages"
-import GameHandler from "../handlers/game_handler"
-import Logger from "../io/logger"
-import SpellManager from "../game/spell/spell_manager"
-import WorldServer from "../network/world"
-import * as Types from "../io/dofus/types"
-
-export default class CharacterManager {
+const Datacenter = require("../database/datacenter")
+const Messages = require("../io/dofus/messages")
+const Logger = require("../io/logger")
+const SpellManager = require("../game/spell/spell_manager")
+// Lazy requires para romper ciclos con network y handlers
+function getWorldServer() { return require("../network/world"); }
+function getFriendHandler() { return require("../handlers/friend_handler"); }
+function getGameHandler() { return require("../handlers/game_handler"); }
+const Types = require("../io/dofus/types")
+class CharacterManager {
 
     static getBreed(breedId) {
         for (var i in Datacenter.breeds) {
@@ -102,22 +102,22 @@ export default class CharacterManager {
             character.exchange.close();
         else if (character.invitation != null)
         {
-            var party = WorldServer.getPartyById(character.invitation.party.id);
+            var party = getWorldServer().getPartyById(character.invitation.party.id);
             if (party)
             {
                 if (party.isInParty(character))
                     party.removeMember(character, true);
             }
         }
-        try { FriendHandler.sendFriendDisconnect(character.client); } catch (error) { Logger.error(error); }
+        try { getFriendHandler().sendFriendDisconnect(character.client); } catch (error) { Logger.error(error); }
         try { character.save(); } catch (error) { Logger.error(error); }
     }
 
     static onConnected(character)
     {
-        GameHandler.sendWelcomeMessage(character.client);
-        FriendHandler.sendFriendsOnlineMessage(character.client);
-        try { FriendHandler.warnFriends(character.client); } catch (error) { Logger.error(error); }
+        getGameHandler().sendWelcomeMessage(character.client);
+        getFriendHandler().sendFriendsOnlineMessage(character.client);
+        try { getFriendHandler().warnFriends(character.client); } catch (error) { Logger.error(error); }
         character.sendWarnOnStateMessages(character.client.account.warnOnConnection);
         character.sendInventoryBag();
         character.client.send(new Messages.LifePointsRegenBeginMessage(10));
@@ -197,3 +197,4 @@ export default class CharacterManager {
         character.refreshShortcutsBar();
     }
 }
+module.exports = CharacterManager

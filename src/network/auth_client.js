@@ -1,17 +1,17 @@
-import NetworkMessage from "../io/dofus/network_message"
-import IO from "../io/custom_data_wrapper"
-import ByteArray from "../io/bytearray"
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import Common from "../common"
-import Formatter from "../utils/formatter"
-import Processor from "./processor"
-import Auth from "./auth"
+const NetworkMessage = require("../io/dofus/network_message")
+const IO = require("../io/custom_data_wrapper")
+const ByteArray = require("../io/bytearray")
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Common = require("../common")
+const Formatter = require("../utils/formatter")
+// Lazy requires para romper ciclo: auth ↔ auth_client
+const Processor = require("./processor");
+function getAuth() { return require("./auth"); }
+// arraybuffer-to-buffer removed — Buffer.from is native in Node 25
+var arrayBufferToBuffer = (ab) => Buffer.from(ab);
 
-var arrayBufferToBuffer = require('arraybuffer-to-buffer');
-var base64 = require('base64-js')
-
-export default class AuthClient {
+class AuthClient {
  
     constructor(socket) {
         this.socket = socket;
@@ -40,7 +40,7 @@ export default class AuthClient {
 
         this.socket.on('end', function(data){
             try {
-                Auth.removeClient(self);
+                getAuth().removeClient(self);
                 Logger.infos("Client disconnected");
             }
             catch (ex) {
@@ -83,3 +83,4 @@ export default class AuthClient {
         }
     }
 }
+module.exports = AuthClient

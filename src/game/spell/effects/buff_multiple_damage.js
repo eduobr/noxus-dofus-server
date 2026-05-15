@@ -1,6 +1,5 @@
-import MultipleDamage from "../buffs/add_multiple_damage"
-
-export default class BuffMultipleDamage{
+const MultipleDamage = require("../buffs/add_multiple_damage")
+class BuffMultipleDamage{
     static effectId = 1163;
 
     static process(data) {

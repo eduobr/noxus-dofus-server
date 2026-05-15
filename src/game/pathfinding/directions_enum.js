@@ -1,4 +1,4 @@
-export default class DirectionsEnum
+class DirectionsEnum
 {
     static RIGHT = 0;
     static DOWN_RIGHT = 1;
@@ -9,3 +9,4 @@ export default class DirectionsEnum
     static UP = 6;
     static UP_RIGHT = 7;
 }
+module.exports = DirectionsEnum

@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import MapPoint from "../../pathfinding/map_point"
-import InvisibilityBuff from "../buffs/invisibility_buff"
-
-export default class Invisiblity {
+const Basic = require("../../../utils/basic")
+const MapPoint = require("../../pathfinding/map_point")
+const InvisibilityBuff = require("../buffs/invisibility_buff")
+class Invisiblity {
 
     static effectId = 150;
 

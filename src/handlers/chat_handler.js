@@ -1,19 +1,19 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import ConfigManager from "../utils/configmanager.js"
-import WorldServer from "../network/world"
-import AuthServer from "../network/auth"
-import ChatChannel from "../enums/chat_activable_channels_enum"
-import Character from "../database/models/character"
-import CommandManager from "../managers/command_manager"
-import IgnoredHandler from "../handlers/ignored_handler"
-import AccountRoleEnum from "../enums/account_role_enum"
-
-export default class ChatHandler {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+const DBManager = require("../database/dbmanager")
+const ConfigManager = require("../utils/configmanager")
+// Lazy require para romper ciclo: world → world_client → processor → handlers → world
+function getWorldServer() { return require("../network/world"); }
+const AuthServer = require("../network/auth")
+const ChatChannel = require("../enums/chat_activable_channels_enum")
+const Character = require("../database/models/character")
+const CommandManager = require("../managers/command_manager")
+const IgnoredHandler = require("../handlers/ignored_handler")
+const AccountRoleEnum = require("../enums/account_role_enum")
+class ChatHandler {
 
 
     static escapeHtml(text) {
@@ -36,7 +36,7 @@ export default class ChatHandler {
         }
         
         var time = Date.now || function() {return +new Date;};
-        var clientTarget = WorldServer.getOnlineClientByCharacterName(packet.receiver);
+        var clientTarget = getWorldServer().getOnlineClientByCharacterName(packet.receiver);
         if (clientTarget)
         {
             if (client.account.role < AccountRoleEnum.ADMINISTRATOR)
@@ -91,7 +91,7 @@ export default class ChatHandler {
                 case ChatChannel.CHANNEL_SALES:
                     if (client.character.canSendSalesMessage())
                     {
-                        WorldServer.sendToAllOnlineClients(new Messages.ChatServerMessage(ChatChannel.CHANNEL_SALES, packet.content, time(), client.character.name, client.character._id, client.character.name, client.account.uid));
+                        getWorldServer().sendToAllOnlineClients(new Messages.ChatServerMessage(ChatChannel.CHANNEL_SALES, packet.content, time(), client.character.name, client.character._id, client.character.name, client.account.uid));
                         client.character.updateLastSalesMessage();
                     }
                 break;
@@ -99,7 +99,7 @@ export default class ChatHandler {
                 case ChatChannel.CHANNEL_SEEK:
                     if (client.character.canSendSeekMessage())
                     {
-                        WorldServer.sendToAllOnlineClients(new Messages.ChatServerMessage(ChatChannel.CHANNEL_SEEK, packet.content, time(), client.character.name, client.character._id, client.character.name, client.account.uid));
+                        getWorldServer().sendToAllOnlineClients(new Messages.ChatServerMessage(ChatChannel.CHANNEL_SEEK, packet.content, time(), client.character.name, client.character._id, client.character.name, client.account.uid));
                         client.character.updateLastSeekMessage();
                     }
                 break;
@@ -114,3 +114,4 @@ export default class ChatHandler {
         }
     }
 }
+module.exports = ChatHandler

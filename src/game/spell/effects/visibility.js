@@ -1,9 +1,8 @@
-import Basic from "../../../utils/basic"
-import MapPoint from "../../pathfinding/map_point"
-import InvisibilityBuff from "../buffs/invisibility_buff"
-import InvisbilityStateEnum from "../../../enums/invisibility_state_enum"
-
-export default class Visibility {
+const Basic = require("../../../utils/basic")
+const MapPoint = require("../../pathfinding/map_point")
+const InvisibilityBuff = require("../buffs/invisibility_buff")
+const InvisbilityStateEnum = require("../../../enums/invisibility_state_enum")
+class Visibility {
 
     static effectId = 202;
 

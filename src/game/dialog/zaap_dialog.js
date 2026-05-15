@@ -1,14 +1,12 @@
 
-import * as Messages from "../../io/dofus/messages"
-import Logger from "../../io/logger"
-import Datacenter from "../../database/datacenter"
-import WorldManager from "../../managers/world_manager"
-import ConfigManager from "../../utils/configmanager.js"
-import InteractiveHandler from "../../handlers/interactive_handler.js"
-import Pathfinding from "../../game/pathfinding/pathfinding"
-
-
-export default class ZaapDialog {
+const Messages = require("../../io/dofus/messages")
+const Logger = require("../../io/logger")
+const Datacenter = require("../../database/datacenter")
+const WorldManager = require("../../managers/world_manager")
+const ConfigManager = require("../../utils/configmanager")
+const InteractiveHandler = require("../../handlers/interactive_handler")
+const Pathfinding = require("../../game/pathfinding/pathfinding")
+class ZaapDialog {
 
     constructor(client, packet) {
         this.client = client;
@@ -103,3 +101,4 @@ export default class ZaapDialog {
         }
     }
 }
+module.exports = ZaapDialog

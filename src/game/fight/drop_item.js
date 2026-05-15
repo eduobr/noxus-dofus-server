@@ -1,4 +1,4 @@
-export default class DropItem  {
+class DropItem  {
 
     constructor(dropId, percentOfChance, itemId) {
         this.dropId = dropId;
@@ -15,3 +15,4 @@ export default class DropItem  {
     }
 
 }
+module.exports = DropItem

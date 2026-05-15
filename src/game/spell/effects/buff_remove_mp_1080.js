@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import RemoveMpBuff from "../buffs/remove_mp_buff"
-
-export default class BuffRemoveMp1080 {
+const Basic = require("../../../utils/basic")
+const RemoveMpBuff = require("../buffs/remove_mp_buff")
+class BuffRemoveMp1080 {
 
     static effectId = 1080;
 

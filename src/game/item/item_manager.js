@@ -1,11 +1,11 @@
-import Datacenter from "../../database/datacenter"
-import ItemDiceEffect from "./item_dice_effect"
-import ItemEffectInteger from "./item_effect_integer"
-import Basic from "../../utils/basic"
-import Logger from "../../io/logger"
-import CharacterItem from "../../database/models/character_item";
-import Types from "../../io/dofus/types.js"
-export default class ItemManager {
+const Datacenter = require("../../database/datacenter")
+const ItemDiceEffect = require("./item_dice_effect")
+const ItemEffectInteger = require("./item_effect_integer")
+const Basic = require("../../utils/basic")
+const Logger = require("../../io/logger")
+const CharacterItem = require("../../database/models/character_item")
+const Types = require("../../io/dofus/types")
+class ItemManager {
 
     static getItemTemplateById(id) {
         return Datacenter.items.filter(function (x) {
@@ -70,3 +70,4 @@ export default class ItemManager {
            return new Types.ObjectEffectDice(effect.effectId,lowValue,highValue,randomValue);
     }
 }
+module.exports = ItemManager

@@ -1,8 +1,7 @@
-import Logger from "../../io/logger"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-
-export default class Buff {
+const Logger = require("../../io/logger")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+class Buff {
 
     constructor(effect, spell, spellLevel, caster, fighter) {
         this.spell = spell;
@@ -95,3 +94,4 @@ export default class Buff {
         Logger.debug("The unapply for the buff id: " + this.buffId + " is not implemented");
     }
 }
+module.exports = Buff

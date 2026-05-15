@@ -1,19 +1,18 @@
-import Fighter from "./fighter"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import Logger from "../../io/logger"
-import Fight from "./fight"
-import CharacterManager from "../../managers/character_manager"
-import WorldManager from "../../managers/world_manager"
-import MapPoint from "../pathfinding/map_point"
-import RemoveAPBuff from "../../game/spell/buffs/remove_ap_buff"
-import RemoveMPBuff from "../../game/spell/buffs/remove_mp_buff"
-import Basic from "../../utils/basic"
-import AddStateBuff from "../spell/buffs/add_state_buff"
-import * as Shapes from "../../game/fight/fight_shape_processor"
-import BasicAI from "../monsters/ai/basic_ai"
-
-export default class MonsterFighter extends Fighter {
+const Fighter = require("./fighter")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const Logger = require("../../io/logger")
+const Fight = require("./fight")
+const CharacterManager = require("../../managers/character_manager")
+const WorldManager = require("../../managers/world_manager")
+const MapPoint = require("../pathfinding/map_point")
+const RemoveAPBuff = require("../../game/spell/buffs/remove_ap_buff")
+const RemoveMPBuff = require("../../game/spell/buffs/remove_mp_buff")
+const Basic = require("../../utils/basic")
+const AddStateBuff = require("../spell/buffs/add_state_buff")
+const Shapes = require("../../game/fight/fight_shape_processor")
+const BasicAI = require("../monsters/ai/basic_ai")
+class MonsterFighter extends Fighter {
 
     constructor(fight) {
         super(fight);
@@ -60,3 +59,4 @@ export default class MonsterFighter extends Fighter {
         this.ai.process();
     }
 }
+module.exports = MonsterFighter

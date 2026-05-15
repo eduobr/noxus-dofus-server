@@ -1,7 +1,6 @@
-import MapPoint from "../pathfinding/map_point"
-import DirectionsEnum from "../pathfinding/directions_enum"
-
-export default class FightShapeProcessor {
+const MapPoint = require("../pathfinding/map_point")
+const DirectionsEnum = require("../pathfinding/directions_enum")
+class FightShapeProcessor {
     static shapes = {
         "P": FightShapeProcessor.P_shape, // Default
         "C": FightShapeProcessor.C_shape, // Lozenge
@@ -55,7 +54,7 @@ export default class FightShapeProcessor {
     }
 }
 
-export class Lozenge {
+class Lozenge {
     constructor(radius, minRadius) {
         this.radius = radius;
         this._minRadius = minRadius;
@@ -101,7 +100,7 @@ export class Lozenge {
     }
 }
 
-export class Cross {
+class Cross {
 
     constructor(param1, param2) {
         this._minRadius = param1;
@@ -197,7 +196,7 @@ export class Cross {
     }
 }
 
-export class Line {
+class Line {
 
     constructor(radius) {
         this._radius = radius;
@@ -284,3 +283,4 @@ export class Line {
         param3.push(MapPoint.fromCoords(param1,param2)._nCellId);
     }
 }
+module.exports = Line

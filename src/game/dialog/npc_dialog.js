@@ -1,8 +1,7 @@
-import * as Messages from "../../io/dofus/messages"
-import Dialog from "../../game/npcs/replies/dialog"
-import Teleport from "../../game/npcs/replies/teleport"
-
-export default class NpcDialog {
+const Messages = require("../../io/dofus/messages")
+const Dialog = require("../../game/npcs/replies/dialog")
+const Teleport = require("../../game/npcs/replies/teleport")
+class NpcDialog {
 
     replies = [];
     replyType = { "dialog": { handle: Dialog.execute }  , "teleport" : {handle : Teleport.execute}};
@@ -70,3 +69,4 @@ export default class NpcDialog {
         }
     }
 }
+module.exports = NpcDialog

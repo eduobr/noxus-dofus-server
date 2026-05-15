@@ -1,19 +1,19 @@
-import NetworkMessage from "../io/dofus/network_message"
-import IO from "../io/custom_data_wrapper"
-import ByteArray from "../io/bytearray"
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import Common from "../common"
-import Formatter from "../utils/formatter"
-import Processor from "./processor"
-import World from "./world"
-import FriendHandler from "../handlers/friend_handler"
-import Fight from "../game/fight/fight"
+const NetworkMessage = require("../io/dofus/network_message")
+const IO = require("../io/custom_data_wrapper")
+const ByteArray = require("../io/bytearray")
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Common = require("../common")
+const Formatter = require("../utils/formatter")
+// Lazy requires para romper ciclo: world → world_client → processor → handlers → world
+function getProcessor() { return require("./processor"); }
+function getWorld() { return require("./world"); }
+const FriendHandler = require("../handlers/friend_handler")
+const Fight = require("../game/fight/fight")
+// arraybuffer-to-buffer removed — Buffer.from is native in Node 25
+var arrayBufferToBuffer = (ab) => Buffer.from(ab);
 
-var arrayBufferToBuffer = require('arraybuffer-to-buffer');
-var base64 = require('base64-js');
-
-export default class WorldClient {
+class WorldClient {
 
     constructor(socket) {
         this.socket = socket;
@@ -64,7 +64,7 @@ export default class WorldClient {
                 self.character.fight.disconnectFighter(self.character.fighter);
             }
         }
-        World.removeClient(self);
+        getWorld().removeClient(self);
         Logger.infos("Client disconnected");
         if (self && self.character)
             self.character.onDisconnect();
@@ -80,7 +80,7 @@ export default class WorldClient {
         Logger.network("Received data (messageId: " + messageId + ", len: " + messageLen + ")");
         var b = arrayBufferToBuffer(buffer.data.buffer);
         var messagePart = b.slice(buffer.position, buffer.position + messageLen);
-        Processor.handle(self, messageId, new IO.CustomDataWrapper(Formatter.toArrayBuffer(messagePart)));
+        getProcessor().handle(self, messageId, new IO.CustomDataWrapper(Formatter.toArrayBuffer(messagePart)));
         buffer.position = buffer.position + messageLen;
     }
 
@@ -105,3 +105,4 @@ export default class WorldClient {
         }
     }
 }
+module.exports = WorldClient

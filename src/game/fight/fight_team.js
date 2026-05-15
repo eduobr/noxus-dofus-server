@@ -1,9 +1,8 @@
-import Fighter from "./fighter"
-import Basic from "../../utils/basic"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-
-export default class FightTeam {
+const Fighter = require("./fighter")
+const Basic = require("../../utils/basic")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+class FightTeam {
 
     constructor(fight, id, leader) {
         this.fight = fight;
@@ -76,3 +75,4 @@ export default class FightTeam {
         }
     }
 }
+module.exports = FightTeam

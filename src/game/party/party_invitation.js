@@ -1,8 +1,7 @@
-import PartyType from "../../enums/party_type"
-import * as Messages from "../../io/dofus/messages"
-import Logger from "../../io/logger"
-
-export default class PartyInvitation {
+const PartyType = require("../../enums/party_type")
+const Messages = require("../../io/dofus/messages")
+const Logger = require("../../io/logger")
+class PartyInvitation {
     party = null;
     leader = null;
     invited = null;
@@ -51,3 +50,5 @@ export default class PartyInvitation {
         this.invited.invitation = null;
     }
 }
+
+module.exports = PartyInvitation

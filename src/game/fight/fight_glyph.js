@@ -1,21 +1,20 @@
-import Logger from "../../io/logger"
-import FightTeam from "./fight_team"
-import Fighter from "./fighter"
-import FightTimeline from "./fight_timeline"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import Basic from "../../utils/basic"
-import MapPoint from "../../game/pathfinding/map_point"
-import Pathfinding from "../../game/pathfinding/pathfinding"
-import SpellManager from "../spell/spell_manager"
-import FightSpellProcessor from "./fight_spell_processor"
-import * as Shapes from "./fight_shape_processor"
-import Dofus1Line from "../map_tools/dofus_1_line"
-import InvisibilityStateEnum from "../../enums/invisibility_state_enum"
-import MarkTypeEnum from "../../enums/mark_type_enum"
-import MarkCellsTypeEnum from "../../enums/mark_cells_type_enum"
-
-export default class FightGlyph {
+const Logger = require("../../io/logger")
+const FightTeam = require("./fight_team")
+const Fighter = require("./fighter")
+const FightTimeline = require("./fight_timeline")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const Basic = require("../../utils/basic")
+const MapPoint = require("../../game/pathfinding/map_point")
+const Pathfinding = require("../../game/pathfinding/pathfinding")
+const SpellManager = require("../spell/spell_manager")
+const FightSpellProcessor = require("./fight_spell_processor")
+const Shapes = require("./fight_shape_processor")
+const Dofus1Line = require("../map_tools/dofus_1_line")
+const InvisibilityStateEnum = require("../../enums/invisibility_state_enum")
+const MarkTypeEnum = require("../../enums/mark_type_enum")
+const MarkCellsTypeEnum = require("../../enums/mark_cells_type_enum")
+class FightGlyph {
 
     caster = null;
     fight = null;
@@ -182,3 +181,4 @@ export default class FightGlyph {
         }
     }
 }
+module.exports = FightGlyph

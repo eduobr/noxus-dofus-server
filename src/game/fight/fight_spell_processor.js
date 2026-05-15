@@ -1,12 +1,11 @@
-import FightShapeProcessor from "./fight_shape_processor"
-import Logger from "../../io/logger"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import MapPoint from "../pathfinding/map_point"
-import InvisibilityStateEnum from "../../enums/invisibility_state_enum"
-import WhiteListInvisibleState from "../../enums/white_list_invisible_state"
-
-export default class FightSpellProcessor {
+const FightShapeProcessor = require("./fight_shape_processor")
+const Logger = require("../../io/logger")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const MapPoint = require("../pathfinding/map_point")
+const InvisibilityStateEnum = require("../../enums/invisibility_state_enum")
+const WhiteListInvisibleState = require("../../enums/white_list_invisible_state")
+class FightSpellProcessor {
 
     static fightEffectsProcessor = null;
 
@@ -207,3 +206,4 @@ export default class FightSpellProcessor {
         }
     }
 }
+module.exports = FightSpellProcessor

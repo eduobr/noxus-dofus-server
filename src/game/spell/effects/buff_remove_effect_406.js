@@ -1,4 +1,4 @@
-export default class BuffRemoveEffect406 {
+class BuffRemoveEffect406 {
     static effectId = 406;
 
     static process(data) {

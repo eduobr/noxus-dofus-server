@@ -1,9 +1,8 @@
-import Buff from "../buff"
-import * as Messages from "../../../io/dofus/messages"
-import * as Types from "../../../io/dofus/types"
-import Basic from "../../../utils/basic"
-
-export default class DamageNeutralBuff extends Buff {
+const Buff = require("../buff")
+const Messages = require("../../../io/dofus/messages")
+const Types = require("../../../io/dofus/types")
+const Basic = require("../../../utils/basic")
+class DamageNeutralBuff extends Buff {
 
     static displayId = 133;
 
@@ -34,3 +33,5 @@ export default class DamageNeutralBuff extends Buff {
     }
 
 }
+
+module.exports = DamageNeutralBuff

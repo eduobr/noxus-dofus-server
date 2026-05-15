@@ -1,26 +1,24 @@
-import Logger from "../../io/logger"
-import FightTeam from "./fight_team"
-import Fighter from "./fighter"
-import FightTimeline from "./fight_timeline"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import Basic from "../../utils/basic"
-import MapPoint from "../../game/pathfinding/map_point"
-import Pathfinding from "../../game/pathfinding/pathfinding"
-import SpellManager from "../spell/spell_manager"
-import FightSpellProcessor from "./fight_spell_processor"
-import * as Shapes from "./fight_shape_processor"
-import Dofus1Line from "../map_tools/dofus_1_line"
-import InvisibilityStateEnum from "../../enums/invisibility_state_enum"
-import MonsterFighter from "./monster_fighter"
-import DropItem from "./drop_item"
-import ItemManager from "../../game/item/item_manager"
-
-import FightPVMResult from "./results/fight_pvm_result"
-import FightChallengeResult from "./results/fight_challenge_result"
-import ConfigManager from "../../utils/configmanager.js"
-
-export default class Fight {
+const Logger = require("../../io/logger")
+const FightTeam = require("./fight_team")
+const Fighter = require("./fighter")
+const FightTimeline = require("./fight_timeline")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const Basic = require("../../utils/basic")
+const MapPoint = require("../../game/pathfinding/map_point")
+const Pathfinding = require("../../game/pathfinding/pathfinding")
+const SpellManager = require("../spell/spell_manager")
+const FightSpellProcessor = require("./fight_spell_processor")
+const Shapes = require("./fight_shape_processor")
+const Dofus1Line = require("../map_tools/dofus_1_line")
+const InvisibilityStateEnum = require("../../enums/invisibility_state_enum")
+const MonsterFighter = require("./monster_fighter")
+const DropItem = require("./drop_item")
+const ItemManager = require("../../game/item/item_manager")
+const FightPVMResult = require("./results/fight_pvm_result")
+const FightChallengeResult = require("./results/fight_challenge_result")
+const ConfigManager = require("../../utils/configmanager")
+class Fight {
 
     static FIGHT_LEAVE_TYPE = {
         ABANDONED: 1,
@@ -897,3 +895,4 @@ export default class Fight {
         }
     }
 }
+module.exports = Fight

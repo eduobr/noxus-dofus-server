@@ -1,7 +1,6 @@
-import Point from './point';
-import DirectionsEnum from './directions_enum'
-
-export default class MapPoint {
+const Point = require("./point")
+const DirectionsEnum = require("./directions_enum")
+class MapPoint {
     static VECTOR_RIGHT = new Point(1,1);
     static VECTOR_DOWN_RIGHT = new Point(1,0);
     static VECTOR_DOWN = new Point(1,-1);
@@ -256,3 +255,4 @@ export default class MapPoint {
         this._nY = _loc1_.y;
     }
 }
+module.exports = MapPoint

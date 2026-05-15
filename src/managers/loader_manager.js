@@ -1,20 +1,21 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import ConfigManager from "../utils/configmanager.js"
-import WorldServer from "../network/world"
-import AuthServer from "../network/auth"
-import ChatChannel from "../enums/chat_activable_channels_enum"
-import Character from "../database/models/character"
-import AccountRole from "../enums/account_role_enum"
-import Common from "../common"
-import WorldManager from "../managers/world_manager"
-import FriendHandler from "../handlers/friend_handler"
-
-export default class LoaderManager {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+// Lazy require para romper ciclo con DBManager durante carga de módulos
+function getDBManager() { return require("../database/dbmanager"); }
+const ConfigManager = require("../utils/configmanager")
+// Lazy requires para romper ciclos con network/world y network/auth
+function getWorldServer() { return require("../network/world"); }
+function getAuthServer() { return require("../network/auth"); }
+const ChatChannel = require("../enums/chat_activable_channels_enum")
+const Character = require("../database/models/character")
+const AccountRole = require("../enums/account_role_enum")
+const Common = require("../common")
+const WorldManager = require("../managers/world_manager")
+const FriendHandler = require("../handlers/friend_handler")
+class LoaderManager {
 
     static LoadAccountData(client, callback)
     {
@@ -23,12 +24,12 @@ export default class LoaderManager {
             client.account.friends = [];
             client.account.ignoredsList = [];
 
-            DBManager.getFriends({accountId: client.account.uid}, function(friends){
+            getDBManager().getFriends({accountId: client.account.uid}, function(friends){
                 for (var i in friends) {
                     var friend = friends[i];
 
                     (function(tmp){
-                        DBManager.getAccount({uid: tmp.friendAccountId}, function (account) {
+                        getDBManager().getAccount({uid: tmp.friendAccountId}, function (account) {
                             if (account) {
                                     tmp.account = account;
                                     client.account.friends.push(tmp);
@@ -36,12 +37,12 @@ export default class LoaderManager {
                         });
                     })(friend);
                 }
-                DBManager.getIgnoreds({accountId: client.account.uid}, function(ignoreds) {
+                getDBManager().getIgnoreds({accountId: client.account.uid}, function(ignoreds) {
                     for (var i in ignoreds)
                     {
                         var ignored = ignoreds[i];
                         (function(tmp2) {
-                            DBManager.getAccount({uid: tmp2.ignoredAccountId}, function (account) {
+                            getDBManager().getAccount({uid: tmp2.ignoredAccountId}, function (account) {
                                 if (account) {
                                     tmp2.account = account;
                                     client.account.ignoredsList.push(tmp2);
@@ -68,7 +69,7 @@ export default class LoaderManager {
         {
             for (var i in client.account.friends)
             {
-                var character = WorldServer.getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
+                var character = getWorldServer().getOnlineCharacterByAccountId(client.account.friends[i].friendAccountId);
                 if (character)
                 {
                     FriendHandler.sendFriendsList(character.client);
@@ -92,3 +93,4 @@ export default class LoaderManager {
     }
 
 }
+module.exports = LoaderManager

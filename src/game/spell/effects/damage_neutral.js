@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import DamageNeutralBuff from "../buffs/damage_neutral_buff"
-
-export default class DamageNeutral {
+const Basic = require("../../../utils/basic")
+const DamageNeutralBuff = require("../buffs/damage_neutral_buff")
+class DamageNeutral {
 
     static effectId = 100;
     static elementType = 10;

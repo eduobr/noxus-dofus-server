@@ -1,6 +1,5 @@
-import Basic from "../../../utils/basic"
-
-export default class DamageLuck {
+const Basic = require("../../../utils/basic")
+class DamageLuck {
 
     static effectId = 96;
     static elementType = 13;

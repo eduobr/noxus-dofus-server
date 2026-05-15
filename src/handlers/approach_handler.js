@@ -1,18 +1,18 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import ConfigManager from "../utils/configmanager.js"
-import WorldServer from "../network/world"
-import AuthServer from "../network/auth"
-import PlayableBreedEnum from "../enums/playable_breed_enum"
-import Character from "../database/models/character"
-import Loader from "../managers/loader_manager"
-import CharacterManager from "../managers/character_manager.js"
-
-export default class ApproachHandler {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+const DBManager = require("../database/dbmanager")
+const ConfigManager = require("../utils/configmanager")
+// Lazy requires para romper ciclo: auth → auth_client → processor → approach_handler → auth
+function getWorldServer() { return require("../network/world"); }
+function getAuthServer() { return require("../network/auth"); }
+const PlayableBreedEnum = require("../enums/playable_breed_enum")
+const Character = require("../database/models/character")
+const Loader = require("../managers/loader_manager")
+const CharacterManager = require("../managers/character_manager")
+class ApproachHandler {
 
     static getAvailableBreeds()
     {
@@ -40,7 +40,7 @@ export default class ApproachHandler {
 
     static handleAuthenticationTicketMessage(client, packet)
     {
-        client.account = AuthServer.getAccountByTicket(packet.ticket);
+        client.account = getAuthServer().getAccountByTicket(packet.ticket);
         Loader.LoadAccountData(client, function()
         {
             client.send(new Messages.AuthenticationTicketAcceptedMessage());
@@ -236,3 +236,4 @@ export default class ApproachHandler {
         }
     }
 }
+module.exports = ApproachHandler

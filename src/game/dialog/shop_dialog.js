@@ -1,9 +1,8 @@
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import ItemManager from "../../game/item/item_manager"
-import Basic from "../../utils/basic"
-
-export default class ShopDialog {
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const ItemManager = require("../../game/item/item_manager")
+const Basic = require("../../utils/basic")
+class ShopDialog {
 
     constructor(character, npc) {
         this.character = character;
@@ -114,3 +113,4 @@ export default class ShopDialog {
         }
     }
 }
+module.exports = ShopDialog

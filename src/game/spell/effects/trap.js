@@ -1,9 +1,8 @@
-import Basic from "../../../utils/basic"
-import MapPoint from "../../pathfinding/map_point"
-import FightGlyph from "../../fight/fight_glyph"
-import MarkTypeEnum from "../../../enums/mark_type_enum"
-
-export default class Trap {
+const Basic = require("../../../utils/basic")
+const MapPoint = require("../../pathfinding/map_point")
+const FightGlyph = require("../../fight/fight_glyph")
+const MarkTypeEnum = require("../../../enums/mark_type_enum")
+class Trap {
 
     static effectId = 400;
 

@@ -1,17 +1,16 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import DBManager from "../database/dbmanager"
-import Datacenter from "../database/datacenter"
-import ConfigManager from "../utils/configmanager.js"
-import CharacterManager from "../managers/character_manager.js"
-import IgnoredHandler from "../handlers/ignored_handler"
-import Fight from "../game/fight/fight"
-import ChallengeFight from "../game/fight/challenge_fight"
-import PVMFight from "../game/fight/pvm_fight"
-
-export default class FightHandler {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const DBManager = require("../database/dbmanager")
+const Datacenter = require("../database/datacenter")
+const ConfigManager = require("../utils/configmanager")
+const CharacterManager = require("../managers/character_manager")
+const IgnoredHandler = require("../handlers/ignored_handler")
+const Fight = require("../game/fight/fight")
+const ChallengeFight = require("../game/fight/challenge_fight")
+const PVMFight = require("../game/fight/pvm_fight")
+class FightHandler {
 
     static handleGameRolePlayPlayerFightRequestMessage(client, packet) {
        var target = client.character.getMap().getClientByCharacterId(packet.targetId);
@@ -162,3 +161,4 @@ export default class FightHandler {
         }
     }
 }
+module.exports = FightHandler

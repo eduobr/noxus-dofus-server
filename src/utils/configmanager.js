@@ -1,6 +1,5 @@
-import Logger from "../io/logger"
-
-export default class ConfigManager
+const Logger = require("../io/logger")
+class ConfigManager
 {
     static config_file = "config.json";
     static configData = null;
@@ -22,3 +21,4 @@ export default class ConfigManager
         });
     }
 }
+module.exports = ConfigManager

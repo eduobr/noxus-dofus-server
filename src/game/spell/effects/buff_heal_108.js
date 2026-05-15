@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import HealSpellBuff from "../buffs/heal_spell_buff"
-
-export default class BuffHeal108 {
+const Basic = require("../../../utils/basic")
+const HealSpellBuff = require("../buffs/heal_spell_buff")
+class BuffHeal108 {
 
     static effectId = 108;
 

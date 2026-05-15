@@ -1,19 +1,19 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import ConfigManager from "../utils/configmanager.js"
-import WorldServer from "../network/world"
-import AuthServer from "../network/auth"
-import PlayableBreedEnum from "../enums/playable_breed_enum"
-import Character from "../database/models/character"
-import WorldManager from "../managers/world_manager"
-import AccountRole from "../enums/account_role_enum"
-import Pathfinding from "../game/pathfinding/pathfinding"
-
-export default class AdminHandler {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+const DBManager = require("../database/dbmanager")
+const ConfigManager = require("../utils/configmanager")
+// Lazy require para romper ciclo: world → world_client → processor → handlers → world
+function getWorldServer() { return require("../network/world"); }
+const AuthServer = require("../network/auth")
+const PlayableBreedEnum = require("../enums/playable_breed_enum")
+const Character = require("../database/models/character")
+const WorldManager = require("../managers/world_manager")
+const AccountRole = require("../enums/account_role_enum")
+const Pathfinding = require("../game/pathfinding/pathfinding")
+class AdminHandler {
 
     static handleAdminQuietCommandMessage(client, packet)
     {
@@ -44,3 +44,4 @@ export default class AdminHandler {
     }
 
 }
+module.exports = AdminHandler

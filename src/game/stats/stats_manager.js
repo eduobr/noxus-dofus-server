@@ -1,11 +1,10 @@
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-import CharacterManager from "../../managers/character_manager.js"
-import CharacterItem from "../../database/models/character_item";
-import Logger from "../../io/logger"
-
-
-export default class StatsManager {
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+// Lazy requires para romper ciclos
+function getCharacterManager() { return require("../../managers/character_manager"); }
+function getCharacterItem() { return require("../../database/models/character_item"); }
+const Logger = require("../../io/logger")
+class StatsManager {
 
     get stats() {
         return this.character.stats;
@@ -173,7 +172,7 @@ export default class StatsManager {
         if(!this.character.itemBag) return 0;
         var total = 0;
         for(var item of this.character.itemBag.items) {
-            if(item.position == CharacterItem.DEFAULT_SLOT) continue;
+            if(item.position == getCharacterItem().DEFAULT_SLOT) continue;
             for(var effect of item.effects) {
                 if(effect.effectId == effectId) total += effect.value;
             }
@@ -274,16 +273,16 @@ export default class StatsManager {
     }
 
     getExperienceFloor() {
-        return CharacterManager.getExperienceFloorByLevel(this.character.level);
+        return getCharacterManager().getExperienceFloorByLevel(this.character.level);
     }
 
     getNextExperienceFloor() {
-        return CharacterManager.getExperienceFloorByLevel(this.character.level + 1);
+        return getCharacterManager().getExperienceFloorByLevel(this.character.level + 1);
     }
 
     checkLevelUp() {
-        if(this.character.level != CharacterManager.getExperienceFloorByExperience(this.character.experience).level) { // Level up
-            var floor = CharacterManager.getExperienceFloorByExperience(this.character.experience);
+        if(this.character.level != getCharacterManager().getExperienceFloorByExperience(this.character.experience).level) { // Level up
+            var floor = getCharacterManager().getExperienceFloorByExperience(this.character.experience);
             var diffLevel = floor.level - this.character.level;
             this.character.level = floor.level;
             this.character.statsPoints += diffLevel * 5;
@@ -291,7 +290,7 @@ export default class StatsManager {
             this.character.life = this.getMaxLife();
             this.character.client.send(new Messages.CharacterLevelUpMessage(this.character.level));
             this.character.save();
-            CharacterManager.learnSpellsForCharacter(this.character);
+            getCharacterManager().learnSpellsForCharacter(this.character);
         }
     }
 
@@ -321,3 +320,4 @@ export default class StatsManager {
         return null;
     }
 }
+module.exports = StatsManager

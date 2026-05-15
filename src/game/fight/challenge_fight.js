@@ -1,11 +1,10 @@
-import Logger from "../../io/logger"
-import FightTeam from "./fight_team"
-import Fighter from "./fighter"
-import Fight from "./fight"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-
-export default class ChallengeFight extends Fight {
+const Logger = require("../../io/logger")
+const FightTeam = require("./fight_team")
+const Fighter = require("./fighter")
+const Fight = require("./fight")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+class ChallengeFight extends Fight {
 
 
     constructor(fighterOne, fighterTwo) {
@@ -20,3 +19,4 @@ export default class ChallengeFight extends Fight {
         super.sendStartupPhase(fighter);
     }
 }
+module.exports = ChallengeFight

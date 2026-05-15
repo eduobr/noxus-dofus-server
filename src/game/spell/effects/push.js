@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import MapPoint from "../../pathfinding/map_point"
-
-export default class Push {
+const Basic = require("../../../utils/basic")
+const MapPoint = require("../../pathfinding/map_point")
+class Push {
 
     static effectId = 5;
 

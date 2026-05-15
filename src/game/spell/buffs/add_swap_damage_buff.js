@@ -1,8 +1,7 @@
-import Buff from "../buff"
-import * as Messages from "../../../io/dofus/messages"
-import * as Types from "../../../io/dofus/types"
-
-export default class AddSwapDamage extends Buff {
+const Buff = require("../buff")
+const Messages = require("../../../io/dofus/messages")
+const Types = require("../../../io/dofus/types")
+class AddSwapDamage extends Buff {
 
     static displayId = 1164;
 
@@ -32,3 +31,5 @@ export default class AddSwapDamage extends Buff {
     }
 
 }
+
+module.exports = AddSwapDamage

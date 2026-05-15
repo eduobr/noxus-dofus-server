@@ -1,12 +1,11 @@
-import Logger from "../../io/logger"
-import FightTeam from "./fight_team"
-import Fighter from "./fighter"
-import MonsterFighter from "./monster_fighter"
-import Fight from "./fight"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-
-export default class PVMFight extends Fight {
+const Logger = require("../../io/logger")
+const FightTeam = require("./fight_team")
+const Fighter = require("./fighter")
+const MonsterFighter = require("./monster_fighter")
+const Fight = require("./fight")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+class PVMFight extends Fight {
 
 
     constructor(fighterOne, monstersGroup) {
@@ -27,3 +26,4 @@ export default class PVMFight extends Fight {
         super.sendStartupPhase(fighter);
     }
 }
+module.exports = PVMFight

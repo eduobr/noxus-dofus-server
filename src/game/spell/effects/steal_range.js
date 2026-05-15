@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import RemoveRangeBuff from "../buffs/remove_range_buff"
-import AddRangeBuff from "../buffs/add_range_buff"
-
-export default class stealRange {
+const Basic = require("../../../utils/basic")
+const RemoveRangeBuff = require("../buffs/remove_range_buff")
+const AddRangeBuff = require("../buffs/add_range_buff")
+class stealRange {
 
     static effectId = 320;
 

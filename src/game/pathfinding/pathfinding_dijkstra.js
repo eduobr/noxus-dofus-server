@@ -1,7 +1,6 @@
-import CellInfo from './cell_info'
-import MapPoint from './map_point'
-
-export default class Pathfinding {
+const CellInfo = require("./cell_info")
+const MapPoint = require("./map_point")
+class Pathfinding {
 
     constructor(map) {
         this.map = map;
@@ -69,3 +68,4 @@ export default class Pathfinding {
         return keys;
     }
 }
+module.exports = Pathfinding

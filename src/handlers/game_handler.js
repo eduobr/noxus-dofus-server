@@ -1,27 +1,25 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import Datacenter from "../database/datacenter"
-import ConfigManager from "../utils/configmanager.js"
-import WorldServer from "../network/world"
-import AuthServer from "../network/auth"
-import PlayableBreedEnum from "../enums/playable_breed_enum"
-import Character from "../database/models/character"
-import WorldManager from "../managers/world_manager"
-import CharacterManager from "../managers/character_manager.js"
-import Loader from "../managers/loader_manager"
-import FriendHandler from "../handlers/friend_handler"
-import InteractiveHandler from "../handlers/interactive_handler"
-
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+const DBManager = require("../database/dbmanager")
+const Datacenter = require("../database/datacenter")
+const ConfigManager = require("../utils/configmanager")
+// Lazy require para romper ciclo: world → world_client → processor → handlers → world
+function getWorldServer() { return require("../network/world"); }
+const AuthServer = require("../network/auth")
+const PlayableBreedEnum = require("../enums/playable_breed_enum")
+const Character = require("../database/models/character")
+const WorldManager = require("../managers/world_manager")
+const CharacterManager = require("../managers/character_manager")
+const Loader = require("../managers/loader_manager")
+const FriendHandler = require("../handlers/friend_handler")
+const InteractiveHandler = require("../handlers/interactive_handler")
 // Import pathfinding
-import MapPoint from "../game/pathfinding/map_point"
-import Pathfinding from "../game/pathfinding/pathfinding"
-
-
-export default class GameHandler {
+const MapPoint = require("../game/pathfinding/map_point")
+const Pathfinding = require("../game/pathfinding/pathfinding")
+class GameHandler {
 
     static handleGameContextCreateRequestMessage(client, packet) {
         client.character.sendEmotesList();
@@ -284,3 +282,4 @@ export default class GameHandler {
         client.character.save();
     }
 }
+module.exports = GameHandler

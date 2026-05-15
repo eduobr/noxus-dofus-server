@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import MapPoint from "../../pathfinding/map_point"
-import Logger from "../../../io/logger"
-
-export default class Attraction {
+const Basic = require("../../../utils/basic")
+const MapPoint = require("../../pathfinding/map_point")
+const Logger = require("../../../io/logger")
+class Attraction {
 
     static effectId = 6;
 

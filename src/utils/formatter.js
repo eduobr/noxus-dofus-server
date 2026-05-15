@@ -1,4 +1,4 @@
-export default class Formatter {
+class Formatter {
     static toArrayBuffer(buf) {
         var ab = new ArrayBuffer(buf.length);
         var view = new Uint8Array(ab);
@@ -8,3 +8,4 @@ export default class Formatter {
         return ab;
     }
 }
+module.exports = Formatter

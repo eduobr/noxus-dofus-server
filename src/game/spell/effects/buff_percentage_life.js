@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddVitalityBuff from "../buffs/add_vitality_buff"
-
-export default class BuffPercentageLife {
+const Basic = require("../../../utils/basic")
+const AddVitalityBuff = require("../buffs/add_vitality_buff")
+class BuffPercentageLife {
 
     static effectId = 1078;
 

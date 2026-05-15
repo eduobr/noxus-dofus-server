@@ -1,10 +1,11 @@
-import Logger from "../io/logger"
-import DBManager from "../database/dbmanager"
-import Map from "../database/models/map"
-import WorldServer from "../network/world"
+const Logger = require("../io/logger")
+// Lazy requires para romper ciclos con DBManager y WorldServer
+function getDBManager() { return require("../database/dbmanager"); }
+function getWorldServer() { return require("../network/world"); }
+const Map = require("../database/models/map")
 //require("babel-polyfill");
 
-export default class WorldManager {
+class WorldManager {
 
     static maps = [];
 
@@ -36,7 +37,7 @@ export default class WorldManager {
 				return;
             }
         }
-		DBManager.getMaps({_id: mapId}, function(maps) {
+		getDBManager().getMaps({_id: mapId}, function(maps) {
 			if(maps.length > 0) {
 				var map = new Map(maps[0]);
 				WorldManager.maps.push(map);
@@ -65,12 +66,13 @@ export default class WorldManager {
 
 	//static async saveWorld() {
     static saveWorld() {
-        WorldServer.sendTextInformationMessageToAll(1, 164, []);
-        var clients = WorldServer.getAllOnlineClients();
+        getWorldServer().sendTextInformationMessageToAll(1, 164, []);
+        var clients = getWorldServer().getAllOnlineClients();
         for (var client of clients) {
         	//await client.character.save();
             client.character.save();
 		}
-        WorldServer.sendTextInformationMessageToAll(1, 165, []);
+        getWorldServer().sendTextInformationMessageToAll(1, 165, []);
 	}
 }
+module.exports = WorldManager

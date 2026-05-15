@@ -1,8 +1,7 @@
-import Buff from "../buff"
-import * as Messages from "../../../io/dofus/messages"
-import * as Types from "../../../io/dofus/types"
-
-export default class RemoveRangeBuff extends Buff {
+const Buff = require("../buff")
+const Messages = require("../../../io/dofus/messages")
+const Types = require("../../../io/dofus/types")
+class RemoveRangeBuff extends Buff {
 
     static displayId = 133;
 
@@ -31,3 +30,5 @@ export default class RemoveRangeBuff extends Buff {
     }
 
 }
+
+module.exports = RemoveRangeBuff

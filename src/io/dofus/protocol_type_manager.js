@@ -1,6 +1,5 @@
-import * as Types from "./types"
-
-export default class ProtocolTypeManager {
+const Types = require("./types")
+class ProtocolTypeManager {
 
     static typeProtocolId = null;
 
@@ -305,3 +304,4 @@ export default class ProtocolTypeManager {
         return ProtocolTypeManager.getProtocolTable()[protocolId];
     }
 }
+module.exports = ProtocolTypeManager

@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddPowerSpell from "../buffs/add_power_spell_buff"
-
-export default class BuffAddPowerSpell {
+const Basic = require("../../../utils/basic")
+const AddPowerSpell = require("../buffs/add_power_spell_buff")
+class BuffAddPowerSpell {
 
     static effectId = 1054;
 

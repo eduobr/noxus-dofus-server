@@ -1,8 +1,7 @@
-import Buff from "../buff"
-import * as Messages from "../../../io/dofus/messages"
-import * as Types from "../../../io/dofus/types"
-
-export default class RemoveStatFireBuff extends Buff {
+const Buff = require("../buff")
+const Messages = require("../../../io/dofus/messages")
+const Types = require("../../../io/dofus/types")
+class RemoveStatFireBuff extends Buff {
 
     static displayId = 125;
 
@@ -29,3 +28,5 @@ export default class RemoveStatFireBuff extends Buff {
         return new Types.FightTemporaryBoostEffect(this.id, this.fighter.id, this.duration, 1, this.spell.spellId, this.effectId, 16, this.delta);
     }
 }
+
+module.exports = RemoveStatFireBuff

@@ -1,4 +1,4 @@
-export default class CellInfo {
+class CellInfo {
     constructor(cell, mapPoint) {
         this.cell = cell;
         this.mapPoint = mapPoint;
@@ -17,3 +17,4 @@ export default class CellInfo {
         this.h = 0;
     }
 }
+module.exports = CellInfo

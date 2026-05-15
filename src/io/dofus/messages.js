@@ -1,16 +1,15 @@
-import IO from "../custom_data_wrapper"
-import * as Types from "../dofus/types"
-import Logger from "../../io/logger"
-import ProtocolTypeManager from "./protocol_type_manager"
-
-export class ProtocolMessage {
+const IO = require("../custom_data_wrapper")
+const Types = require("../dofus/types")
+const Logger = require("../../io/logger")
+const ProtocolTypeManager = require("./protocol_type_manager")
+class ProtocolMessage {
     constructor(messageId) {
         this.messageId = messageId;
         this.buffer = new IO.CustomDataWrapper();
     }
 }
 
-export class ProtocolRequiredMessage extends ProtocolMessage {
+class ProtocolRequiredMessage extends ProtocolMessage {
 
     constructor(requiredVersion, currentVersion) {
         super(1);
@@ -24,7 +23,7 @@ export class ProtocolRequiredMessage extends ProtocolMessage {
     }
 }
 
-export class RawDataMessage extends ProtocolMessage {
+class RawDataMessage extends ProtocolMessage {
 
     constructor(content) {
         super(6253);
@@ -39,7 +38,7 @@ export class RawDataMessage extends ProtocolMessage {
     }
 }
 
-export class IdentificationMessage extends ProtocolMessage {
+class IdentificationMessage extends ProtocolMessage {
 
     constructor() {
         super(4);
@@ -60,7 +59,7 @@ export class IdentificationMessage extends ProtocolMessage {
     }
 }
 
-export class ServerSelectionMessage extends ProtocolMessage {
+class ServerSelectionMessage extends ProtocolMessage {
     constructor() {
         super(40);
     }
@@ -69,7 +68,7 @@ export class ServerSelectionMessage extends ProtocolMessage {
     }
 }
 
-export class SelectedServerDataMessage extends ProtocolMessage {
+class SelectedServerDataMessage extends ProtocolMessage {
     constructor(serverId, host, port, canCreateNewCharacter, ticket) {
         super(42);
         this.serverId = serverId;
@@ -88,7 +87,7 @@ export class SelectedServerDataMessage extends ProtocolMessage {
     }
 }
 
-export class IdentificationFailedMessage extends ProtocolMessage {
+class IdentificationFailedMessage extends ProtocolMessage {
     constructor(reason) {
         super(20);
         this.reason = reason;
@@ -101,7 +100,7 @@ export class IdentificationFailedMessage extends ProtocolMessage {
 
 
 
-export class NicknameRegistrationMessage extends ProtocolMessage {
+class NicknameRegistrationMessage extends ProtocolMessage {
     constructor(reason) {
         super(5640);
     }
@@ -111,7 +110,7 @@ export class NicknameRegistrationMessage extends ProtocolMessage {
     }
 }
 
-export class IdentificationSuccessMessage extends ProtocolMessage {
+class IdentificationSuccessMessage extends ProtocolMessage {
     constructor(login, nickname, accountId, communityId, hasRights, secretQuestion, accountCreation, subscriptionElapsedDuration, subscriptionEndDate, wasAlreadyConnected, havenbagAvailableRoom) {
         super(22);
         this.login = login;
@@ -193,7 +192,7 @@ export class IdentificationSuccessMessage extends ProtocolMessage {
     }
 }
 
-export class ServersListMessage extends ProtocolMessage {
+class ServersListMessage extends ProtocolMessage {
     constructor(servers, alreadyConnectedToServerId, canCreateNewCharacter) {
         super(30);
         this.servers = servers;
@@ -211,7 +210,7 @@ export class ServersListMessage extends ProtocolMessage {
     }
 }
 
-export class HelloConnectMessage extends ProtocolMessage {
+class HelloConnectMessage extends ProtocolMessage {
     constructor(salt, key) {
         super(3);
         this.salt = salt;
@@ -227,7 +226,7 @@ export class HelloConnectMessage extends ProtocolMessage {
     }
 }
 
-export class HelloGameMessage extends ProtocolMessage {
+class HelloGameMessage extends ProtocolMessage {
     constructor() {
         super(101);
     }
@@ -236,7 +235,7 @@ export class HelloGameMessage extends ProtocolMessage {
     }
 }
 
-export class AuthenticationTicketMessage extends ProtocolMessage {
+class AuthenticationTicketMessage extends ProtocolMessage {
 
     constructor() {
         super(101);
@@ -247,7 +246,7 @@ export class AuthenticationTicketMessage extends ProtocolMessage {
     }
 }
 
-export class AuthenticationTicketAcceptedMessage extends ProtocolMessage {
+class AuthenticationTicketAcceptedMessage extends ProtocolMessage {
 
     constructor() {
         super(111);
@@ -258,7 +257,7 @@ export class AuthenticationTicketAcceptedMessage extends ProtocolMessage {
 }
 
 
-export class AccountCapabilitiesMessage extends ProtocolMessage {
+class AccountCapabilitiesMessage extends ProtocolMessage {
 
     constructor(tutorialAvailable, canCreateNewCharacter, accountId, breedsVisible, breedsAvailable, status) {
         super(6216);
@@ -282,7 +281,7 @@ export class AccountCapabilitiesMessage extends ProtocolMessage {
 
 }
 
-export class TrustStatusMessage extends ProtocolMessage {
+class TrustStatusMessage extends ProtocolMessage {
 
     constructor() {
         super(6267);
@@ -295,7 +294,7 @@ export class TrustStatusMessage extends ProtocolMessage {
     }
 }
 
-export class ServerOptionalFeaturesMessage extends ProtocolMessage {
+class ServerOptionalFeaturesMessage extends ProtocolMessage {
     constructor(features) {
         super(6305);
         this.features = features;
@@ -308,7 +307,7 @@ export class ServerOptionalFeaturesMessage extends ProtocolMessage {
     }
 }
 
-export class ServerSettingsMessage extends ProtocolMessage {
+class ServerSettingsMessage extends ProtocolMessage {
     constructor(lang, community, gameType, arenaLeaveBanTime) {
         super(6340);
         this.lang = lang;
@@ -325,7 +324,7 @@ export class ServerSettingsMessage extends ProtocolMessage {
 }
 
 
-export class BasicCharactersListMessage extends ProtocolMessage {
+class BasicCharactersListMessage extends ProtocolMessage {
 
     constructor(characters) {
         super();
@@ -341,7 +340,7 @@ export class BasicCharactersListMessage extends ProtocolMessage {
     }
 }
 
-export class CharactersListMessage extends BasicCharactersListMessage {
+class CharactersListMessage extends BasicCharactersListMessage {
 
     constructor(characters) {
         super(characters);
@@ -355,7 +354,7 @@ export class CharactersListMessage extends BasicCharactersListMessage {
 
 
 
-export class CharactersListRequestMessage extends ProtocolMessage {
+class CharactersListRequestMessage extends ProtocolMessage {
 
     constructor() {
         super(150);
@@ -365,7 +364,7 @@ export class CharactersListRequestMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterNameSuggestionRequestMessage extends ProtocolMessage {
+class CharacterNameSuggestionRequestMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 162;
@@ -376,7 +375,7 @@ export class CharacterNameSuggestionRequestMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterNameSuggestionSuccessMessage extends ProtocolMessage {
+class CharacterNameSuggestionSuccessMessage extends ProtocolMessage {
     constructor(suggestion) {
         super();
         this.messageId = 5544;
@@ -388,7 +387,7 @@ export class CharacterNameSuggestionSuccessMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterCreationRequestMessage extends ProtocolMessage {
+class CharacterCreationRequestMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 160;
@@ -408,7 +407,7 @@ export class CharacterCreationRequestMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterCreationResultMessage extends ProtocolMessage {
+class CharacterCreationResultMessage extends ProtocolMessage {
     constructor(result) {
         super();
         this.messageId = 161;
@@ -421,7 +420,7 @@ export class CharacterCreationResultMessage extends ProtocolMessage {
     }
 }
 
-export class ReloginTokenRequestMessage extends ProtocolMessage {
+class ReloginTokenRequestMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 6540;
@@ -430,7 +429,7 @@ export class ReloginTokenRequestMessage extends ProtocolMessage {
     deserialize(buffer) { }
 }
 
-export class CharacterSelectionMessage extends ProtocolMessage {
+class CharacterSelectionMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 152;
@@ -441,7 +440,7 @@ export class CharacterSelectionMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterSelectedSuccessMessage extends ProtocolMessage {
+class CharacterSelectedSuccessMessage extends ProtocolMessage {
     constructor(character, isCollectingStats) {
         super();
         this.messageId = 153;
@@ -455,7 +454,7 @@ export class CharacterSelectedSuccessMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterLoadingCompleteMessage extends ProtocolMessage {
+class CharacterLoadingCompleteMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 6471;
@@ -466,7 +465,7 @@ export class CharacterLoadingCompleteMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterCapabilitiesMessage extends ProtocolMessage {
+class CharacterCapabilitiesMessage extends ProtocolMessage {
     constructor(guildEmblemSymbolCategories) {
         super();
         this.messageId = 6339;
@@ -478,7 +477,7 @@ export class CharacterCapabilitiesMessage extends ProtocolMessage {
     }
 }
 
-export class GameContextCreateRequestMessage extends ProtocolMessage {
+class GameContextCreateRequestMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 250;
@@ -487,7 +486,7 @@ export class GameContextCreateRequestMessage extends ProtocolMessage {
     deserialize(buffer) { }
 }
 
-export class GameContextDestroyMessage extends ProtocolMessage {
+class GameContextDestroyMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 201;
@@ -496,7 +495,7 @@ export class GameContextDestroyMessage extends ProtocolMessage {
     serialize() { }
 }
 
-export class GameContextCreateMessage extends ProtocolMessage {
+class GameContextCreateMessage extends ProtocolMessage {
     constructor(context) {
         super();
         this.messageId = 200;
@@ -509,7 +508,7 @@ export class GameContextCreateMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterDeletionRequestMessage extends ProtocolMessage {
+class CharacterDeletionRequestMessage extends ProtocolMessage {
 
     constructor() {
         super();
@@ -522,7 +521,7 @@ export class CharacterDeletionRequestMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterDeletionErrorMessage extends ProtocolMessage {
+class CharacterDeletionErrorMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 166;
@@ -533,7 +532,7 @@ export class CharacterDeletionErrorMessage extends ProtocolMessage {
     }
 }
 
-export class CurrentMapMessage extends ProtocolMessage {
+class CurrentMapMessage extends ProtocolMessage {
     constructor(mapId, mapKey) {
         super();
         this.messageId = 220;
@@ -547,7 +546,7 @@ export class CurrentMapMessage extends ProtocolMessage {
     }
 }
 
-export class MapInformationsRequestMessage extends ProtocolMessage {
+class MapInformationsRequestMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 225;
@@ -558,7 +557,7 @@ export class MapInformationsRequestMessage extends ProtocolMessage {
     }
 }
 
-export class MapComplementaryInformationsDataMessage extends ProtocolMessage {
+class MapComplementaryInformationsDataMessage extends ProtocolMessage {
     constructor(subAreaId, mapId, houses, actors, interactiveElements, statedElements, obstacles, fights, hasAggressiveMonsters) {
         super();
         this.messageId = 226;
@@ -607,7 +606,7 @@ export class MapComplementaryInformationsDataMessage extends ProtocolMessage {
     }
 }
 
-export class ChatClientPrivateMessage extends ProtocolMessage {
+class ChatClientPrivateMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 851;
@@ -619,7 +618,7 @@ export class ChatClientPrivateMessage extends ProtocolMessage {
     }
 }
 
-export class TextInformationMessage extends ProtocolMessage {
+class TextInformationMessage extends ProtocolMessage {
     constructor(msgType, msgId, parameters) {
         super();
         this.messageId = 780;
@@ -638,7 +637,7 @@ export class TextInformationMessage extends ProtocolMessage {
     }
 }
 
-export class ChatAbstractServerMessage extends ProtocolMessage {
+class ChatAbstractServerMessage extends ProtocolMessage {
     constructor(channel, content, timestamp, fingerprint) {
         super();
         this.messageId = 880;
@@ -657,7 +656,7 @@ export class ChatAbstractServerMessage extends ProtocolMessage {
 }
 
 
-export class ChatServerMessage extends ChatAbstractServerMessage {
+class ChatServerMessage extends ChatAbstractServerMessage {
     constructor(channel, content, timestamp, fingerprint, senderId, senderName, senderAccountId) {
         super(channel, content, timestamp, fingerprint);
         this.messageId = 881;
@@ -674,7 +673,7 @@ export class ChatServerMessage extends ChatAbstractServerMessage {
     }
 }
 
-export class ChatServerCopyMessage extends ChatAbstractServerMessage {
+class ChatServerCopyMessage extends ChatAbstractServerMessage {
     constructor(channel, content, timestamp, fingerprint, receiverId, receiverName) {
         super(channel, content, timestamp, fingerprint);
         this.messageId = 882;
@@ -689,7 +688,7 @@ export class ChatServerCopyMessage extends ChatAbstractServerMessage {
     }
 }
 
-export class ChatClientMultiMessage extends ProtocolMessage {
+class ChatClientMultiMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 861;
@@ -701,7 +700,7 @@ export class ChatClientMultiMessage extends ProtocolMessage {
     }
 }
 
-export class GameRolePlayShowActorMessage extends ProtocolMessage {
+class GameRolePlayShowActorMessage extends ProtocolMessage {
     constructor(informations) {
         super();
         this.messageId = 5632;
@@ -714,7 +713,7 @@ export class GameRolePlayShowActorMessage extends ProtocolMessage {
     }
 }
 
-export class GameContextRemoveElementMessage extends ProtocolMessage {
+class GameContextRemoveElementMessage extends ProtocolMessage {
     constructor(id) {
         super();
         this.messageId = 251;
@@ -726,7 +725,7 @@ export class GameContextRemoveElementMessage extends ProtocolMessage {
     }
 }
 
-export class SystemMessageDisplayMessage extends ProtocolMessage {
+class SystemMessageDisplayMessage extends ProtocolMessage {
     constructor(hangUp, msgId, parameters) {
         super(189);
         this.hangUp = hangUp;
@@ -763,7 +762,7 @@ export class SystemMessageDisplayMessage extends ProtocolMessage {
     }
 }
 
-export class GameMapMovementRequestMessage extends ProtocolMessage {
+class GameMapMovementRequestMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 950;
@@ -783,7 +782,7 @@ export class GameMapMovementRequestMessage extends ProtocolMessage {
     }
 }
 
-export class AdminCommandMessage extends ProtocolMessage {
+class AdminCommandMessage extends ProtocolMessage {
     constructor(content) {
         super(76);
         this.content = content;
@@ -796,7 +795,7 @@ export class AdminCommandMessage extends ProtocolMessage {
     }
 }
 
-export class AdminQuietCommandMessage extends AdminCommandMessage {
+class AdminQuietCommandMessage extends AdminCommandMessage {
     constructor(param1) {
         super(param1);
         this.messageId = 5662;
@@ -809,7 +808,7 @@ export class AdminQuietCommandMessage extends AdminCommandMessage {
     }
 }
 
-export class GameMapMovementMessage extends ProtocolMessage {
+class GameMapMovementMessage extends ProtocolMessage {
     constructor(keyMovements, actorId) {
         super();
         this.messageId = 951;
@@ -826,7 +825,7 @@ export class GameMapMovementMessage extends ProtocolMessage {
     }
 }
 
-export class GameMapMovementCancelMessage extends ProtocolMessage {
+class GameMapMovementCancelMessage extends ProtocolMessage {
     constructor(cellId) {
         super(953);
         this.cellId = cellId;
@@ -845,7 +844,7 @@ export class GameMapMovementCancelMessage extends ProtocolMessage {
     }
 }
 
-export class GameMapMovementConfirmMessage extends ProtocolMessage {
+class GameMapMovementConfirmMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 952;
@@ -855,7 +854,7 @@ export class GameMapMovementConfirmMessage extends ProtocolMessage {
     }
 }
 
-export class ChangeMapMessage extends ProtocolMessage {
+class ChangeMapMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 221;
@@ -866,7 +865,7 @@ export class ChangeMapMessage extends ProtocolMessage {
     }
 }
 
-export class FriendAddRequestMessage extends ProtocolMessage {
+class FriendAddRequestMessage extends ProtocolMessage {
     constructor(name) {
         super(4004);
         this.name = name;
@@ -879,7 +878,7 @@ export class FriendAddRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameMapChangeOrientationRequestMessage extends ProtocolMessage {
+class GameMapChangeOrientationRequestMessage extends ProtocolMessage {
     constructor() {
         super();
         this.messageId = 945;
@@ -890,7 +889,7 @@ export class GameMapChangeOrientationRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameMapChangeOrientationMessage extends ProtocolMessage {
+class GameMapChangeOrientationMessage extends ProtocolMessage {
     constructor(orientation) {
         super();
         this.messageId = 946;
@@ -902,7 +901,7 @@ export class GameMapChangeOrientationMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterStatsListMessage extends ProtocolMessage {
+class CharacterStatsListMessage extends ProtocolMessage {
     constructor(stats) {
         super(500);
         this.stats = stats;
@@ -916,7 +915,7 @@ export class CharacterStatsListMessage extends ProtocolMessage {
     }
 }
 
-export class FriendAddFailureMessage extends ProtocolMessage {
+class FriendAddFailureMessage extends ProtocolMessage {
     constructor(reason) {
         super(5600);
         this.reason = reason;
@@ -932,7 +931,7 @@ export class FriendAddFailureMessage extends ProtocolMessage {
     }
 }
 
-export class FriendAddedMessage extends ProtocolMessage {
+class FriendAddedMessage extends ProtocolMessage {
     constructor(friendAdded) {
         super();
         this.messageId = 5599;
@@ -944,7 +943,7 @@ export class FriendAddedMessage extends ProtocolMessage {
     }
 }
 
-export class FriendsListMessage extends ProtocolMessage {
+class FriendsListMessage extends ProtocolMessage {
     constructor(friendsList) {
         super();
         this.messageId = 4002;
@@ -974,7 +973,7 @@ export class FriendsListMessage extends ProtocolMessage {
     }
 }
 
-export class StatsUpgradeRequestMessage extends ProtocolMessage {
+class StatsUpgradeRequestMessage extends ProtocolMessage {
     constructor(useAdditionnal, statId, boostPoint) {
         super(5610);
         this.useAdditionnal = useAdditionnal;
@@ -1002,7 +1001,7 @@ export class StatsUpgradeRequestMessage extends ProtocolMessage {
     }
 }
 
-export class FriendsGetListMessage extends ProtocolMessage {
+class FriendsGetListMessage extends ProtocolMessage {
     constructor() {
         super(4001);
     }
@@ -1012,7 +1011,7 @@ export class FriendsGetListMessage extends ProtocolMessage {
     }
 }
 
-export class FriendDeleteRequestMessage extends ProtocolMessage {
+class FriendDeleteRequestMessage extends ProtocolMessage {
     constructor(accountId) {
         super(5603);
         this.accountId = accountId;
@@ -1031,7 +1030,7 @@ export class FriendDeleteRequestMessage extends ProtocolMessage {
     }
 }
 
-export class CharacterLevelUpMessage extends ProtocolMessage {
+class CharacterLevelUpMessage extends ProtocolMessage {
     constructor(newLevel) {
         super(5670);
         this.newLevel = newLevel;
@@ -1050,7 +1049,7 @@ export class CharacterLevelUpMessage extends ProtocolMessage {
     }
 }
 
-export class EmoteListMessage extends  ProtocolMessage{
+class EmoteListMessage extends  ProtocolMessage{
 constructor(emoteIds) {
 super(5689);
 this.emoteIds = emoteIds;
@@ -1085,7 +1084,7 @@ deserialize(buffer){
 }
 }
 
-export class FriendSetWarnOnConnectionMessage extends ProtocolMessage {
+class FriendSetWarnOnConnectionMessage extends ProtocolMessage {
 constructor() {
     super(5602);
 }
@@ -1094,7 +1093,7 @@ constructor() {
     }
 }
 
-export class FriendWarnOnConnectionStateMessage extends ProtocolMessage {
+class FriendWarnOnConnectionStateMessage extends ProtocolMessage {
     constructor(enable)
     {
         super(5630);
@@ -1106,7 +1105,7 @@ export class FriendWarnOnConnectionStateMessage extends ProtocolMessage {
     }
 }
 
-export class ChatSmileyRequestMessage extends ProtocolMessage {
+class ChatSmileyRequestMessage extends ProtocolMessage {
     constructor()
     {
         super(800);
@@ -1118,7 +1117,7 @@ export class ChatSmileyRequestMessage extends ProtocolMessage {
     }
 }
 
-export class ChatSmileyMessage extends ProtocolMessage {
+class ChatSmileyMessage extends ProtocolMessage {
     constructor(entityId, smileyId, accountId) {
         super(801);
         this.entityId = entityId;
@@ -1133,7 +1132,7 @@ export class ChatSmileyMessage extends ProtocolMessage {
     }
 }
 
-export class MoodSmileyRequestMessage extends ProtocolMessage {
+class MoodSmileyRequestMessage extends ProtocolMessage {
     constructor()
     {
         super(6192);
@@ -1144,7 +1143,7 @@ export class MoodSmileyRequestMessage extends ProtocolMessage {
     }
 }
 
-export class InventoryWeightMessage extends ProtocolMessage {
+class InventoryWeightMessage extends ProtocolMessage {
     constructor(weight, weightMax) {
         super(3009);
         this.weight = weight;
@@ -1172,7 +1171,7 @@ export class InventoryWeightMessage extends ProtocolMessage {
     }
 }
 
-export class InventoryContentMessage extends ProtocolMessage {
+class InventoryContentMessage extends ProtocolMessage {
     constructor(objects, kamas) {
         super(3016);
         this.objects = objects;
@@ -1206,7 +1205,7 @@ export class InventoryContentMessage extends ProtocolMessage {
         }
     }
 }
-export class TeleportDestinationsListMessage extends ProtocolMessage {
+class TeleportDestinationsListMessage extends ProtocolMessage {
     constructor(teleporterType, mapIds, subAreaIds, costs, destTeleporterType) {
         super(5960);
         this.teleporterType = teleporterType;
@@ -1252,7 +1251,7 @@ export class TeleportDestinationsListMessage extends ProtocolMessage {
         }
     }
 }
-export class ZaapListMessage extends TeleportDestinationsListMessage {
+class ZaapListMessage extends TeleportDestinationsListMessage {
     constructor(param1, param2, param3, param4, param5, param6) {
         super(param1, param2, param3, param4, param5);
         this.spawnMapId = param6;
@@ -1273,7 +1272,7 @@ export class ZaapListMessage extends TeleportDestinationsListMessage {
         }
     }
 }
-export class InteractiveUseRequestMessage extends ProtocolMessage {
+class InteractiveUseRequestMessage extends ProtocolMessage {
     constructor(elemId, skillInstanceUid) {
         super(5001);
         this.elemId = elemId;
@@ -1300,7 +1299,7 @@ export class InteractiveUseRequestMessage extends ProtocolMessage {
         }
     }
 }
-export class InteractiveUsedMessage extends ProtocolMessage {
+class InteractiveUsedMessage extends ProtocolMessage {
     constructor(entityId, elemId, skillId, duration, canMove) {
         super(5745);
         this.entityId = entityId;
@@ -1329,7 +1328,7 @@ export class InteractiveUsedMessage extends ProtocolMessage {
         this.buffer.writeBoolean(this.canMove);
     }
 }
-export class InteractiveUseEndedMessage extends ProtocolMessage {
+class InteractiveUseEndedMessage extends ProtocolMessage {
     constructor(elemId, skillId) {
         super(6112);
         this.elemId = elemId;
@@ -1347,7 +1346,7 @@ export class InteractiveUseEndedMessage extends ProtocolMessage {
     }
 }
 
-export class EmoteAddMessage extends ProtocolMessage {
+class EmoteAddMessage extends ProtocolMessage {
     constructor(emoteId) {
         super(5644);
         this.emoteId = emoteId;
@@ -1368,7 +1367,7 @@ export class EmoteAddMessage extends ProtocolMessage {
 
 
 // Generated by Noxus messages
-export class EmotePlayAbstractMessage extends ProtocolMessage {
+class EmotePlayAbstractMessage extends ProtocolMessage {
     constructor(emoteId, emoteStartTime) {
         super(5690);
         this.emoteId = emoteId;
@@ -1396,7 +1395,7 @@ export class EmotePlayAbstractMessage extends ProtocolMessage {
     }
 }
 
-export class EmotePlayRequestMessage extends ProtocolMessage {
+class EmotePlayRequestMessage extends ProtocolMessage {
     constructor(emoteId) {
         super(5685);
         this.emoteId = emoteId;
@@ -1416,7 +1415,7 @@ export class EmotePlayRequestMessage extends ProtocolMessage {
 }
 
 // Generated by Noxus messages
-export class EmotePlayMessage extends EmotePlayAbstractMessage{
+class EmotePlayMessage extends EmotePlayAbstractMessage{
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.actorId = param3;
@@ -1447,7 +1446,7 @@ export class EmotePlayMessage extends EmotePlayAbstractMessage{
     }
 }
 
-export class ObjectSetPositionMessage extends ProtocolMessage {
+class ObjectSetPositionMessage extends ProtocolMessage {
     constructor(objectUID, position, quantity) {
         super(3021);
         this.objectUID = objectUID;
@@ -1481,7 +1480,7 @@ export class ObjectSetPositionMessage extends ProtocolMessage {
     }
 }
 
-export class ObjectMovementMessage extends ProtocolMessage {
+class ObjectMovementMessage extends ProtocolMessage {
     constructor(objectUID, position) {
         super(3010);
         this.objectUID = objectUID;
@@ -1506,7 +1505,7 @@ export class ObjectMovementMessage extends ProtocolMessage {
     }
 }
 
-export class IgnoredAddedMessage extends ProtocolMessage {
+class IgnoredAddedMessage extends ProtocolMessage {
     constructor(ignoreAdded, session) {
         super(5678);
         this.ignoreAdded = ignoreAdded;
@@ -1525,7 +1524,7 @@ export class IgnoredAddedMessage extends ProtocolMessage {
     }
 }
 
-export class IgnoredAddRequestMessage extends ProtocolMessage {
+class IgnoredAddRequestMessage extends ProtocolMessage {
     constructor(name, session) {
         super(5673);
         this.name = name;
@@ -1541,7 +1540,7 @@ export class IgnoredAddRequestMessage extends ProtocolMessage {
     }
 }
 
-export class IgnoredListMessage extends ProtocolMessage {
+class IgnoredListMessage extends ProtocolMessage {
     constructor(ignoredList) {
         super(5674);
         this.ignoredList = ignoredList;
@@ -1570,7 +1569,7 @@ export class IgnoredListMessage extends ProtocolMessage {
     }
 }
 
-export class IgnoredGetListMessage extends ProtocolMessage {
+class IgnoredGetListMessage extends ProtocolMessage {
 constructor() {
     super(5676);
 }
@@ -1581,7 +1580,7 @@ deserialize(buffer){
 }
 }
 
-export class ObjectDeletedMessage extends ProtocolMessage {
+class ObjectDeletedMessage extends ProtocolMessage {
     constructor(objectUID) {
         super(3024);
         this.objectUID = objectUID;
@@ -1600,7 +1599,7 @@ export class ObjectDeletedMessage extends ProtocolMessage {
     }
 }
 
-export class IgnoredDeleteRequestMessage extends ProtocolMessage {
+class IgnoredDeleteRequestMessage extends ProtocolMessage {
     constructor(accountId, session) {
         super(5680);
         this.accountId = accountId;
@@ -1622,7 +1621,7 @@ export class IgnoredDeleteRequestMessage extends ProtocolMessage {
     }
 }
 
-export class IgnoredDeleteResultMessage extends ProtocolMessage {
+class IgnoredDeleteResultMessage extends ProtocolMessage {
     constructor(success, name, session) {
         super(5677);
         this.success = success;
@@ -1644,7 +1643,7 @@ export class IgnoredDeleteResultMessage extends ProtocolMessage {
     }
 }
 
-export class GameContextRefreshEntityLookMessage extends ProtocolMessage {
+class GameContextRefreshEntityLookMessage extends ProtocolMessage {
     constructor(id, look) {
         super(5637);
         this.id = id;
@@ -1667,14 +1666,14 @@ export class GameContextRefreshEntityLookMessage extends ProtocolMessage {
     }
 }
 
-export class BasicNoOperationMessage extends ProtocolMessage {
+class BasicNoOperationMessage extends ProtocolMessage {
     constructor() {
         super(176);
     }
     serialize(){
     }
 }
-export class LeaveDialogRequestMessage extends ProtocolMessage {
+class LeaveDialogRequestMessage extends ProtocolMessage {
     constructor() {
         super(5501);
     }
@@ -1683,7 +1682,7 @@ export class LeaveDialogRequestMessage extends ProtocolMessage {
     deserialize(buffer){
     }
 }
-export class LeaveDialogMessage extends ProtocolMessage {
+class LeaveDialogMessage extends ProtocolMessage {
     constructor(dialogType) {
         super(5502);
         this.dialogType = dialogType;
@@ -1692,7 +1691,7 @@ export class LeaveDialogMessage extends ProtocolMessage {
         this.buffer.writeByte(this.dialogType);
     }
 }
-export class TeleportRequestMessage extends ProtocolMessage {
+class TeleportRequestMessage extends ProtocolMessage {
     constructor(teleporterType, mapId) {
         super(5961);
         this.teleporterType = teleporterType;
@@ -1710,7 +1709,7 @@ export class TeleportRequestMessage extends ProtocolMessage {
     }
 }
 
-export class ObjectDeleteMessage extends ProtocolMessage {
+class ObjectDeleteMessage extends ProtocolMessage {
     constructor(objectUID, quantity) {
         super(3022);
         this.objectUID = objectUID;
@@ -1738,7 +1737,7 @@ export class ObjectDeleteMessage extends ProtocolMessage {
     }
 }
 
-export class ObjectQuantityMessage extends ProtocolMessage {
+class ObjectQuantityMessage extends ProtocolMessage {
     constructor(objectUID, quantity) {
         super(3023);
         this.objectUID = objectUID;
@@ -1766,7 +1765,7 @@ export class ObjectQuantityMessage extends ProtocolMessage {
     }
 }
 
-export class UpdateLifePointsMessage extends ProtocolMessage {
+class UpdateLifePointsMessage extends ProtocolMessage {
     constructor(lifePoints, maxLifePoints) {
         super(5658);
         this.lifePoints = lifePoints;
@@ -1794,7 +1793,7 @@ export class UpdateLifePointsMessage extends ProtocolMessage {
     }
 }
 
-export class SetCharacterRestrictionsMessage extends ProtocolMessage {
+class SetCharacterRestrictionsMessage extends ProtocolMessage {
     constructor(actorId, restrictions) {
         super(170);
         this.actorId = actorId;
@@ -1817,7 +1816,7 @@ export class SetCharacterRestrictionsMessage extends ProtocolMessage {
     }
 }
 
-export class LifePointsRegenBeginMessage extends ProtocolMessage {
+class LifePointsRegenBeginMessage extends ProtocolMessage {
     constructor(regenRate) {
         super(5684);
         this.regenRate = regenRate;
@@ -1836,7 +1835,7 @@ export class LifePointsRegenBeginMessage extends ProtocolMessage {
     }
 }
 
-export class LifePointsRegenEndMessage extends UpdateLifePointsMessage {
+class LifePointsRegenEndMessage extends UpdateLifePointsMessage {
     constructor(param1, param2, param3) {
         super(param1, param2);
         this.lifePointsGained = param3;
@@ -1858,7 +1857,7 @@ export class LifePointsRegenEndMessage extends UpdateLifePointsMessage {
     }
 }
 
-export class ObjectErrorMessage extends ProtocolMessage {
+class ObjectErrorMessage extends ProtocolMessage {
     constructor(reason) {
         super(3004);
         this.reason = reason;
@@ -1871,7 +1870,7 @@ export class ObjectErrorMessage extends ProtocolMessage {
     }
 }
 
-export class PartyInvitationRequestMessage extends ProtocolMessage {
+class PartyInvitationRequestMessage extends ProtocolMessage {
     constructor(name) {
         super(5585);
         this.name = name;
@@ -1884,7 +1883,7 @@ export class PartyInvitationRequestMessage extends ProtocolMessage {
     }
 }
 
-export class AbstractPartyMessage extends ProtocolMessage {
+class AbstractPartyMessage extends ProtocolMessage {
     constructor(partyId) {
         super(6274);
         this.partyId = partyId;
@@ -1903,7 +1902,7 @@ export class AbstractPartyMessage extends ProtocolMessage {
     }
 }
 
-export class PartyInvitationMessage extends AbstractPartyMessage {
+class PartyInvitationMessage extends AbstractPartyMessage {
     constructor(param1, param2, param3, param4, param5, param6, param7) {
         super(param1);
         this.partyType = param2;
@@ -1955,7 +1954,7 @@ export class PartyInvitationMessage extends AbstractPartyMessage {
     }
 }
 
-export class AbstractPartyEventMessage extends AbstractPartyMessage {
+class AbstractPartyEventMessage extends AbstractPartyMessage {
     constructor(param1) {
         super(param1);
         this.messageId = 6273;
@@ -1968,7 +1967,7 @@ export class AbstractPartyEventMessage extends AbstractPartyMessage {
     }
 }
 
-export class PartyRefuseInvitationMessage extends AbstractPartyMessage {
+class PartyRefuseInvitationMessage extends AbstractPartyMessage {
     constructor(param1) {
         super(param1);
         this.messageId = 5582;
@@ -1981,7 +1980,7 @@ export class PartyRefuseInvitationMessage extends AbstractPartyMessage {
     }
 }
 
-export class PartyRefuseInvitationNotificationMessage extends AbstractPartyEventMessage {
+class PartyRefuseInvitationNotificationMessage extends AbstractPartyEventMessage {
     constructor(param1, param2) {
         super(param1);
         this.guestId = param2;
@@ -2003,7 +2002,7 @@ export class PartyRefuseInvitationNotificationMessage extends AbstractPartyEvent
     }
 }
 
-export class SpellListMessage extends ProtocolMessage {
+class SpellListMessage extends ProtocolMessage {
     constructor(spellPrevisualization, spells) {
         super(1200);
         this.spellPrevisualization = spellPrevisualization;
@@ -2032,7 +2031,7 @@ export class SpellListMessage extends ProtocolMessage {
     }
 }
 
-export class PartyInvitationCancelledForGuestMessage extends AbstractPartyMessage {
+class PartyInvitationCancelledForGuestMessage extends AbstractPartyMessage {
     constructor(param1, param2) {
         super(param1);
         this.cancelerId = param2;
@@ -2054,7 +2053,7 @@ export class PartyInvitationCancelledForGuestMessage extends AbstractPartyMessag
     }
 }
 
-export class PartyAcceptInvitationMessage extends AbstractPartyMessage {
+class PartyAcceptInvitationMessage extends AbstractPartyMessage {
     constructor(param1) {
         super(param1);
         this.messageId = 5580;
@@ -2067,7 +2066,7 @@ export class PartyAcceptInvitationMessage extends AbstractPartyMessage {
     }
 }
 
-export class PartyUpdateMessage extends AbstractPartyEventMessage {
+class PartyUpdateMessage extends AbstractPartyEventMessage {
     constructor(param1, param2) {
         super(param1);
         this.memberInformations = param2;
@@ -2086,7 +2085,7 @@ export class PartyUpdateMessage extends AbstractPartyEventMessage {
     }
 }
 
-export class PartyNewMemberMessage extends PartyUpdateMessage {
+class PartyNewMemberMessage extends PartyUpdateMessage {
     constructor(param1, param2) {
         super(param1, param2);
         this.messageId = 6306;
@@ -2099,7 +2098,7 @@ export class PartyNewMemberMessage extends PartyUpdateMessage {
     }
 }
 
-export class PartyJoinMessage extends AbstractPartyMessage {
+class PartyJoinMessage extends AbstractPartyMessage {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8) {
         super(param1);
         this.partyType = param2;
@@ -2177,7 +2176,7 @@ export class PartyJoinMessage extends AbstractPartyMessage {
     }
 }
 
-export class SpellModifyRequestMessage extends ProtocolMessage {
+class SpellModifyRequestMessage extends ProtocolMessage {
     constructor(spellId, spellLevel) {
         super(6655);
         this.spellId = spellId;
@@ -2205,7 +2204,7 @@ export class SpellModifyRequestMessage extends ProtocolMessage {
     }
 }
 
-export class SpellModifySuccessMessage extends ProtocolMessage {
+class SpellModifySuccessMessage extends ProtocolMessage {
     constructor(spellId, spellLevel) {
         super(6654);
         this.spellId = spellId;
@@ -2227,7 +2226,7 @@ export class SpellModifySuccessMessage extends ProtocolMessage {
     }
 }
 
-export class GameRolePlayPlayerFightRequestMessage extends ProtocolMessage {
+class GameRolePlayPlayerFightRequestMessage extends ProtocolMessage {
     constructor(targetId, targetCellId, friendly) {
         super(5731);
         this.targetId = targetId;
@@ -2258,7 +2257,7 @@ export class GameRolePlayPlayerFightRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameRolePlayPlayerFightFriendlyRequestedMessage extends ProtocolMessage {
+class GameRolePlayPlayerFightFriendlyRequestedMessage extends ProtocolMessage {
     constructor(fightId, sourceId, targetId) {
         super(5937);
         this.fightId = fightId;
@@ -2295,7 +2294,7 @@ export class GameRolePlayPlayerFightFriendlyRequestedMessage extends ProtocolMes
     }
 }
 
-export class GameRolePlayPlayerFightFriendlyAnswerMessage extends ProtocolMessage {
+class GameRolePlayPlayerFightFriendlyAnswerMessage extends ProtocolMessage {
     constructor(fightId, accept) {
         super(5732);
         this.fightId = fightId;
@@ -2311,7 +2310,7 @@ export class GameRolePlayPlayerFightFriendlyAnswerMessage extends ProtocolMessag
     }
 }
 
-export class GameRolePlayPlayerFightFriendlyAnsweredMessage extends ProtocolMessage {
+class GameRolePlayPlayerFightFriendlyAnsweredMessage extends ProtocolMessage {
     constructor(fightId, sourceId, targetId, accept) {
         super(5733);
         this.fightId = fightId;
@@ -2345,7 +2344,7 @@ export class GameRolePlayPlayerFightFriendlyAnsweredMessage extends ProtocolMess
     }
 }
 
-export class GameFightStartingMessage extends ProtocolMessage {
+class GameFightStartingMessage extends ProtocolMessage {
     constructor(fightType, attackerId, defenderId) {
         super(700);
         this.fightType = fightType;
@@ -2379,7 +2378,7 @@ export class GameFightStartingMessage extends ProtocolMessage {
     }
 }
 
-export class PartyNewGuestMessage extends AbstractPartyEventMessage {
+class PartyNewGuestMessage extends AbstractPartyEventMessage {
     constructor(param1, param2) {
         super(param1);
         this.guest = param2;
@@ -2396,7 +2395,7 @@ export class PartyNewGuestMessage extends AbstractPartyEventMessage {
     }
 }
 
-export class GameFightJoinMessage extends ProtocolMessage {
+class GameFightJoinMessage extends ProtocolMessage {
     constructor(isTeamPhase, canBeCancelled, canSayReady, isFightStarted, timeMaxBeforeFightStart, fightType) {
         super(702);
         this.isTeamPhase = isTeamPhase;
@@ -2436,7 +2435,7 @@ export class GameFightJoinMessage extends ProtocolMessage {
     }
 }
 
-export class PartyLeaveRequestMessage extends AbstractPartyMessage {
+class PartyLeaveRequestMessage extends AbstractPartyMessage {
     constructor(param1) {
         super(param1);
         this.messageId = 5593;
@@ -2449,7 +2448,7 @@ export class PartyLeaveRequestMessage extends AbstractPartyMessage {
     }
 }
 
-export class PartyLeaveMessage extends AbstractPartyMessage {
+class PartyLeaveMessage extends AbstractPartyMessage {
     constructor(param1) {
         super(param1);
         this.messageId = 5594;
@@ -2464,7 +2463,7 @@ export class PartyLeaveMessage extends AbstractPartyMessage {
     }
 }
 
-export class GameFightPlacementPossiblePositionsMessage extends ProtocolMessage {
+class GameFightPlacementPossiblePositionsMessage extends ProtocolMessage {
     constructor(positionsForChallengers, positionsForDefenders, teamNumber) {
         super(703);
         this.positionsForChallengers = positionsForChallengers;
@@ -2522,7 +2521,7 @@ export class GameFightPlacementPossiblePositionsMessage extends ProtocolMessage 
     }
 }
 
-export class PartyMemberRemoveMessage extends AbstractPartyEventMessage {
+class PartyMemberRemoveMessage extends AbstractPartyEventMessage {
     constructor(param1, param2) {
         super(param1);
         this.leavingPlayerId = param2;
@@ -2544,7 +2543,7 @@ export class PartyMemberRemoveMessage extends AbstractPartyEventMessage {
     }
 }
 
-export class GameFightShowFighterMessage extends ProtocolMessage {
+class GameFightShowFighterMessage extends ProtocolMessage {
     constructor(informations) {
         super(5864);
         this.informations = informations;
@@ -2560,7 +2559,7 @@ export class GameFightShowFighterMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightPlacementPositionRequestMessage extends ProtocolMessage {
+class GameFightPlacementPositionRequestMessage extends ProtocolMessage {
     constructor(cellId) {
         super(704);
         this.cellId = cellId;
@@ -2579,7 +2578,7 @@ export class GameFightPlacementPositionRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameEntitiesDispositionMessage extends ProtocolMessage {
+class GameEntitiesDispositionMessage extends ProtocolMessage {
     constructor(dispositions) {
         super(5696);
         this.dispositions = dispositions;
@@ -2605,7 +2604,7 @@ export class GameEntitiesDispositionMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightReadyMessage extends ProtocolMessage {
+class GameFightReadyMessage extends ProtocolMessage {
     constructor(isReady) {
         super(708);
         this.isReady = isReady;
@@ -2618,7 +2617,7 @@ export class GameFightReadyMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightHumanReadyStateMessage extends ProtocolMessage {
+class GameFightHumanReadyStateMessage extends ProtocolMessage {
     constructor(characterId, isReady) {
         super(740);
         this.characterId = characterId;
@@ -2640,7 +2639,7 @@ export class GameFightHumanReadyStateMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightStartMessage extends ProtocolMessage {
+class GameFightStartMessage extends ProtocolMessage {
     constructor(idols) {
         super(712);
         this.idols = idols;
@@ -2666,7 +2665,7 @@ export class GameFightStartMessage extends ProtocolMessage {
     }
 }
 
-export class GameRolePlayShowChallengeMessage extends ProtocolMessage {
+class GameRolePlayShowChallengeMessage extends ProtocolMessage {
     constructor(commonsInfos) {
         super(301);
         this.commonsInfos = commonsInfos;
@@ -2680,7 +2679,7 @@ export class GameRolePlayShowChallengeMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightJoinRequestMessage extends ProtocolMessage {
+class GameFightJoinRequestMessage extends ProtocolMessage {
     constructor(fighterId, fightId) {
         super(701);
         this.fighterId = fighterId;
@@ -2702,7 +2701,7 @@ export class GameFightJoinRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameRolePlayRemoveChallengeMessage extends ProtocolMessage {
+class GameRolePlayRemoveChallengeMessage extends ProtocolMessage {
     constructor(fightId) {
         super(300);
         this.fightId = fightId;
@@ -2715,7 +2714,7 @@ export class GameRolePlayRemoveChallengeMessage extends ProtocolMessage {
     }
 }
 
-export class GameContextQuitMessage extends ProtocolMessage {
+class GameContextQuitMessage extends ProtocolMessage {
     constructor() {
     super(255);
     }
@@ -2725,7 +2724,7 @@ export class GameContextQuitMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightLeaveMessage extends ProtocolMessage {
+class GameFightLeaveMessage extends ProtocolMessage {
     constructor(charId) {
         super(721);
         this.charId = charId;
@@ -2744,7 +2743,7 @@ export class GameFightLeaveMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightEndMessage extends ProtocolMessage {
+class GameFightEndMessage extends ProtocolMessage {
     constructor(duration, ageBonus, lootShareLimitMalus, results, namedPartyTeamsOutcomes) {
         super(720);
         this.duration = duration;
@@ -2804,7 +2803,7 @@ export class GameFightEndMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightSynchronizeMessage extends ProtocolMessage {
+class GameFightSynchronizeMessage extends ProtocolMessage {
     constructor(fighters) {
         super(5921);
         this.fighters = fighters;
@@ -2833,7 +2832,7 @@ export class GameFightSynchronizeMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightRemoveTeamMemberMessage extends ProtocolMessage {
+class GameFightRemoveTeamMemberMessage extends ProtocolMessage {
     constructor(fightId, teamId, charId) {
         super(711);
         this.fightId = fightId;
@@ -2867,7 +2866,7 @@ export class GameFightRemoveTeamMemberMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightTurnListMessage extends ProtocolMessage {
+class GameFightTurnListMessage extends ProtocolMessage {
     constructor(ids, deadsIds) {
         super(713);
         this.ids = ids;
@@ -2919,7 +2918,7 @@ export class GameFightTurnListMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightTurnStartMessage extends ProtocolMessage {
+class GameFightTurnStartMessage extends ProtocolMessage {
     constructor(id, waitTime) {
         super(714);
         this.id = id;
@@ -2947,7 +2946,7 @@ export class GameFightTurnStartMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightTurnEndMessage extends ProtocolMessage {
+class GameFightTurnEndMessage extends ProtocolMessage {
     constructor(id) {
         super(719);
         this.id = id;
@@ -2966,7 +2965,7 @@ export class GameFightTurnEndMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightTurnFinishMessage extends ProtocolMessage {
+class GameFightTurnFinishMessage extends ProtocolMessage {
     constructor(isAfk) {
         super(718);
         this.isAfk = isAfk;
@@ -2980,7 +2979,7 @@ export class GameFightTurnFinishMessage extends ProtocolMessage {
 }
 
 
-export class AbstractGameActionMessage extends ProtocolMessage {
+class AbstractGameActionMessage extends ProtocolMessage {
     constructor(actionId, sourceId) {
         super(1000);
         this.actionId = actionId;
@@ -3008,7 +3007,7 @@ export class AbstractGameActionMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightPointsVariationMessage extends AbstractGameActionMessage {
+class GameActionFightPointsVariationMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.targetId = param3;
@@ -3033,7 +3032,7 @@ export class GameActionFightPointsVariationMessage extends AbstractGameActionMes
     }
 }
 
-export class SequenceStartMessage extends ProtocolMessage {
+class SequenceStartMessage extends ProtocolMessage {
     constructor(sequenceType, authorId) {
         super(955);
         this.sequenceType = sequenceType;
@@ -3055,7 +3054,7 @@ export class SequenceStartMessage extends ProtocolMessage {
     }
 }
 
-export class SequenceEndMessage extends ProtocolMessage {
+class SequenceEndMessage extends ProtocolMessage {
     constructor(actionId, authorId, sequenceType) {
         super(956);
         this.actionId = actionId;
@@ -3086,7 +3085,7 @@ export class SequenceEndMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightTurnReadyMessage extends ProtocolMessage {
+class GameFightTurnReadyMessage extends ProtocolMessage {
     constructor(isReady) {
         super(716);
         this.isReady = isReady;
@@ -3099,7 +3098,7 @@ export class GameFightTurnReadyMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightTurnReadyRequestMessage extends ProtocolMessage {
+class GameFightTurnReadyRequestMessage extends ProtocolMessage {
     constructor(id) {
         super(715);
         this.id = id;
@@ -3118,7 +3117,7 @@ export class GameFightTurnReadyRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameFightTurnStartPlayingMessage extends ProtocolMessage {
+class GameFightTurnStartPlayingMessage extends ProtocolMessage {
     constructor() {
         super(6465);
     }
@@ -3128,7 +3127,7 @@ export class GameFightTurnStartPlayingMessage extends ProtocolMessage {
     }
 }
 
-export class NotificationListMessage extends ProtocolMessage {
+class NotificationListMessage extends ProtocolMessage {
     constructor(flags) {
         super(6087);
         this.flags = flags;
@@ -3153,7 +3152,7 @@ export class NotificationListMessage extends ProtocolMessage {
     }
 }
 
-export class PartyKickRequestMessage extends AbstractPartyMessage {
+class PartyKickRequestMessage extends AbstractPartyMessage {
     constructor(param1, param2) {
         super(param1);
         this.playerId = param2;
@@ -3175,7 +3174,7 @@ export class PartyKickRequestMessage extends AbstractPartyMessage {
     }
 }
 
-export class PartyLeaderUpdateMessage extends AbstractPartyEventMessage {
+class PartyLeaderUpdateMessage extends AbstractPartyEventMessage {
     constructor(param1, param2) {
         super(param1);
         this.partyLeaderId = param2;
@@ -3198,7 +3197,7 @@ export class PartyLeaderUpdateMessage extends AbstractPartyEventMessage {
     }
 }
 
-export class PartyAbdicateThroneMessage extends AbstractPartyMessage {
+class PartyAbdicateThroneMessage extends AbstractPartyMessage {
     constructor(param1, param2) {
         super(param1);
         this.playerId = param2;
@@ -3221,7 +3220,7 @@ export class PartyAbdicateThroneMessage extends AbstractPartyMessage {
 }
 
 // Generated by Noxus messages
-export class PartyFollowMemberRequestMessage extends AbstractPartyMessage {
+class PartyFollowMemberRequestMessage extends AbstractPartyMessage {
     constructor(param1, param2) {
         super(param1);
         this.playerId = param2;
@@ -3244,7 +3243,7 @@ export class PartyFollowMemberRequestMessage extends AbstractPartyMessage {
 }
 
 // Generated by Noxus messages
-export class PartyFollowStatusUpdateMessage extends AbstractPartyMessage {
+class PartyFollowStatusUpdateMessage extends AbstractPartyMessage {
     constructor(param1, param2, param3, param4) {
         super(param1);
         this.success = param2;
@@ -3276,7 +3275,7 @@ export class PartyFollowStatusUpdateMessage extends AbstractPartyMessage {
 }
 
 // Generated by Noxus messages
-export class PartyFollowThisMemberRequestMessage extends PartyFollowMemberRequestMessage {
+class PartyFollowThisMemberRequestMessage extends PartyFollowMemberRequestMessage {
     constructor(param1, param2, param3) {
         super(param1, param2);
         this.enabled = param3;
@@ -3292,7 +3291,7 @@ export class PartyFollowThisMemberRequestMessage extends PartyFollowMemberReques
     }
 }
 
-export class PartyStopFollowRequestMessage extends AbstractPartyMessage {
+class PartyStopFollowRequestMessage extends AbstractPartyMessage {
     constructor(param1, param2) {
         super(param1);
         this.playerId = param2;
@@ -3315,7 +3314,7 @@ export class PartyStopFollowRequestMessage extends AbstractPartyMessage {
 }
 
 
-export class CompassUpdateMessage extends ProtocolMessage {
+class CompassUpdateMessage extends ProtocolMessage {
     constructor(type, coords) {
         super(5591);
         this.type = type;
@@ -3337,7 +3336,7 @@ export class CompassUpdateMessage extends ProtocolMessage {
     }
 }
 
-export class CompassUpdatePartyMemberMessage extends CompassUpdateMessage {
+class CompassUpdatePartyMemberMessage extends CompassUpdateMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.memberId = param3;
@@ -3362,7 +3361,7 @@ export class CompassUpdatePartyMemberMessage extends CompassUpdateMessage {
     }
 }
 
-export class PartyInvitationDetailsMessage extends AbstractPartyMessage {
+class PartyInvitationDetailsMessage extends AbstractPartyMessage {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8) {
         super(param1);
         this.partyType = param2;
@@ -3437,7 +3436,7 @@ export class PartyInvitationDetailsMessage extends AbstractPartyMessage {
     }
 }
 
-export class PartyInvitationDetailsRequestMessage extends AbstractPartyMessage {
+class PartyInvitationDetailsRequestMessage extends AbstractPartyMessage {
     constructor(param1) {
         super(param1);
         this.messageId = 6264;
@@ -3450,7 +3449,7 @@ export class PartyInvitationDetailsRequestMessage extends AbstractPartyMessage {
     }
 }
 
-export class ShortcutBarAddRequestMessage extends ProtocolMessage {
+class ShortcutBarAddRequestMessage extends ProtocolMessage {
     constructor(barType, shortcut) {
         super(6225);
         this.barType = barType;
@@ -3472,7 +3471,7 @@ export class ShortcutBarAddRequestMessage extends ProtocolMessage {
     }
 }
 
-export class ShortcutBarContentMessage extends ProtocolMessage {
+class ShortcutBarContentMessage extends ProtocolMessage {
     constructor(barType, shortcuts) {
         super(6231);
         this.barType = barType;
@@ -3507,7 +3506,7 @@ export class ShortcutBarContentMessage extends ProtocolMessage {
     }
 }
 
-export class ShortcutBarRefreshMessage extends ProtocolMessage {
+class ShortcutBarRefreshMessage extends ProtocolMessage {
     constructor(barType, shortcut) {
         super(6229);
         this.barType = barType;
@@ -3529,7 +3528,7 @@ export class ShortcutBarRefreshMessage extends ProtocolMessage {
     }
 }
 
-export class PartyCancelInvitationMessage extends AbstractPartyMessage {
+class PartyCancelInvitationMessage extends AbstractPartyMessage {
     constructor(param1, param2) {
         super(param1);
         this.guestId = param2;
@@ -3551,7 +3550,7 @@ export class PartyCancelInvitationMessage extends AbstractPartyMessage {
     }
 }
 
-export class ExchangeRequestMessage extends ProtocolMessage {
+class ExchangeRequestMessage extends ProtocolMessage {
     constructor(exchangeType) {
         super(5505);
         this.exchangeType = exchangeType;
@@ -3564,7 +3563,7 @@ export class ExchangeRequestMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangePlayerRequestMessage extends ExchangeRequestMessage {
+class ExchangePlayerRequestMessage extends ExchangeRequestMessage {
     constructor(param1, param2) {
         super(param1);
         this.target = param2;
@@ -3586,7 +3585,7 @@ export class ExchangePlayerRequestMessage extends ExchangeRequestMessage {
     }
 }
 
-export class ExchangeRequestedMessage extends ProtocolMessage {
+class ExchangeRequestedMessage extends ProtocolMessage {
     constructor(exchangeType) {
         super(5522);
         this.exchangeType = exchangeType;
@@ -3599,7 +3598,7 @@ export class ExchangeRequestedMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeRequestedTradeMessage extends ExchangeRequestedMessage {
+class ExchangeRequestedTradeMessage extends ExchangeRequestedMessage {
     constructor(param1, param2, param3) {
         super(param1);
         this.source = param2;
@@ -3630,7 +3629,7 @@ export class ExchangeRequestedTradeMessage extends ExchangeRequestedMessage {
     }
 }
 
-export class ShortcutBarSwapRequestMessage extends ProtocolMessage {
+class ShortcutBarSwapRequestMessage extends ProtocolMessage {
     constructor(barType, firstSlot, secondSlot) {
         super(6230);
         this.barType = barType;
@@ -3664,7 +3663,7 @@ export class ShortcutBarSwapRequestMessage extends ProtocolMessage {
     }
 }
 
-export class ShortcutBarRemoveRequestMessage extends ProtocolMessage {
+class ShortcutBarRemoveRequestMessage extends ProtocolMessage {
     constructor(barType, slot) {
         super(6228);
         this.barType = barType;
@@ -3688,7 +3687,7 @@ export class ShortcutBarRemoveRequestMessage extends ProtocolMessage {
         }
     }
 }
-export class EntityLook{
+class EntityLook{
 constructor(bonesId,skins,indexedColors,scales,subentities) {
 this.bonesId = bonesId;
 this.skins = skins;
@@ -3738,7 +3737,7 @@ this.subentities[_loc5_].serialize(buffer);
 }
 }
 
-export class ExchangeLeaveMessage extends LeaveDialogMessage {
+class ExchangeLeaveMessage extends LeaveDialogMessage {
     constructor(param1, param2) {
         super(param1);
         this.success = param2;
@@ -3754,7 +3753,7 @@ export class ExchangeLeaveMessage extends LeaveDialogMessage {
     }
 }
 
-export class ExchangeAcceptMessage extends ProtocolMessage {
+class ExchangeAcceptMessage extends ProtocolMessage {
     constructor() {
         super(5508);
     }
@@ -3764,7 +3763,7 @@ export class ExchangeAcceptMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeStartedMessage extends ProtocolMessage {
+class ExchangeStartedMessage extends ProtocolMessage {
     constructor(exchangeType) {
         super(5512);
         this.exchangeType = exchangeType;
@@ -3777,7 +3776,7 @@ export class ExchangeStartedMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeStartedWithPodsMessage extends ExchangeStartedMessage {
+class ExchangeStartedWithPodsMessage extends ExchangeStartedMessage {
     constructor(param1, param2, param3, param4, param5, param6, param7) {
         super(param1);
         this.firstCharacterId = param2;
@@ -3844,7 +3843,7 @@ export class ExchangeStartedWithPodsMessage extends ExchangeStartedMessage {
     }
 }
 
-export class GameActionFightCastRequestMessage extends ProtocolMessage {
+class GameActionFightCastRequestMessage extends ProtocolMessage {
     constructor(spellId, cellId) {
         super(1005);
         this.spellId = spellId;
@@ -3872,7 +3871,7 @@ export class GameActionFightCastRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameContextKickMessage extends ProtocolMessage {
+class GameContextKickMessage extends ProtocolMessage {
     constructor(targetId) {
         super(6081);
         this.targetId = targetId;
@@ -3891,7 +3890,7 @@ export class GameContextKickMessage extends ProtocolMessage {
     }
 }
 
-export class AbstractGameActionFightTargetedAbilityMessage extends AbstractGameActionMessage {
+class AbstractGameActionFightTargetedAbilityMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4, param5, param6, param7) {
         super(param1, param2);
         this.targetId = param3;
@@ -3937,7 +3936,7 @@ export class AbstractGameActionFightTargetedAbilityMessage extends AbstractGameA
     }
 }
 
-export class GameActionFightSpellCastMessage extends AbstractGameActionFightTargetedAbilityMessage {
+class GameActionFightSpellCastMessage extends AbstractGameActionFightTargetedAbilityMessage {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10) {
         super(param1, param2, param3, param4, param5, param6, param7);
         this.spellId = param8;
@@ -3983,7 +3982,7 @@ export class GameActionFightSpellCastMessage extends AbstractGameActionFightTarg
     }
 }
 
-export class GameActionFightLifePointsLostMessage extends AbstractGameActionMessage {
+class GameActionFightLifePointsLostMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4, param5) {
         super(param1, param2);
         this.targetId = param3;
@@ -4023,7 +4022,7 @@ export class GameActionFightLifePointsLostMessage extends AbstractGameActionMess
     }
 }
 
-export class GameActionFightDeathMessage extends AbstractGameActionMessage {
+class GameActionFightDeathMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3) {
         super(param1, param2);
         this.targetId = param3;
@@ -4045,7 +4044,7 @@ export class GameActionFightDeathMessage extends AbstractGameActionMessage {
     }
 }
 
-export class ExchangeObjectMoveKamaMessage extends ProtocolMessage {
+class ExchangeObjectMoveKamaMessage extends ProtocolMessage {
     constructor(quantity) {
         super(5520);
         this.quantity = quantity;
@@ -4058,7 +4057,7 @@ export class ExchangeObjectMoveKamaMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeObjectMessage extends ProtocolMessage {
+class ExchangeObjectMessage extends ProtocolMessage {
     constructor(remote) {
         super(5515);
         this.remote = remote;
@@ -4071,7 +4070,7 @@ export class ExchangeObjectMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeKamaModifiedMessage extends ExchangeObjectMessage {
+class ExchangeKamaModifiedMessage extends ExchangeObjectMessage {
     constructor(param1, param2) {
         super(param1);
         this.quantity = param2;
@@ -4093,7 +4092,7 @@ export class ExchangeKamaModifiedMessage extends ExchangeObjectMessage {
     }
 }
 
-export class ExchangeObjectMoveMessage extends ProtocolMessage {
+class ExchangeObjectMoveMessage extends ProtocolMessage {
     constructor(objectUID, quantity) {
         super(5518);
         this.objectUID = objectUID;
@@ -4115,7 +4114,7 @@ export class ExchangeObjectMoveMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeObjectAddedMessage extends ExchangeObjectMessage {
+class ExchangeObjectAddedMessage extends ExchangeObjectMessage {
     constructor(param1, param2) {
         super(param1);
         this.object = param2;
@@ -4132,7 +4131,7 @@ export class ExchangeObjectAddedMessage extends ExchangeObjectMessage {
     }
 }
 
-export class ExchangeObjectModifiedMessage extends ExchangeObjectMessage {
+class ExchangeObjectModifiedMessage extends ExchangeObjectMessage {
     constructor(param1, param2) {
         super(param1);
         this.object = param2;
@@ -4149,7 +4148,7 @@ export class ExchangeObjectModifiedMessage extends ExchangeObjectMessage {
     }
 }
 
-export class ExchangeObjectRemovedMessage extends ExchangeObjectMessage {
+class ExchangeObjectRemovedMessage extends ExchangeObjectMessage {
     constructor(param1, param2) {
         super(param1);
         this.objectUID = param2;
@@ -4171,7 +4170,7 @@ export class ExchangeObjectRemovedMessage extends ExchangeObjectMessage {
     }
 }
 
-export class ExchangeReadyMessage extends ProtocolMessage {
+class ExchangeReadyMessage extends ProtocolMessage {
     constructor(ready, step) {
         super(5511);
         this.ready = ready;
@@ -4193,7 +4192,7 @@ export class ExchangeReadyMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeIsReadyMessage extends ProtocolMessage {
+class ExchangeIsReadyMessage extends ProtocolMessage {
     constructor(id, ready) {
         super(5509);
         this.id = id;
@@ -4215,7 +4214,7 @@ export class ExchangeIsReadyMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightTeleportOnSameMapMessage extends AbstractGameActionMessage {
+class GameActionFightTeleportOnSameMapMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.targetId = param3;
@@ -4245,7 +4244,7 @@ export class GameActionFightTeleportOnSameMapMessage extends AbstractGameActionM
         }
     }
 }
-export class NpcGenericActionRequestMessage extends ProtocolMessage {
+class NpcGenericActionRequestMessage extends ProtocolMessage {
     constructor(npcId, npcActionId, npcMapId) {
         super(5898);
         this.npcId = npcId;
@@ -4270,7 +4269,7 @@ export class NpcGenericActionRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightDispellableEffectMessage extends AbstractGameActionMessage {
+class GameActionFightDispellableEffectMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3) {
         super(param1, param2);
         this.effect = param3;
@@ -4289,7 +4288,7 @@ export class GameActionFightDispellableEffectMessage extends AbstractGameActionM
     }
 }
 
-export class NpcDialogCreationMessage extends ProtocolMessage {
+class NpcDialogCreationMessage extends ProtocolMessage {
     constructor(mapId, npcId) {
         super(5618);
         this.mapId = mapId;
@@ -4300,7 +4299,7 @@ export class NpcDialogCreationMessage extends ProtocolMessage {
         this.buffer.writeInt(this.npcId);
     }
 }
-export class NpcDialogQuestionMessage extends ProtocolMessage {
+class NpcDialogQuestionMessage extends ProtocolMessage {
     constructor(message, dialogParams, visibleReplies) {
         super(5617);
         this.message = message;
@@ -4330,7 +4329,7 @@ export class NpcDialogQuestionMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightSlideMessage extends AbstractGameActionMessage {
+class GameActionFightSlideMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4, param5) {
         super(param1, param2);
         this.targetId = param3;
@@ -4369,7 +4368,7 @@ export class GameActionFightSlideMessage extends AbstractGameActionMessage {
         }
     }
 }
-export class NpcDialogReplyMessage extends ProtocolMessage {
+class NpcDialogReplyMessage extends ProtocolMessage {
     constructor(replyId) {
         super(5616);
         this.replyId = replyId;
@@ -4388,7 +4387,7 @@ export class NpcDialogReplyMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightDodgePointLossMessage extends AbstractGameActionMessage {
+class GameActionFightDodgePointLossMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.targetId = param3;
@@ -4419,7 +4418,7 @@ export class GameActionFightDodgePointLossMessage extends AbstractGameActionMess
     }
 }
 
-export class ExchangeStartOkNpcShopMessage extends ProtocolMessage {
+class ExchangeStartOkNpcShopMessage extends ProtocolMessage {
     constructor(npcSellerId, tokenId, objectsInfos) {
         super(5761);
         this.npcSellerId = npcSellerId;
@@ -4444,7 +4443,7 @@ export class ExchangeStartOkNpcShopMessage extends ProtocolMessage {
     }
 }
 
-export class FighterStatsListMessage extends ProtocolMessage {
+class FighterStatsListMessage extends ProtocolMessage {
     constructor(stats) {
         super(6322);
         this.stats = stats;
@@ -4458,7 +4457,7 @@ export class FighterStatsListMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeBuyMessage extends ProtocolMessage {
+class ExchangeBuyMessage extends ProtocolMessage {
     constructor(objectToBuyId, quantity) {
         super(5774);
         this.objectToBuyId = objectToBuyId;
@@ -4485,7 +4484,7 @@ export class ExchangeBuyMessage extends ProtocolMessage {
         }
     }
 }
-export class ExchangeErrorMessage extends ProtocolMessage {
+class ExchangeErrorMessage extends ProtocolMessage {
     constructor(errorType) {
         super(5513);
         this.errorType = errorType;
@@ -4498,7 +4497,7 @@ export class ExchangeErrorMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightLifePointsGainMessage extends AbstractGameActionMessage {
+class GameActionFightLifePointsGainMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.targetId = param3;
@@ -4529,7 +4528,7 @@ export class GameActionFightLifePointsGainMessage extends AbstractGameActionMess
     }
 }
 
-export class ExchangeBuyOkMessage extends ProtocolMessage {
+class ExchangeBuyOkMessage extends ProtocolMessage {
     constructor() {
         super(5759);
     }
@@ -4539,7 +4538,7 @@ export class ExchangeBuyOkMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightCastOnTargetRequestMessage extends ProtocolMessage {
+class GameActionFightCastOnTargetRequestMessage extends ProtocolMessage {
     constructor(spellId, targetId) {
         super(6330);
         this.spellId = spellId;
@@ -4566,7 +4565,7 @@ export class GameActionFightCastOnTargetRequestMessage extends ProtocolMessage {
         }
     }
 }
-export class ExchangeSellMessage extends ProtocolMessage {
+class ExchangeSellMessage extends ProtocolMessage {
     constructor(objectToSellId, quantity) {
         super(5778);
         this.objectToSellId = objectToSellId;
@@ -4594,7 +4593,7 @@ export class ExchangeSellMessage extends ProtocolMessage {
     }
 }
 
-export class ExchangeSellOkMessage extends ProtocolMessage {
+class ExchangeSellOkMessage extends ProtocolMessage {
     constructor() {
         super(5792);
     }
@@ -4604,7 +4603,7 @@ export class ExchangeSellOkMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightNoSpellCastMessage extends ProtocolMessage {
+class GameActionFightNoSpellCastMessage extends ProtocolMessage {
     constructor(spellLevelId) {
         super(6132);
         this.spellLevelId = spellLevelId;
@@ -4623,7 +4622,7 @@ export class GameActionFightNoSpellCastMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightDispellMessage extends AbstractGameActionMessage {
+class GameActionFightDispellMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3) {
         super(param1, param2);
         this.targetId = param3;
@@ -4645,7 +4644,7 @@ export class GameActionFightDispellMessage extends AbstractGameActionMessage {
     }
 }
 
-export class GameActionFightDispellSpellMessage extends GameActionFightDispellMessage {
+class GameActionFightDispellSpellMessage extends GameActionFightDispellMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2, param3);
         this.spellId = param4;
@@ -4667,7 +4666,7 @@ export class GameActionFightDispellSpellMessage extends GameActionFightDispellMe
     }
 }
 
-export class AlmanachCalendarDateMessage extends ProtocolMessage {
+class AlmanachCalendarDateMessage extends ProtocolMessage {
     constructor(date) {
         super(6341);
         this.date = date;
@@ -4680,7 +4679,7 @@ export class AlmanachCalendarDateMessage extends ProtocolMessage {
     }
 }
 
-export class GameRolePlayAttackMonsterRequestMessage extends ProtocolMessage {
+class GameRolePlayAttackMonsterRequestMessage extends ProtocolMessage {
     constructor(monsterGroupId) {
         super(6191);
         this.monsterGroupId = monsterGroupId;
@@ -4699,7 +4698,7 @@ export class GameRolePlayAttackMonsterRequestMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightInvisibilityMessage extends AbstractGameActionMessage {
+class GameActionFightInvisibilityMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.targetId = param3;
@@ -4727,7 +4726,7 @@ export class GameActionFightInvisibilityMessage extends AbstractGameActionMessag
     }
 }
 
-export class ShowCellMessage extends ProtocolMessage {
+class ShowCellMessage extends ProtocolMessage {
     constructor(sourceId, cellId) {
         super(5612);
         this.sourceId = sourceId;
@@ -4755,7 +4754,7 @@ export class ShowCellMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightMarkCellsMessage extends AbstractGameActionMessage {
+class GameActionFightMarkCellsMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3) {
         super(param1, param2);
         this.mark = param3;
@@ -4771,7 +4770,7 @@ export class GameActionFightMarkCellsMessage extends AbstractGameActionMessage {
         this.mark.deserialize(buffer);
     }
 }
-export class GameActionFightSpellCooldownVariationMessage extends AbstractGameActionMessage {
+class GameActionFightSpellCooldownVariationMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4, param5) {
         super(param1, param2);
         this.targetId = param3;
@@ -4793,7 +4792,7 @@ export class GameActionFightSpellCooldownVariationMessage extends AbstractGameAc
     }
 }
 
-export class GameActionFightTriggerGlyphTrapMessage extends AbstractGameActionMessage {
+class GameActionFightTriggerGlyphTrapMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4, param5) {
         super(param1, param2);
         this.markId = param3;
@@ -4827,7 +4826,7 @@ export class GameActionFightTriggerGlyphTrapMessage extends AbstractGameActionMe
     }
 }
 
-export class GameActionFightUnmarkCellsMessage extends AbstractGameActionMessage {
+class GameActionFightUnmarkCellsMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3) {
         super(param1, param2);
         this.markId = param3;
@@ -4843,7 +4842,7 @@ export class GameActionFightUnmarkCellsMessage extends AbstractGameActionMessage
     }
 }
 
-export class GameMapNoMovementMessage extends ProtocolMessage {
+class GameMapNoMovementMessage extends ProtocolMessage {
     constructor(cellX, cellY) {
         super(954);
         this.cellX = cellX;
@@ -4859,7 +4858,7 @@ export class GameMapNoMovementMessage extends ProtocolMessage {
     }
 }
 
-export class GameActionFightChangeLookMessage extends AbstractGameActionMessage {
+class GameActionFightChangeLookMessage extends AbstractGameActionMessage {
     constructor(param1, param2, param3, param4) {
         super(param1, param2);
         this.targetId = param3;
@@ -4876,7 +4875,7 @@ export class GameActionFightChangeLookMessage extends AbstractGameActionMessage 
     }
 }
 
-export class FinishMoveListRequestMessage extends ProtocolMessage {
+class FinishMoveListRequestMessage extends ProtocolMessage {
     constructor() {
         super(6702);
     }
@@ -4886,7 +4885,7 @@ export class FinishMoveListRequestMessage extends ProtocolMessage {
     }
 }
 
-export class FinishMoveListMessage extends ProtocolMessage {
+class FinishMoveListMessage extends ProtocolMessage {
     constructor(finishMoves) {
         super(6704);
         this.finishMoves = finishMoves;
@@ -4911,3 +4910,231 @@ export class FinishMoveListMessage extends ProtocolMessage {
         }
     }
 }
+// ---- Exports ----
+exports.ProtocolMessage = ProtocolMessage;
+exports.ProtocolRequiredMessage = ProtocolRequiredMessage;
+exports.RawDataMessage = RawDataMessage;
+exports.IdentificationMessage = IdentificationMessage;
+exports.ServerSelectionMessage = ServerSelectionMessage;
+exports.SelectedServerDataMessage = SelectedServerDataMessage;
+exports.IdentificationFailedMessage = IdentificationFailedMessage;
+exports.NicknameRegistrationMessage = NicknameRegistrationMessage;
+exports.IdentificationSuccessMessage = IdentificationSuccessMessage;
+exports.ServersListMessage = ServersListMessage;
+exports.HelloConnectMessage = HelloConnectMessage;
+exports.HelloGameMessage = HelloGameMessage;
+exports.AuthenticationTicketMessage = AuthenticationTicketMessage;
+exports.AuthenticationTicketAcceptedMessage = AuthenticationTicketAcceptedMessage;
+exports.AccountCapabilitiesMessage = AccountCapabilitiesMessage;
+exports.TrustStatusMessage = TrustStatusMessage;
+exports.ServerOptionalFeaturesMessage = ServerOptionalFeaturesMessage;
+exports.ServerSettingsMessage = ServerSettingsMessage;
+exports.BasicCharactersListMessage = BasicCharactersListMessage;
+exports.CharactersListMessage = CharactersListMessage;
+exports.CharactersListRequestMessage = CharactersListRequestMessage;
+exports.CharacterNameSuggestionRequestMessage = CharacterNameSuggestionRequestMessage;
+exports.CharacterNameSuggestionSuccessMessage = CharacterNameSuggestionSuccessMessage;
+exports.CharacterCreationRequestMessage = CharacterCreationRequestMessage;
+exports.CharacterCreationResultMessage = CharacterCreationResultMessage;
+exports.ReloginTokenRequestMessage = ReloginTokenRequestMessage;
+exports.CharacterSelectionMessage = CharacterSelectionMessage;
+exports.CharacterSelectedSuccessMessage = CharacterSelectedSuccessMessage;
+exports.CharacterLoadingCompleteMessage = CharacterLoadingCompleteMessage;
+exports.CharacterCapabilitiesMessage = CharacterCapabilitiesMessage;
+exports.GameContextCreateRequestMessage = GameContextCreateRequestMessage;
+exports.GameContextDestroyMessage = GameContextDestroyMessage;
+exports.GameContextCreateMessage = GameContextCreateMessage;
+exports.CharacterDeletionRequestMessage = CharacterDeletionRequestMessage;
+exports.CharacterDeletionErrorMessage = CharacterDeletionErrorMessage;
+exports.CurrentMapMessage = CurrentMapMessage;
+exports.MapInformationsRequestMessage = MapInformationsRequestMessage;
+exports.MapComplementaryInformationsDataMessage = MapComplementaryInformationsDataMessage;
+exports.ChatClientPrivateMessage = ChatClientPrivateMessage;
+exports.TextInformationMessage = TextInformationMessage;
+exports.ChatAbstractServerMessage = ChatAbstractServerMessage;
+exports.ChatServerMessage = ChatServerMessage;
+exports.ChatServerCopyMessage = ChatServerCopyMessage;
+exports.ChatClientMultiMessage = ChatClientMultiMessage;
+exports.GameRolePlayShowActorMessage = GameRolePlayShowActorMessage;
+exports.GameContextRemoveElementMessage = GameContextRemoveElementMessage;
+exports.SystemMessageDisplayMessage = SystemMessageDisplayMessage;
+exports.GameMapMovementRequestMessage = GameMapMovementRequestMessage;
+exports.AdminCommandMessage = AdminCommandMessage;
+exports.AdminQuietCommandMessage = AdminQuietCommandMessage;
+exports.GameMapMovementMessage = GameMapMovementMessage;
+exports.GameMapMovementCancelMessage = GameMapMovementCancelMessage;
+exports.GameMapMovementConfirmMessage = GameMapMovementConfirmMessage;
+exports.ChangeMapMessage = ChangeMapMessage;
+exports.FriendAddRequestMessage = FriendAddRequestMessage;
+exports.GameMapChangeOrientationRequestMessage = GameMapChangeOrientationRequestMessage;
+exports.GameMapChangeOrientationMessage = GameMapChangeOrientationMessage;
+exports.CharacterStatsListMessage = CharacterStatsListMessage;
+exports.FriendAddFailureMessage = FriendAddFailureMessage;
+exports.FriendAddedMessage = FriendAddedMessage;
+exports.FriendsListMessage = FriendsListMessage;
+exports.StatsUpgradeRequestMessage = StatsUpgradeRequestMessage;
+exports.FriendsGetListMessage = FriendsGetListMessage;
+exports.FriendDeleteRequestMessage = FriendDeleteRequestMessage;
+exports.CharacterLevelUpMessage = CharacterLevelUpMessage;
+exports.EmoteListMessage = EmoteListMessage;
+exports.FriendSetWarnOnConnectionMessage = FriendSetWarnOnConnectionMessage;
+exports.FriendWarnOnConnectionStateMessage = FriendWarnOnConnectionStateMessage;
+exports.ChatSmileyRequestMessage = ChatSmileyRequestMessage;
+exports.ChatSmileyMessage = ChatSmileyMessage;
+exports.MoodSmileyRequestMessage = MoodSmileyRequestMessage;
+exports.InventoryWeightMessage = InventoryWeightMessage;
+exports.InventoryContentMessage = InventoryContentMessage;
+exports.TeleportDestinationsListMessage = TeleportDestinationsListMessage;
+exports.ZaapListMessage = ZaapListMessage;
+exports.InteractiveUseRequestMessage = InteractiveUseRequestMessage;
+exports.InteractiveUsedMessage = InteractiveUsedMessage;
+exports.InteractiveUseEndedMessage = InteractiveUseEndedMessage;
+exports.EmoteAddMessage = EmoteAddMessage;
+exports.EmotePlayAbstractMessage = EmotePlayAbstractMessage;
+exports.EmotePlayRequestMessage = EmotePlayRequestMessage;
+exports.EmotePlayMessage = EmotePlayMessage;
+exports.ObjectSetPositionMessage = ObjectSetPositionMessage;
+exports.ObjectMovementMessage = ObjectMovementMessage;
+exports.IgnoredAddedMessage = IgnoredAddedMessage;
+exports.IgnoredAddRequestMessage = IgnoredAddRequestMessage;
+exports.IgnoredListMessage = IgnoredListMessage;
+exports.IgnoredGetListMessage = IgnoredGetListMessage;
+exports.ObjectDeletedMessage = ObjectDeletedMessage;
+exports.IgnoredDeleteRequestMessage = IgnoredDeleteRequestMessage;
+exports.IgnoredDeleteResultMessage = IgnoredDeleteResultMessage;
+exports.GameContextRefreshEntityLookMessage = GameContextRefreshEntityLookMessage;
+exports.BasicNoOperationMessage = BasicNoOperationMessage;
+exports.LeaveDialogRequestMessage = LeaveDialogRequestMessage;
+exports.LeaveDialogMessage = LeaveDialogMessage;
+exports.TeleportRequestMessage = TeleportRequestMessage;
+exports.ObjectDeleteMessage = ObjectDeleteMessage;
+exports.ObjectQuantityMessage = ObjectQuantityMessage;
+exports.UpdateLifePointsMessage = UpdateLifePointsMessage;
+exports.SetCharacterRestrictionsMessage = SetCharacterRestrictionsMessage;
+exports.LifePointsRegenBeginMessage = LifePointsRegenBeginMessage;
+exports.LifePointsRegenEndMessage = LifePointsRegenEndMessage;
+exports.ObjectErrorMessage = ObjectErrorMessage;
+exports.PartyInvitationRequestMessage = PartyInvitationRequestMessage;
+exports.AbstractPartyMessage = AbstractPartyMessage;
+exports.PartyInvitationMessage = PartyInvitationMessage;
+exports.AbstractPartyEventMessage = AbstractPartyEventMessage;
+exports.PartyRefuseInvitationMessage = PartyRefuseInvitationMessage;
+exports.PartyRefuseInvitationNotificationMessage = PartyRefuseInvitationNotificationMessage;
+exports.SpellListMessage = SpellListMessage;
+exports.PartyInvitationCancelledForGuestMessage = PartyInvitationCancelledForGuestMessage;
+exports.PartyAcceptInvitationMessage = PartyAcceptInvitationMessage;
+exports.PartyUpdateMessage = PartyUpdateMessage;
+exports.PartyNewMemberMessage = PartyNewMemberMessage;
+exports.PartyJoinMessage = PartyJoinMessage;
+exports.SpellModifyRequestMessage = SpellModifyRequestMessage;
+exports.SpellModifySuccessMessage = SpellModifySuccessMessage;
+exports.GameRolePlayPlayerFightRequestMessage = GameRolePlayPlayerFightRequestMessage;
+exports.GameRolePlayPlayerFightFriendlyRequestedMessage = GameRolePlayPlayerFightFriendlyRequestedMessage;
+exports.GameRolePlayPlayerFightFriendlyAnswerMessage = GameRolePlayPlayerFightFriendlyAnswerMessage;
+exports.GameRolePlayPlayerFightFriendlyAnsweredMessage = GameRolePlayPlayerFightFriendlyAnsweredMessage;
+exports.GameFightStartingMessage = GameFightStartingMessage;
+exports.PartyNewGuestMessage = PartyNewGuestMessage;
+exports.GameFightJoinMessage = GameFightJoinMessage;
+exports.PartyLeaveRequestMessage = PartyLeaveRequestMessage;
+exports.PartyLeaveMessage = PartyLeaveMessage;
+exports.GameFightPlacementPossiblePositionsMessage = GameFightPlacementPossiblePositionsMessage;
+exports.PartyMemberRemoveMessage = PartyMemberRemoveMessage;
+exports.GameFightShowFighterMessage = GameFightShowFighterMessage;
+exports.GameFightPlacementPositionRequestMessage = GameFightPlacementPositionRequestMessage;
+exports.GameEntitiesDispositionMessage = GameEntitiesDispositionMessage;
+exports.GameFightReadyMessage = GameFightReadyMessage;
+exports.GameFightHumanReadyStateMessage = GameFightHumanReadyStateMessage;
+exports.GameFightStartMessage = GameFightStartMessage;
+exports.GameRolePlayShowChallengeMessage = GameRolePlayShowChallengeMessage;
+exports.GameFightJoinRequestMessage = GameFightJoinRequestMessage;
+exports.GameRolePlayRemoveChallengeMessage = GameRolePlayRemoveChallengeMessage;
+exports.GameContextQuitMessage = GameContextQuitMessage;
+exports.GameFightLeaveMessage = GameFightLeaveMessage;
+exports.GameFightEndMessage = GameFightEndMessage;
+exports.GameFightSynchronizeMessage = GameFightSynchronizeMessage;
+exports.GameFightRemoveTeamMemberMessage = GameFightRemoveTeamMemberMessage;
+exports.GameFightTurnListMessage = GameFightTurnListMessage;
+exports.GameFightTurnStartMessage = GameFightTurnStartMessage;
+exports.GameFightTurnEndMessage = GameFightTurnEndMessage;
+exports.GameFightTurnFinishMessage = GameFightTurnFinishMessage;
+exports.AbstractGameActionMessage = AbstractGameActionMessage;
+exports.GameActionFightPointsVariationMessage = GameActionFightPointsVariationMessage;
+exports.SequenceStartMessage = SequenceStartMessage;
+exports.SequenceEndMessage = SequenceEndMessage;
+exports.GameFightTurnReadyMessage = GameFightTurnReadyMessage;
+exports.GameFightTurnReadyRequestMessage = GameFightTurnReadyRequestMessage;
+exports.GameFightTurnStartPlayingMessage = GameFightTurnStartPlayingMessage;
+exports.NotificationListMessage = NotificationListMessage;
+exports.PartyKickRequestMessage = PartyKickRequestMessage;
+exports.PartyLeaderUpdateMessage = PartyLeaderUpdateMessage;
+exports.PartyAbdicateThroneMessage = PartyAbdicateThroneMessage;
+exports.PartyFollowMemberRequestMessage = PartyFollowMemberRequestMessage;
+exports.PartyFollowStatusUpdateMessage = PartyFollowStatusUpdateMessage;
+exports.PartyFollowThisMemberRequestMessage = PartyFollowThisMemberRequestMessage;
+exports.PartyStopFollowRequestMessage = PartyStopFollowRequestMessage;
+exports.CompassUpdateMessage = CompassUpdateMessage;
+exports.CompassUpdatePartyMemberMessage = CompassUpdatePartyMemberMessage;
+exports.PartyInvitationDetailsMessage = PartyInvitationDetailsMessage;
+exports.PartyInvitationDetailsRequestMessage = PartyInvitationDetailsRequestMessage;
+exports.ShortcutBarAddRequestMessage = ShortcutBarAddRequestMessage;
+exports.ShortcutBarContentMessage = ShortcutBarContentMessage;
+exports.ShortcutBarRefreshMessage = ShortcutBarRefreshMessage;
+exports.PartyCancelInvitationMessage = PartyCancelInvitationMessage;
+exports.ExchangeRequestMessage = ExchangeRequestMessage;
+exports.ExchangePlayerRequestMessage = ExchangePlayerRequestMessage;
+exports.ExchangeRequestedMessage = ExchangeRequestedMessage;
+exports.ExchangeRequestedTradeMessage = ExchangeRequestedTradeMessage;
+exports.ShortcutBarSwapRequestMessage = ShortcutBarSwapRequestMessage;
+exports.ShortcutBarRemoveRequestMessage = ShortcutBarRemoveRequestMessage;
+exports.EntityLook = EntityLook;
+exports.ExchangeLeaveMessage = ExchangeLeaveMessage;
+exports.ExchangeAcceptMessage = ExchangeAcceptMessage;
+exports.ExchangeStartedMessage = ExchangeStartedMessage;
+exports.ExchangeStartedWithPodsMessage = ExchangeStartedWithPodsMessage;
+exports.GameActionFightCastRequestMessage = GameActionFightCastRequestMessage;
+exports.GameContextKickMessage = GameContextKickMessage;
+exports.AbstractGameActionFightTargetedAbilityMessage = AbstractGameActionFightTargetedAbilityMessage;
+exports.GameActionFightSpellCastMessage = GameActionFightSpellCastMessage;
+exports.GameActionFightLifePointsLostMessage = GameActionFightLifePointsLostMessage;
+exports.GameActionFightDeathMessage = GameActionFightDeathMessage;
+exports.ExchangeObjectMoveKamaMessage = ExchangeObjectMoveKamaMessage;
+exports.ExchangeObjectMessage = ExchangeObjectMessage;
+exports.ExchangeKamaModifiedMessage = ExchangeKamaModifiedMessage;
+exports.ExchangeObjectMoveMessage = ExchangeObjectMoveMessage;
+exports.ExchangeObjectAddedMessage = ExchangeObjectAddedMessage;
+exports.ExchangeObjectModifiedMessage = ExchangeObjectModifiedMessage;
+exports.ExchangeObjectRemovedMessage = ExchangeObjectRemovedMessage;
+exports.ExchangeReadyMessage = ExchangeReadyMessage;
+exports.ExchangeIsReadyMessage = ExchangeIsReadyMessage;
+exports.GameActionFightTeleportOnSameMapMessage = GameActionFightTeleportOnSameMapMessage;
+exports.NpcGenericActionRequestMessage = NpcGenericActionRequestMessage;
+exports.GameActionFightDispellableEffectMessage = GameActionFightDispellableEffectMessage;
+exports.NpcDialogCreationMessage = NpcDialogCreationMessage;
+exports.NpcDialogQuestionMessage = NpcDialogQuestionMessage;
+exports.GameActionFightSlideMessage = GameActionFightSlideMessage;
+exports.NpcDialogReplyMessage = NpcDialogReplyMessage;
+exports.GameActionFightDodgePointLossMessage = GameActionFightDodgePointLossMessage;
+exports.ExchangeStartOkNpcShopMessage = ExchangeStartOkNpcShopMessage;
+exports.FighterStatsListMessage = FighterStatsListMessage;
+exports.ExchangeBuyMessage = ExchangeBuyMessage;
+exports.ExchangeErrorMessage = ExchangeErrorMessage;
+exports.GameActionFightLifePointsGainMessage = GameActionFightLifePointsGainMessage;
+exports.ExchangeBuyOkMessage = ExchangeBuyOkMessage;
+exports.GameActionFightCastOnTargetRequestMessage = GameActionFightCastOnTargetRequestMessage;
+exports.ExchangeSellMessage = ExchangeSellMessage;
+exports.ExchangeSellOkMessage = ExchangeSellOkMessage;
+exports.GameActionFightNoSpellCastMessage = GameActionFightNoSpellCastMessage;
+exports.GameActionFightDispellMessage = GameActionFightDispellMessage;
+exports.GameActionFightDispellSpellMessage = GameActionFightDispellSpellMessage;
+exports.AlmanachCalendarDateMessage = AlmanachCalendarDateMessage;
+exports.GameRolePlayAttackMonsterRequestMessage = GameRolePlayAttackMonsterRequestMessage;
+exports.GameActionFightInvisibilityMessage = GameActionFightInvisibilityMessage;
+exports.ShowCellMessage = ShowCellMessage;
+exports.GameActionFightMarkCellsMessage = GameActionFightMarkCellsMessage;
+exports.GameActionFightSpellCooldownVariationMessage = GameActionFightSpellCooldownVariationMessage;
+exports.GameActionFightTriggerGlyphTrapMessage = GameActionFightTriggerGlyphTrapMessage;
+exports.GameActionFightUnmarkCellsMessage = GameActionFightUnmarkCellsMessage;
+exports.GameMapNoMovementMessage = GameMapNoMovementMessage;
+exports.GameActionFightChangeLookMessage = GameActionFightChangeLookMessage;
+exports.FinishMoveListRequestMessage = FinishMoveListRequestMessage;
+exports.FinishMoveListMessage = FinishMoveListMessage;

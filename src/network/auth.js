@@ -1,8 +1,7 @@
 var net = require('net');
-import Logger from "../io/logger"
-import AuthClient from "./auth_client"
-
-export default class AuthServer {
+const Logger = require("../io/logger")
+const AuthClient = require("./auth_client")
+class AuthServer {
 
     static clients = new Array();
     static clients_tickets = new Array();
@@ -63,3 +62,4 @@ export default class AuthServer {
         return AuthServer.clients;
     }
 }
+module.exports = AuthServer

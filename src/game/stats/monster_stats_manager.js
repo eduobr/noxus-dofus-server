@@ -1,8 +1,7 @@
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-import Logger from "../../io/logger"
-
-export default class MonsterStatsManager {
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+const Logger = require("../../io/logger")
+class MonsterStatsManager {
 
     constructor(fighter) {
         this.fighter = fighter;
@@ -62,3 +61,4 @@ export default class MonsterStatsManager {
         return this.fighter.monster.grade.lifePoints + this.getTotalStats(11) - erosion;
     }
 }
+module.exports = MonsterStatsManager

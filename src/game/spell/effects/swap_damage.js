@@ -1,6 +1,5 @@
-import AddSwapDamage from "../buffs/add_swap_damage_buff"
-
-export default class SwapDammage{
+const AddSwapDamage = require("../buffs/add_swap_damage_buff")
+class SwapDammage{
     static effectId = 1164;
 
     static process(data) {

@@ -1,6 +1,7 @@
-export default class SpellCategory {
+class SpellCategory {
 
     static getSpellCategory(spell, spellLevel) {
 
     }
 }
+module.exports = SpellCategory

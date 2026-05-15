@@ -1,8 +1,7 @@
-import LookManager from "../../managers/look_manager"
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-
-export default class Monster {
+const LookManager = require("../../managers/look_manager")
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+class Monster {
 
     constructor(template, grade) {
         this.template = template;
@@ -23,3 +22,4 @@ export default class Monster {
         }
     }
 }
+module.exports = Monster

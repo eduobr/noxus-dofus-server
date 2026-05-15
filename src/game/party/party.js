@@ -1,13 +1,12 @@
-import PartyType from "../../enums/party_type"
-import Logger from "../../io/logger"
-import WorldServer from "../../network/world"
-import Datacenter from "../../database/datacenter"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import PartyFollower from "../../game/party/party_follower"
-import CompassEnum from "../../enums/compass_type_enum"
-
-export default class Party {
+const PartyType = require("../../enums/party_type")
+const Logger = require("../../io/logger")
+const WorldServer = require("../../network/world")
+const Datacenter = require("../../database/datacenter")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const PartyFollower = require("../../game/party/party_follower")
+const CompassEnum = require("../../enums/compass_type_enum")
+class Party {
     id = 0;
     leader = null;
     partyType = null;
@@ -305,3 +304,5 @@ export default class Party {
 
 
 
+
+module.exports = Party

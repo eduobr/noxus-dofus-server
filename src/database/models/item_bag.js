@@ -1,10 +1,10 @@
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import IO from "../../io/custom_data_wrapper"
-import DBManager from "../../database/dbmanager"
-import CharacterItem from "./character_item"
-
-export default class ItemBag {
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const IO = require("../../io/custom_data_wrapper")
+// Lazy require para romper ciclo: DBManager → Character → ItemBag → DBManager
+function getDBManager() { return require("../../database/dbmanager"); }
+const CharacterItem = require("./character_item")
+class ItemBag {
 
     constructor() {
         this.items = [];
@@ -184,14 +184,15 @@ export default class ItemBag {
     }
 
     create(callback) {
-        DBManager.createItembag(this, function(bag) {
+        getDBManager().createItembag(this, function(bag) {
             if(callback) callback();
         });
     }
 
     save(callback) {
-        DBManager.saveItembag(this, { items: this.items, money: this.money }, function() {
+        getDBManager().saveItembag(this, { items: this.items, money: this.money }, function() {
             if(callback) callback();
         });
     }
 }
+module.exports = ItemBag

@@ -1,21 +1,21 @@
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-import ProtocolTypeManager from "../../io/dofus/protocol_type_manager"
-import CharacterManager from "../../managers/character_manager.js"
-import ChatRestrictionManager from "../../managers/chat_restriction_manager.js"
-import WorldManager from "../../managers/world_manager.js"
-import ItemManager from "../../game/item/item_manager"
-import WorldServer from "../../network/world"
-import Logger from "../../io/logger"
-import ConfigManager from "../../utils/configmanager.js"
-import DBManager from "../../database/dbmanager"
-import StatsManager from "../../game/stats/stats_manager"
-import ItemBag from "./item_bag"
-import Basic from "../../utils/basic"
-import DataCenter from "../../database/datacenter"
-import CharacterItem from "../../database/models/character_item";
-
-export default class Character {
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+const ProtocolTypeManager = require("../../io/dofus/protocol_type_manager")
+// Lazy requires para romper ciclos con managers y game modules
+function getCharacterManager() { return require("../../managers/character_manager"); }
+function getChatRestrictionManager() { return require("../../managers/chat_restriction_manager"); }
+function getWorldManager() { return require("../../managers/world_manager"); }
+function getItemManager() { return require("../../game/item/item_manager"); }
+function getStatsManager() { return require("../../game/stats/stats_manager"); }
+function getWorldServer_forChar() { return require("../../network/world"); }
+function getDBManager_forChar() { return require("../../database/dbmanager"); }
+function getDataCenter() { return require("../../database/datacenter"); }
+const Logger = require("../../io/logger")
+const ConfigManager = require("../../utils/configmanager")
+const ItemBag = require("./item_bag")
+const Basic = require("../../utils/basic")
+const CharacterItem = require("../../database/models/character_item")
+class Character {
 
     lastSalesMessage = 0;
     lastSeekMessage = 0;
@@ -67,7 +67,7 @@ export default class Character {
         else {
             var self = this;
             //Get bag by id
-            DBManager.getBag(this.bagId, function (bag) {
+            getDBManager_forChar().getBag(this.bagId, function (bag) {
                 if (bag) {
                     var itemBag = new ItemBag();
                     itemBag.fromRaw(bag);
@@ -85,7 +85,7 @@ export default class Character {
         }
 
         this.stats = [];
-        this.statsManager = new StatsManager(this);
+        this.statsManager = new (getStatsManager())(this);
         this.statsManager.recalculateStats(raw);
 
         this.life = raw.life ? raw.life : this.statsManager.getMaxLife();
@@ -97,7 +97,7 @@ export default class Character {
 
     getSetById(setId)
     {
-        var sets = DataCenter.itemsSets;
+        var sets = getDataCenter().itemsSets;
         for (var i in sets)
         {
             if (sets[i]._id == setId)
@@ -110,7 +110,7 @@ export default class Character {
         var items = this.getItemsEquiped();
         for (var i in items)
         {
-            var itemTemplate = ItemManager.getItemTemplateById(items[i].templateId);
+            var itemTemplate = getItemManager().getItemTemplateById(items[i].templateId);
             if (itemTemplate)
             {
                 if (itemTemplate.itemSetId != -1) {
@@ -140,23 +140,23 @@ export default class Character {
     }
 
     onDisconnect() {
-        CharacterManager.onDisconnect(this);
+        getCharacterManager().onDisconnect(this);
     }
 
     onConnected() {
-        CharacterManager.onConnected(this);
+        getCharacterManager().onConnected(this);
     }
 
     getBaseSkin() {
-        return CharacterManager.getDefaultLook(this.breed, this.sex);
+        return getCharacterManager().getDefaultLook(this.breed, this.sex);
     }
 
     getHeadSkinId() {
-        return parseInt(CharacterManager.getHead(this.cosmeticId).skins);
+        return parseInt(getCharacterManager().getHead(this.cosmeticId).skins);
     }
 
     getBreed() {
-        return CharacterManager.getBreed(this.breed);
+        return getCharacterManager().getBreed(this.breed);
     }
 
     regen(life) {
@@ -268,7 +268,7 @@ export default class Character {
     }
 
     getMap() {
-        return WorldManager.getMapInstantly(this.mapid);
+        return getWorldManager().getMapInstantly(this.mapid);
     }
 
     replyText(string) {
@@ -326,7 +326,7 @@ export default class Character {
     }
 
     canSendSalesMessage() {
-        return ChatRestrictionManager.canSendSalesMessages(this) ? true : false;
+        return getChatRestrictionManager().canSendSalesMessages(this) ? true : false;
     }
 
     updateLastSalesMessage() {
@@ -337,7 +337,7 @@ export default class Character {
     }
 
     canSendSeekMessage() {
-        return ChatRestrictionManager.canSendSeekMessage(this) ? true : false;
+        return getChatRestrictionManager().canSendSeekMessage(this) ? true : false;
     }
 
     updateLastSeekMessage() {
@@ -348,7 +348,7 @@ export default class Character {
     }
 
     canSendMessage() {
-        return ChatRestrictionManager.canSendMessage(this) ? true : false;
+        return getChatRestrictionManager().canSendMessage(this) ? true : false;
     }
 
     updateLastMessage() {
@@ -371,7 +371,7 @@ export default class Character {
 
     ban(byName, reason) {
         var self = this;
-        DBManager.updateAccount(this.client.account.uid, {locked: 1}, function () {
+        getDBManager_forChar().updateAccount(this.client.account.uid, {locked: 1}, function () {
             if (reason)
                 self.disconnect("Vous avez été banni par " + byName + ": " + reason);
             else
@@ -404,14 +404,14 @@ export default class Character {
             zaapKnows : this.zaapKnows,
             shortcuts: this.shortcuts
         };
-        DBManager.updateCharacter(this._id, toUpdate, function () {
+        getDBManager_forChar().updateCharacter(this._id, toUpdate, function () {
             Logger.infos("Character '" + self.name + "(" + self._id + ")' saved");
             if (callback) callback();
         });
     }
 
     sendEmotesList() {
-        CharacterManager.sendEmotesList(this);
+        getCharacterManager().sendEmotesList(this);
     }
 
     sendWarnOnStateMessages() {
@@ -441,7 +441,7 @@ export default class Character {
         this.itemBag = bag;
         this.itemBag.onItemAdded = function (item) {
             if (item) {
-                var itemTemplate = ItemManager.getItemTemplateById(item.templateId);
+                var itemTemplate = getItemManager().getItemTemplateById(item.templateId);
                 if (itemTemplate) {
                     if (itemTemplate.itemSetId != -1) {
                         var set = self.getSetById(itemTemplate.itemSetId);
@@ -524,12 +524,12 @@ export default class Character {
     getExperienceFloorsData() {
         var nextFloor = null;
         if(this.level + 1 <= 200) {
-            nextFloor = CharacterManager.getExperienceFloorByLevel(this.level + 1);
+            nextFloor = getCharacterManager().getExperienceFloorByLevel(this.level + 1);
         }
         else {
-            nextFloor = CharacterManager.getExperienceFloorByLevel(200);
+            nextFloor = getCharacterManager().getExperienceFloorByLevel(200);
         }
-        return { floor: CharacterManager.getExperienceFloorByLevel(this.level), nextFloor: nextFloor };
+        return { floor: getCharacterManager().getExperienceFloorByLevel(this.level), nextFloor: nextFloor };
     }
 
     addSpell(spell) {
@@ -603,9 +603,9 @@ export default class Character {
 
     teleport(mapId, cellId, callback = null) {
         if (callback == null) {
-            WorldManager.teleportClient(this.client, mapId, cellId, null);
+            getWorldManager().teleportClient(this.client, mapId, cellId, null);
         } else {
-            WorldManager.teleportClient(this.client, mapId, cellId, function(result) {
+            getWorldManager().teleportClient(this.client, mapId, cellId, function(result) {
                 callback(result);
             });
         }
@@ -613,3 +613,4 @@ export default class Character {
 
     // End shortcuts
 }
+module.exports = Character

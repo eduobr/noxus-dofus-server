@@ -1,8 +1,7 @@
-import Datacenter from "../../database/datacenter"
-import Basic from "../../utils/basic"
-import Logger from "../../io/logger"
-
-export default class SpellManager {
+const Datacenter = require("../../database/datacenter")
+const Basic = require("../../utils/basic")
+const Logger = require("../../io/logger")
+class SpellManager {
 
     static getSpell(spellId) {
         for(var s of Datacenter.spells) {
@@ -28,3 +27,4 @@ export default class SpellManager {
     // Spell effect helpers
 
 }
+module.exports = SpellManager

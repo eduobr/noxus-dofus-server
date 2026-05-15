@@ -1,5 +1,5 @@
-import ShopDialog from "../../dialog/shop_dialog"
-export default class NpcBuySell{
+const ShopDialog = require("../../dialog/shop_dialog")
+class NpcBuySell{
     
     action = 1;
 
@@ -8,3 +8,4 @@ export default class NpcBuySell{
         npc.open();
     }
 }
+module.exports = NpcBuySell

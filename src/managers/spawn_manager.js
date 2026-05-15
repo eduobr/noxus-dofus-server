@@ -1,16 +1,15 @@
-import Datacenter from "../database/datacenter"
-import FriendHandler from "../handlers/friend_handler"
-import * as Messages from "../io/dofus/messages"
-import GameHandler from "../handlers/game_handler"
-import Logger from "../io/logger"
-import SpellManager from "../game/spell/spell_manager"
-import WorldServer from "../network/world"
-import * as Types from "../io/dofus/types"
-import ConfigManager from "../utils/configmanager.js"
-import Basic from "../utils/basic"
-import MonstersGroup from "../game/monsters/monsters_group"
-
-export default class SpawnManager {
+const Datacenter = require("../database/datacenter")
+const FriendHandler = require("../handlers/friend_handler")
+const Messages = require("../io/dofus/messages")
+const GameHandler = require("../handlers/game_handler")
+const Logger = require("../io/logger")
+const SpellManager = require("../game/spell/spell_manager")
+const WorldServer = require("../network/world")
+const Types = require("../io/dofus/types")
+const ConfigManager = require("../utils/configmanager")
+const Basic = require("../utils/basic")
+const MonstersGroup = require("../game/monsters/monsters_group")
+class SpawnManager {
 
     static isThisSubArea(subs, areaId)
     {
@@ -207,3 +206,4 @@ export default class SpawnManager {
         }
     }
 }
+module.exports = SpawnManager

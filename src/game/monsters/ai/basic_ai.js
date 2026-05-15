@@ -1,15 +1,14 @@
-import Logger from "../../../io/logger"
-import Pathfinding from "../../../game/pathfinding/pathfinding"
-import Pathfinding2 from "../../../game/pathfinding/pathfinding_dijkstra"
-import * as Types from "../../../io/dofus/types"
-import * as Messages from "../../../io/dofus/messages"
-import MapPoint from "../../pathfinding/map_point"
-import SpellsManager from "../../spell/spell_manager"
-import FightSpellProcessor from "../../fight/fight_spell_processor"
-import * as Shapes from "../../fight/fight_shape_processor"
-import Basic from "../../../utils/basic"
-
-export default class BasicAI {
+const Logger = require("../../../io/logger")
+const Pathfinding = require("../../../game/pathfinding/pathfinding")
+const Pathfinding2 = require("../../../game/pathfinding/pathfinding_dijkstra")
+const Types = require("../../../io/dofus/types")
+const Messages = require("../../../io/dofus/messages")
+const MapPoint = require("../../pathfinding/map_point")
+const SpellsManager = require("../../spell/spell_manager")
+const FightSpellProcessor = require("../../fight/fight_spell_processor")
+const Shapes = require("../../fight/fight_shape_processor")
+const Basic = require("../../../utils/basic")
+class BasicAI {
 
     constructor(fighter) {
         this.fighter = fighter;
@@ -233,3 +232,4 @@ export default class BasicAI {
         return false;
     }
 }
+module.exports = BasicAI

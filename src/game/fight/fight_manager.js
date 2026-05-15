@@ -1,3 +1,4 @@
-export default class FightManager {
+class FightManager {
 
 }
+module.exports = FightManager

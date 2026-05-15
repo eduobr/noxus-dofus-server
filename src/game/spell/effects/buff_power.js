@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddPowerBuff from "../buffs/add_power_buff"
-
-export default class BuffPower {
+const Basic = require("../../../utils/basic")
+const AddPowerBuff = require("../buffs/add_power_buff")
+class BuffPower {
 
     static effectId = 138;
 

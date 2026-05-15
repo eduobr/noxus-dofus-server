@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddStateBuff from "../buffs/add_state_buff"
-
-export default class AddState {
+const Basic = require("../../../utils/basic")
+const AddStateBuff = require("../buffs/add_state_buff")
+class AddState {
 
     static effectId = 950;
 

@@ -1,21 +1,20 @@
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import Logger from "../../io/logger"
-import Fight from "./fight"
-import CharacterManager from "../../managers/character_manager"
-import WorldManager from "../../managers/world_manager"
-import MapPoint from "../pathfinding/map_point"
-import RemoveAPBuff from "../../game/spell/buffs/remove_ap_buff"
-import RemoveMPBuff from "../../game/spell/buffs/remove_mp_buff"
-import Basic from "../../utils/basic"
-import AddStateBuff from "../spell/buffs/add_state_buff"
-import * as Shapes from "../../game/fight/fight_shape_processor"
-import MonsterStatsManager from "../../game/stats/monster_stats_manager"
-import InvisibilityStateEnum from "../../enums/invisibility_state_enum"
-import SpellHistory from "../../game/spell/spell_history"
-import ConfigManager from "../../utils/configmanager.js"
-
-export default class Fighter {
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const Logger = require("../../io/logger")
+const Fight = require("./fight")
+const CharacterManager = require("../../managers/character_manager")
+const WorldManager = require("../../managers/world_manager")
+const MapPoint = require("../pathfinding/map_point")
+const RemoveAPBuff = require("../../game/spell/buffs/remove_ap_buff")
+const RemoveMPBuff = require("../../game/spell/buffs/remove_mp_buff")
+const Basic = require("../../utils/basic")
+const AddStateBuff = require("../spell/buffs/add_state_buff")
+const Shapes = require("../../game/fight/fight_shape_processor")
+const MonsterStatsManager = require("../../game/stats/monster_stats_manager")
+const InvisibilityStateEnum = require("../../enums/invisibility_state_enum")
+const SpellHistory = require("../../game/spell/spell_history")
+const ConfigManager = require("../../utils/configmanager")
+class Fighter {
 
 
     static FIGHTER_TYPE = {
@@ -612,3 +611,4 @@ export default class Fighter {
         return 10;
     }
 }
+module.exports = Fighter

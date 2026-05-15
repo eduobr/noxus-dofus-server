@@ -1,6 +1,5 @@
-import ConfigManager from "../utils/configmanager.js"
-
-export default class ChatRestrictionManager {
+const ConfigManager = require("../utils/configmanager")
+class ChatRestrictionManager {
     static canSendSalesMessages(character)
     {
         if (character.lastSalesMessage == 0)
@@ -112,3 +111,4 @@ export default class ChatRestrictionManager {
         }
     }
 }
+module.exports = ChatRestrictionManager

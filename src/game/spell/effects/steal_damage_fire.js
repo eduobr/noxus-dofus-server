@@ -1,6 +1,5 @@
-import Basic from "../../../utils/basic"
-
-export default class StealDamageFire {
+const Basic = require("../../../utils/basic")
+class StealDamageFire {
 
     static effectId = 94;
     static elementType = 15;

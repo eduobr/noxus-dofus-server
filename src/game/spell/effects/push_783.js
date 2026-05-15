@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import MapPoint from "../../pathfinding/map_point"
-import * as Shapes from "../../../game/fight/fight_shape_processor"
-
-export default class Push {
+const Basic = require("../../../utils/basic")
+const MapPoint = require("../../pathfinding/map_point")
+const Shapes = require("../../../game/fight/fight_shape_processor")
+class Push {
 
     static effectId = 783;
 

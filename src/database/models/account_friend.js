@@ -1,14 +1,14 @@
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-import CharacterManager from "../../managers/character_manager.js"
-import ChatRestrictionManager from "../../managers/chat_restriction_manager.js"
-import WorldManager from "../../managers/world_manager.js"
-import WorldServer from "../../network/world"
-import Logger from "../../io/logger"
-import ConfigManager from "../../utils/configmanager.js"
-import DBManager from "../../database/dbmanager"
-
-export default class AccountFriend {
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+const CharacterManager = require("../../managers/character_manager")
+const ChatRestrictionManager = require("../../managers/chat_restriction_manager")
+const WorldManager = require("../../managers/world_manager")
+const WorldServer = require("../../network/world")
+const Logger = require("../../io/logger")
+const ConfigManager = require("../../utils/configmanager")
+// Lazy require para romper ciclo con DBManager
+function getDBManager() { return require("../../database/dbmanager"); }
+class AccountFriend {
 
     constructor(raw) {
         this._id = raw._id;
@@ -16,3 +16,4 @@ export default class AccountFriend {
         this.friendAccountId = raw.friendAccountId;
     }
 }
+module.exports = AccountFriend

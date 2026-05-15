@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddAPBuff from "../buffs/add_ap_buff"
-
-export default class BuffAddAP111 {
+const Basic = require("../../../utils/basic")
+const AddAPBuff = require("../buffs/add_ap_buff")
+class BuffAddAP111 {
 
     static effectId = 111;
 

@@ -1,9 +1,8 @@
-import * as Messages from "../../../io/dofus/messages"
-import * as Types from "../../../io/dofus/types"
-import MonsterFighter from "../monster_fighter"
-import ConfigManager from "../../../utils/configmanager"
-
-export default class FightPVMResult {
+const Messages = require("../../../io/dofus/messages")
+const Types = require("../../../io/dofus/types")
+const MonsterFighter = require("../monster_fighter")
+const ConfigManager = require("../../../utils/configmanager")
+class FightPVMResult {
 
     constructor(applyTo, fight, fighter, isWinner, winners, others) {
         this.applyTo = applyTo;
@@ -59,3 +58,4 @@ export default class FightPVMResult {
         return totalExp;
     }
 }
+module.exports = FightPVMResult

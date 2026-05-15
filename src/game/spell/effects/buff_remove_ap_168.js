@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import RemoveApBuff from "../buffs/remove_ap_buff_fix"
-
-export default class BuffRemoveAp168 {
+const Basic = require("../../../utils/basic")
+const RemoveApBuff = require("../buffs/remove_ap_buff_fix")
+class BuffRemoveAp168 {
 
     static effectId = 168;
 

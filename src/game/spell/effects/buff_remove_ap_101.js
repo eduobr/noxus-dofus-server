@@ -1,6 +1,5 @@
-import Basic from "../../../utils/basic"
-
-export default class BuffRemoveAP101 {
+const Basic = require("../../../utils/basic")
+class BuffRemoveAP101 {
 
     static effectId = 101;
 

@@ -1,24 +1,23 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import * as Types from "../io/dofus/types"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import ConfigManager from "../utils/configmanager.js"
-import WorldServer from "../network/world"
-import AuthServer from "../network/auth"
-import ChatChannel from "../enums/chat_activable_channels_enum"
-import Character from "../database/models/character"
-import AccountRole from "../enums/account_role_enum"
-import Common from "../common"
-import WorldManager from "../managers/world_manager"
-import CharacterManager from "../managers/character_manager"
-import ItemManager from "../game/item/item_manager"
-import Datacenter from "../database/datacenter"
-import EmoteHandler from "../handlers/emote_handler"
-import DataCenter from "../database/datacenter"
-
-export default class CommandManager {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const Types = require("../io/dofus/types")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+const DBManager = require("../database/dbmanager")
+const ConfigManager = require("../utils/configmanager")
+const WorldServer = require("../network/world")
+const AuthServer = require("../network/auth")
+const ChatChannel = require("../enums/chat_activable_channels_enum")
+const Character = require("../database/models/character")
+const AccountRole = require("../enums/account_role_enum")
+const Common = require("../common")
+const WorldManager = require("../managers/world_manager")
+const CharacterManager = require("../managers/character_manager")
+const ItemManager = require("../game/item/item_manager")
+const Datacenter = require("../database/datacenter")
+const EmoteHandler = require("../handlers/emote_handler")
+const DataCenter = require("../database/datacenter")
+class CommandManager {
 
     static commandsList = [
         { name:"infos", role:AccountRole.MODERATOR , description:"Donne des informations sur le serveur"},
@@ -488,3 +487,4 @@ export default class CommandManager {
         WorldManager.saveWorld();
     }
 }
+module.exports = CommandManager

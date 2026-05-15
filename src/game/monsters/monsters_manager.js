@@ -1,7 +1,6 @@
-import MonstersGroup from "./monsters_group"
-import Datacenter from "../../database/datacenter"
-
-export default class MonstersManager {
+const MonstersGroup = require("./monsters_group")
+const Datacenter = require("../../database/datacenter")
+class MonstersManager {
 
     static getMonsterTemplate(templateId) {
         var monsters = Datacenter.monsters;
@@ -13,3 +12,4 @@ export default class MonstersManager {
         return null;
     }
 }
+module.exports = MonstersManager

@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import RemoveRangeBuff from "../buffs/remove_range_buff"
-import AddMPBuff from "../buffs/add_mp_buff"
-
-export default class stealMP {
+const Basic = require("../../../utils/basic")
+const RemoveRangeBuff = require("../buffs/remove_range_buff")
+const AddMPBuff = require("../buffs/add_mp_buff")
+class stealMP {
 
     static effectId = 77;
 

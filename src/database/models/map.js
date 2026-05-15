@@ -1,19 +1,18 @@
-import Logger from "../../io/logger"
-import Datacenter from "../../database/datacenter"
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import DataMapProvider from "../../game/pathfinding/data_map_provider"
-import ConfigManager from "../../utils/configmanager.js"
-import InteractiveHandler from "../../handlers/interactive_handler"
-import Fight from "../../game/fight/fight"
-import MonstersGroup from "../../game/monsters/monsters_group"
-import MonstersManager from "../../game/monsters/monsters_manager"
-import SpawnManager from "../../managers/spawn_manager"
-import WorldServer from "../../network/world"
-
+const Logger = require("../../io/logger")
+const Datacenter = require("../../database/datacenter")
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const DataMapProvider = require("../../game/pathfinding/data_map_provider")
+const ConfigManager = require("../../utils/configmanager")
+const InteractiveHandler = require("../../handlers/interactive_handler")
+const Fight = require("../../game/fight/fight")
+const MonstersGroup = require("../../game/monsters/monsters_group")
+const MonstersManager = require("../../game/monsters/monsters_manager")
+const SpawnManager = require("../../managers/spawn_manager")
+const WorldServer = require("../../network/world")
 var zlib = require('zlib');
 
-export default class Map {
+class Map {
 
     static MAP_DECRYPT_KEY = "649ae451ca33ec53bbcbcc33becf15f4";
 
@@ -226,3 +225,4 @@ export default class Map {
         return this.tempId--;
     }
 }
+module.exports = Map

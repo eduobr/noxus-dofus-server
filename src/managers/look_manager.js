@@ -1,8 +1,7 @@
-import Logger from "../io/logger"
-import SubLookManager from "../managers/sublook_manager.js"
-import * as Types from "../io/dofus/types.js"
-
-export default class LookManager {
+const Logger = require("../io/logger")
+const SubLookManager = require("../managers/sublook_manager")
+const Types = require("../io/dofus/types")
+class LookManager {
 
     constructor(bone, skin, color, scale, sublook) {
         this.bones = bone;
@@ -165,3 +164,4 @@ export default class LookManager {
 
     }
 }
+module.exports = LookManager

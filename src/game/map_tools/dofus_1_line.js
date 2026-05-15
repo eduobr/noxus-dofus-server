@@ -1,6 +1,5 @@
-import Point from "../pathfinding/point"
-
-export class Point3D
+const Point = require("../pathfinding/point")
+class Point3D
 {
     constructor(param1, param2, param3)
     {
@@ -10,7 +9,7 @@ export class Point3D
     }
 }
 
-export default class Dofus1Line
+class Dofus1Line
 {
 
    static useDofus2Line = false;
@@ -234,3 +233,4 @@ export default class Dofus1Line
         return _loc7_;
     }
 }
+module.exports = Dofus1Line

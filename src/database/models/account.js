@@ -1,4 +1,4 @@
-export default class Account {
+class Account {
     
     constructor(raw) {
         this._id = raw._id;
@@ -14,3 +14,4 @@ export default class Account {
         this.moodSmileyId = raw.moodSmileyId;
     }
 }
+module.exports = Account

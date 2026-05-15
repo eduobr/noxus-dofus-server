@@ -1,6 +1,5 @@
-import LookBuff from "../buffs/add_look_buff"
-
-export default class ChangeApparence335 {
+const LookBuff = require("../buffs/add_look_buff")
+class ChangeApparence335 {
     static effectId = 335;
     static skins = {
         2880: { skinId: [1448, 1443] },

@@ -1,5 +1,5 @@
-import NpcDialog from "../../dialog/npc_dialog"
-export default class NpcTalk{
+const NpcDialog = require("../../dialog/npc_dialog")
+class NpcTalk{
     
     action = 3;
 
@@ -8,3 +8,4 @@ export default class NpcTalk{
         npc.open();
     }
 }
+module.exports = NpcTalk

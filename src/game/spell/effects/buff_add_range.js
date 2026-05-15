@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddRangeBuff from "../buffs/add_range_buff"
-
-export default class BuffAddRange {
+const Basic = require("../../../utils/basic")
+const AddRangeBuff = require("../buffs/add_range_buff")
+class BuffAddRange {
 
     static effectId = 117;
 

@@ -1,6 +1,5 @@
-import Basic from "../../../utils/basic"
-
-export default class Teleport {
+const Basic = require("../../../utils/basic")
+class Teleport {
 
     static effectId = 4;
 

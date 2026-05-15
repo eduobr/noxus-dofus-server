@@ -1,9 +1,8 @@
-import Basic from "../../../utils/basic"
-import HealSpellBuff from "../buffs/heal_spell_buff"
-import * as Messages from "../../../io/dofus/messages"
-import SpellManager from "../../../game/spell/spell_manager"
-
-export default class BuffInterval1045 {
+const Basic = require("../../../utils/basic")
+const HealSpellBuff = require("../buffs/heal_spell_buff")
+const Messages = require("../../../io/dofus/messages")
+const SpellManager = require("../../../game/spell/spell_manager")
+class BuffInterval1045 {
 
     static effectId = 1045;
 

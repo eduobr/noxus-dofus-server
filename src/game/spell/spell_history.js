@@ -1,6 +1,5 @@
-import SpellHistoryInformation from "../../game/spell/spell_history_information"
-
-export default class SpellHistory {
+const SpellHistoryInformation = require("../../game/spell/spell_history_information")
+class SpellHistory {
 
     spellStack = [];
 
@@ -112,3 +111,4 @@ export default class SpellHistory {
     }
 
 }
+module.exports = SpellHistory

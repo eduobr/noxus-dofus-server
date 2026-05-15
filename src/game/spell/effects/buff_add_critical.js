@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import AddCriticalBuff from "../buffs/add_critical_buff"
-
-export default class BuffAddCritical {
+const Basic = require("../../../utils/basic")
+const AddCriticalBuff = require("../buffs/add_critical_buff")
+class BuffAddCritical {
 
     static effectId = 115;
 

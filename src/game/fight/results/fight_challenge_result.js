@@ -1,7 +1,6 @@
-import * as Messages from "../../../io/dofus/messages"
-import * as Types from "../../../io/dofus/types"
-
-export default class FightChallengeResult {
+const Messages = require("../../../io/dofus/messages")
+const Types = require("../../../io/dofus/types")
+class FightChallengeResult {
 
     constructor(applyTo, fight, fighter, isWinner) {
         this.applyTo = applyTo;
@@ -24,3 +23,4 @@ export default class FightChallengeResult {
         }
     }
 }
+module.exports = FightChallengeResult

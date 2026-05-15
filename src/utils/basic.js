@@ -1,4 +1,4 @@
-export default class Basic {
+class Basic {
 
     static getRandomInt(min, max) {
         return (min - 1) + Math.floor(Math.random() * max + 1);
@@ -13,3 +13,4 @@ export default class Basic {
         return Math.floor((val2 / 100) * val1);
     }
 }
+module.exports = Basic

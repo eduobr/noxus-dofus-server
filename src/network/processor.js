@@ -1,25 +1,24 @@
-import Logger from "../io/logger"
-import * as Messages from "../io/dofus/messages"
-import IO from "../io/custom_data_wrapper"
-import Formatter from "../utils/formatter"
-import DBManager from "../database/dbmanager"
-import AuthHandler from "../handlers/auth_handler"
-import ApproachHandler from "../handlers/approach_handler"
-import GameHandler from "../handlers/game_handler"
-import ChatHandler from "../handlers/chat_handler"
-import AdminHandler from "../handlers/admin_handler"
-import FriendHandler from "../handlers/friend_handler"
-import InteractiveHandler from "../handlers/interactive_handler"
-import EmoteHandler from "../handlers/emote_handler"
-import ItemHandler from "../handlers/item_handler"
-import IgnoredHandler from "../handlers/ignored_handler"
-import PartyHandler from "../handlers/party_handler"
-import FightHandler from "../handlers/fight_handler"
-import ExchangeHandler from "../handlers/exchange_handler"
-import NpcHandler from "../handlers/npc_handler"
-import FinishMoveHandler from "../handlers/finish_move_handler"
-
-export default class Processor {
+const Logger = require("../io/logger")
+const Messages = require("../io/dofus/messages")
+const IO = require("../io/custom_data_wrapper")
+const Formatter = require("../utils/formatter")
+const DBManager = require("../database/dbmanager")
+const AuthHandler = require("../handlers/auth_handler")
+const ApproachHandler = require("../handlers/approach_handler")
+const GameHandler = require("../handlers/game_handler")
+const ChatHandler = require("../handlers/chat_handler")
+const AdminHandler = require("../handlers/admin_handler")
+const FriendHandler = require("../handlers/friend_handler")
+const InteractiveHandler = require("../handlers/interactive_handler")
+const EmoteHandler = require("../handlers/emote_handler")
+const ItemHandler = require("../handlers/item_handler")
+const IgnoredHandler = require("../handlers/ignored_handler")
+const PartyHandler = require("../handlers/party_handler")
+const FightHandler = require("../handlers/fight_handler")
+const ExchangeHandler = require("../handlers/exchange_handler")
+const NpcHandler = require("../handlers/npc_handler")
+const FinishMoveHandler = require("../handlers/finish_move_handler")
+class Processor {
 
     static PROTOCOL_HANDLERS = {
         4: { message: Messages.IdentificationMessage, handler: AuthHandler.handleIdentificationMessage },
@@ -131,3 +130,4 @@ export default class Processor {
 
     
 }
+module.exports = Processor

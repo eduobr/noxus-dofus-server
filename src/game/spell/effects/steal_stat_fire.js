@@ -1,8 +1,7 @@
-import Basic from "../../../utils/basic"
-import AddStatFireBuff from "../buffs/add_stat_fire_buff"
-import RemoveStatFireBuff from "../buffs/remove_stat_fire_buff"
-
-export default class stealStatFire {
+const Basic = require("../../../utils/basic")
+const AddStatFireBuff = require("../buffs/add_stat_fire_buff")
+const RemoveStatFireBuff = require("../buffs/remove_stat_fire_buff")
+class stealStatFire {
 
     static effectId = 269;
 

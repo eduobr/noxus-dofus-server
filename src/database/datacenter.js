@@ -1,9 +1,9 @@
-import DBManager from "./dbmanager.js"
-import Logger from "../io/logger"
-import LookManager from "../managers/look_manager.js"
-import NpcSpawn from "../database/models/npc_spawn.js"
-
-export default class Datacenter {
+// Lazy require para romper dependencia circular con DBManager
+function getDB() { return require("./dbmanager"); }
+const Logger = require("../io/logger")
+const LookManager = require("../managers/look_manager")
+const NpcSpawn = require("../database/models/npc_spawn")
+class Datacenter {
 
     static breeds;
     static heads;
@@ -56,7 +56,7 @@ export default class Datacenter {
     }
 
     static loadBreeds(callback) {
-        DBManager.getBreeds(function (breeds) {
+        getDB().getBreeds(function (breeds) {
             Datacenter.breeds = breeds;
             Logger.infos("Loaded '" + breeds.length + "' breed(s)");
             callback();
@@ -64,7 +64,7 @@ export default class Datacenter {
     }
 
     static loadHeads(callback) {
-        DBManager.getHeads(function (heads) {
+        getDB().getHeads(function (heads) {
             Datacenter.heads = heads;
             Logger.infos("Loaded '" + heads.length + "' heads(s)");
             callback();
@@ -72,7 +72,7 @@ export default class Datacenter {
     }
 
     static loadMapScrollsActions(callback) {
-        DBManager.getMapScrollActions(function (scrolls) {
+        getDB().getMapScrollActions(function (scrolls) {
             Datacenter.mapScrollsActions = scrolls;
             Logger.infos("Loaded '" + scrolls.length + "' map scroll actions(s)");
             callback();
@@ -80,7 +80,7 @@ export default class Datacenter {
     }
 
     static loadExperiences(callback) {
-        DBManager.getExperiences(function (experiences) {
+        getDB().getExperiences(function (experiences) {
             Datacenter.experiences = experiences;
             Logger.infos("Loaded '" + experiences.length + "' experience floor(s)");
             callback();
@@ -88,7 +88,7 @@ export default class Datacenter {
     }
 
     static loadSmileys(callback) {
-        DBManager.getSmileys(function (smileys) {
+        getDB().getSmileys(function (smileys) {
             Datacenter.smileys = smileys;
             Logger.infos("Loaded '" + smileys.length + "' smiley(s)");
             callback();
@@ -96,11 +96,11 @@ export default class Datacenter {
     }
 
     static loadNpcs(callback) {
-        DBManager.getNpcs(function (npcs) {
+        getDB().getNpcs(function (npcs) {
             Datacenter.npcs.npcs = npcs;
             Logger.infos("Loaded '" + Datacenter.npcs.npcs.length + "' npcs");
 
-            DBManager.getNpcSpawns(function (npcSpawns) {
+            getDB().getNpcSpawns(function (npcSpawns) {
                 for (var i in npcSpawns) {
                     var npc = Datacenter.getNpcs(npcSpawns[i].npcId);
                     
@@ -116,7 +116,7 @@ export default class Datacenter {
     }
 
     static loadNpcsReplies(callback){
-        DBManager.getNpcReplies(function(npcReplies) {
+        getDB().getNpcReplies(function(npcReplies) {
                 Datacenter.npcs.npcReplies = npcReplies;
                 Logger.infos("Loaded '" + Datacenter.npcs.npcReplies.length + "' npcs_replies");
                 callback();  
@@ -124,7 +124,7 @@ export default class Datacenter {
     }
 
     static loadNpcItems(callback){
-        DBManager.getNpcItems(function(npcItems) {
+        getDB().getNpcItems(function(npcItems) {
                 Datacenter.npcs.npcItems = npcItems;
                 Logger.infos("Loaded '" + Datacenter.npcs.npcItems.length + "' npcs_items");
                 callback();  
@@ -132,14 +132,14 @@ export default class Datacenter {
     }
 
     static loadNpcActions(callback) {
-        DBManager.getNpcActions(function (npcAction) {
+        getDB().getNpcActions(function (npcAction) {
             Datacenter.npcs.npcActions = npcAction;
             Logger.infos("Loaded '" + npcAction.length + "' npc_actions");
             callback();
         });
     }
     static loadInteractivesObjects(callback) {
-        DBManager.getInteractivesObjects(function (interactivesObjects) {
+        getDB().getInteractivesObjects(function (interactivesObjects) {
             Datacenter.interactivesObjects = interactivesObjects;
             Logger.infos("Loaded '" + interactivesObjects.length + "' interactives object(s)");
             callback();
@@ -147,7 +147,7 @@ export default class Datacenter {
     }
 
     static loadMapsPositions(callback) {
-        DBManager.getMapPositions(function (maps_positions) {
+        getDB().getMapPositions(function (maps_positions) {
             Datacenter.maps_positions = maps_positions;
             Logger.infos("Loaded '" + maps_positions.length + "' maps_positions object(s)");
             callback();
@@ -155,7 +155,7 @@ export default class Datacenter {
     }
 
     static loadElements(callback) {
-        DBManager.getElements(function (elements) {
+        getDB().getElements(function (elements) {
             Datacenter.elements = elements;
             Logger.infos("Loaded '" + elements.length + "' elements object(s)");
             callback();
@@ -163,7 +163,7 @@ export default class Datacenter {
     }
 
     static loadEmotes(callback) {
-        DBManager.getEmotes(function (emotes) {
+        getDB().getEmotes(function (emotes) {
             Datacenter.emotes = emotes;
             Logger.infos("Loaded '" + emotes.length + "' emote(s)");
             callback();
@@ -171,7 +171,7 @@ export default class Datacenter {
     }
 
     static loadItems(callback) {
-        DBManager.getItems(function (items) {
+        getDB().getItems(function (items) {
             Datacenter.items = items;
             Logger.infos("Loaded '" + items.length + "' item(s)");
             callback();
@@ -179,7 +179,7 @@ export default class Datacenter {
     }
 
     static loadItemsSets(callback) {
-        DBManager.getItemsSets(function (itemsSets) {
+        getDB().getItemsSets(function (itemsSets) {
             Datacenter.itemsSets = itemsSets;
             Logger.infos("Loaded '" + itemsSets.length + "' items sets");
             callback();
@@ -187,7 +187,7 @@ export default class Datacenter {
     }
 
     static loadSpells(callback) {
-        DBManager.getSpells(function (spells) {
+        getDB().getSpells(function (spells) {
             Datacenter.spells = spells;
             Logger.infos("Loaded '" + spells.length + "' spell(s)");
             callback();
@@ -195,7 +195,7 @@ export default class Datacenter {
     }
 
     static loadSpellsLevels(callback) {
-        DBManager.getSpellsLevels(function (spells) {
+        getDB().getSpellsLevels(function (spells) {
             Datacenter.spellsLevels = spells;
             Logger.infos("Loaded '" + spells.length + "' spell level(s)");
             callback();
@@ -203,7 +203,7 @@ export default class Datacenter {
     }
 
     static loadMonsters(callback) {
-        DBManager.getMonsters(function (monsters) {
+        getDB().getMonsters(function (monsters) {
             Datacenter.monsters = monsters;
             Logger.infos("Loaded '" + monsters.length + "' monster(s)");
             callback();
@@ -302,3 +302,4 @@ export default class Datacenter {
     }
 
 }
+module.exports = Datacenter

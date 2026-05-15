@@ -1,12 +1,13 @@
-import * as Types from "../../io/dofus/types"
-import * as Messages from "../../io/dofus/messages"
-import ItemManager from "../../game/item/item_manager"
-import ItemDiceEffect from "../../game/item/item_dice_effect"
-import ItemEffectInteger from "../../game/item/item_effect_integer"
-import DBManager from "../../database/dbmanager"
+const Types = require("../../io/dofus/types")
+const Messages = require("../../io/dofus/messages")
+const ItemManager = require("../../game/item/item_manager")
+const ItemDiceEffect = require("../../game/item/item_dice_effect")
+const ItemEffectInteger = require("../../game/item/item_effect_integer")
+// Lazy require para romper ciclo con DBManager
+function getDBManager() { return require("../../database/dbmanager"); }
 var autoIncrement = require("mongodb-autoincrement");
 
-export default class CharacterItem {
+class CharacterItem {
 
     static DEFAULT_SLOT = 63;
 
@@ -67,7 +68,7 @@ export default class CharacterItem {
     create(callback) {
         var self = this;
         if(this._id == -1) {
-            autoIncrement.getNextSequence(DBManager.db, "items_players_bags", function (err, autoIndex) {
+            autoIncrement.getNextSequence(getDBManager().db, "items_players_bags", function (err, autoIndex) {
                 self._id = autoIndex;
                 callback();
             });
@@ -77,3 +78,4 @@ export default class CharacterItem {
         }
     }
 }
+module.exports = CharacterItem

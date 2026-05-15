@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import DamageAgilityBuff from "../buffs/damage_agility_buff"
-
-export default class DamageAgility {
+const Basic = require("../../../utils/basic")
+const DamageAgilityBuff = require("../buffs/damage_agility_buff")
+class DamageAgility {
 
     static effectId = 98;
     static elementType = 14;

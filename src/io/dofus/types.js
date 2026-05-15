@@ -1,7 +1,6 @@
-import IO from "../custom_data_wrapper"
-import Logger from "../../io/logger"
-
-export class Version {
+const IO = require("../custom_data_wrapper")
+const Logger = require("../../io/logger")
+class Version {
     deserialize(buffer) {
         this.major = buffer.readByte();
         this.minor = buffer.readByte();
@@ -12,7 +11,7 @@ export class Version {
     }
 }
 
-export class VersionExtended extends Version {
+class VersionExtended extends Version {
     deserialize(buffer) {
         super.deserialize(buffer);
         this.install = buffer.readByte();
@@ -20,7 +19,7 @@ export class VersionExtended extends Version {
     }
 }
 
-export class GameServerInformations {
+class GameServerInformations {
 
     constructor(serverId, type, state, completion, isSelectable, charactersCount, date) {
         this.serverId = serverId;
@@ -44,7 +43,7 @@ export class GameServerInformations {
     }
 }
 
-export class EntityLook {
+class EntityLook {
     constructor(bonesId, skins, indexedColors, scales, subentities) {
         this.bonesId = bonesId;
         this.skins = skins;
@@ -74,7 +73,7 @@ export class EntityLook {
     }
 }
 
-export class AbstractCharacterInformation {
+class AbstractCharacterInformation {
     constructor(id) {
         this.id = id;
     }
@@ -84,7 +83,7 @@ export class AbstractCharacterInformation {
     }
 }
 
-export class CharacterBasicMinimalInformations extends AbstractCharacterInformation {
+class CharacterBasicMinimalInformations extends AbstractCharacterInformation {
     constructor(id, name) {
         super(id);
         this.name = name;
@@ -96,7 +95,7 @@ export class CharacterBasicMinimalInformations extends AbstractCharacterInformat
     }
 }
 
-export class CharacterMinimalInformations extends CharacterBasicMinimalInformations {
+class CharacterMinimalInformations extends CharacterBasicMinimalInformations {
     constructor(id, name, level) {
         super(id, name);
         this.level = level;
@@ -108,7 +107,7 @@ export class CharacterMinimalInformations extends CharacterBasicMinimalInformati
     }
 }
 
-export class CharacterMinimalPlusLookInformations extends CharacterMinimalInformations {
+class CharacterMinimalPlusLookInformations extends CharacterMinimalInformations {
     constructor(param1, param2, param3, entityLook) {
         super(param1, param2, param3);
         this.entityLook = entityLook;
@@ -125,7 +124,7 @@ export class CharacterMinimalPlusLookInformations extends CharacterMinimalInform
     }
 }
 
-export class CharacterBaseInformations extends CharacterMinimalPlusLookInformations {
+class CharacterBaseInformations extends CharacterMinimalPlusLookInformations {
     constructor(param1, param2, param3, param4, breed, sex) {
         super(param1, param2, param3, param4);
         this.breed = breed;
@@ -144,7 +143,7 @@ export class CharacterBaseInformations extends CharacterMinimalPlusLookInformati
     }
 }
 
-export class GameContextActorInformations {
+class GameContextActorInformations {
     constructor(contextualId, look, disposition) {
         this.contextualId = contextualId;
         this.look = look;
@@ -173,7 +172,7 @@ export class GameContextActorInformations {
     }
 }
 
-export class GameRolePlayActorInformations extends GameContextActorInformations {
+class GameRolePlayActorInformations extends GameContextActorInformations {
     constructor(param1, param2, param3) {
         super(param1, param2, param3);
         this.protocolId = 141;
@@ -186,7 +185,7 @@ export class GameRolePlayActorInformations extends GameContextActorInformations 
     }
 }
 
-export class GameRolePlayNamedActorInformations extends GameRolePlayActorInformations {
+class GameRolePlayNamedActorInformations extends GameRolePlayActorInformations {
     constructor(param1, param2, param3, name) {
         super(param1, param2, param3);
         this.name = name;
@@ -202,7 +201,7 @@ export class GameRolePlayNamedActorInformations extends GameRolePlayActorInforma
     }
 }
 
-export class GameRolePlayHumanoidInformations extends GameRolePlayNamedActorInformations {
+class GameRolePlayHumanoidInformations extends GameRolePlayNamedActorInformations {
     constructor(param1, param2, param3, param4, humanoidInfo, accountId) {
         super(param1, param2, param3, param4);
         this.humanoidInfo = humanoidInfo;
@@ -230,7 +229,7 @@ export class GameRolePlayHumanoidInformations extends GameRolePlayNamedActorInfo
     }
 }
 
-export class GameRolePlayCharacterInformations extends GameRolePlayHumanoidInformations {
+class GameRolePlayCharacterInformations extends GameRolePlayHumanoidInformations {
     constructor(param1, param2, param3, param4, param5, param6, alignmentInfos) {
         super(param1, param2, param3, param4, param5, param6);
         this.alignmentInfos = alignmentInfos;
@@ -248,7 +247,7 @@ export class GameRolePlayCharacterInformations extends GameRolePlayHumanoidInfor
 }
 
 
-export class ActorAlignmentInformations {
+class ActorAlignmentInformations {
     constructor(alignmentSide, alignmentValue, alignmentGrade, characterPower) {
         this.alignmentSide = alignmentSide;
         this.alignmentValue = alignmentValue;
@@ -264,7 +263,7 @@ export class ActorAlignmentInformations {
     }
 }
 
-export class ActorExtendedAlignmentInformations extends ActorAlignmentInformations {
+class ActorExtendedAlignmentInformations extends ActorAlignmentInformations {
     constructor(alignmentSide, alignmentValue, alignmentGrade, characterPower, honor, honorGradeFloor, honorNextGradeFloor, aggressable) {
         super(alignmentSide, alignmentValue, alignmentGrade, characterPower);
         this.honor = honor;
@@ -281,7 +280,7 @@ export class ActorExtendedAlignmentInformations extends ActorAlignmentInformatio
     }
 }
 
-export class HumanInformations {
+class HumanInformations {
     constructor(restrictions, sex, options) {
         this.protocolId = 157;
         this.restrictions = restrictions;
@@ -299,7 +298,7 @@ export class HumanInformations {
     }
 }
 
-export class ActorRestrictionsInformations {
+class ActorRestrictionsInformations {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21) {
         this.cantBeAggressed = param1;
         this.cantBeChallenged = param2;
@@ -355,7 +354,7 @@ export class ActorRestrictionsInformations {
     }
 }
 
-export class EntityDispositionInformations {
+class EntityDispositionInformations {
     constructor(cellId, direction) {
         this.protocolId = 60;
         this.cellId = cellId;
@@ -368,7 +367,7 @@ export class EntityDispositionInformations {
     }
 }
 
-export class ActorOrientation {
+class ActorOrientation {
     constructor(id, direction) {
         this.protocolId = 353;
         this.id = id;
@@ -382,7 +381,7 @@ export class ActorOrientation {
 }
 
 
-export class CharacterCharacteristicsInformations {
+class CharacterCharacteristicsInformations {
     constructor(experience, experienceLevelFloor, experienceNextLevelFloor, kamas, statsPoints, additionnalPoints, spellsPoints, alignmentInfos, lifePoints, maxLifePoints, energyPoints, maxEnergyPoints, actionPointsCurrent, movementPointsCurrent, initiative, prospecting, actionPoints, movementPoints, strength, vitality, wisdom, chance, agility, intelligence, range, summonableCreaturesBoost, reflect, criticalHit, criticalHitWeapon, criticalMiss, healBonus, allDamagesBonus, weaponDamagesBonusPercent, damagesBonusPercent, trapBonus, trapBonusPercent, glyphBonusPercent, runeBonusPercent, permanentDamagePercent, tackleBlock, tackleEvade, PAAttack, PMAttack, pushDamageBonus, criticalDamageBonus, neutralDamageBonus, earthDamageBonus, waterDamageBonus, airDamageBonus, fireDamageBonus, dodgePALostProbability, dodgePMLostProbability, neutralElementResistPercent, earthElementResistPercent, waterElementResistPercent, airElementResistPercent, fireElementResistPercent, neutralElementReduction, earthElementReduction, waterElementReduction, airElementReduction, fireElementReduction, pushDamageReduction, criticalDamageReduction, pvpNeutralElementResistPercent, pvpEarthElementResistPercent, pvpWaterElementResistPercent, pvpAirElementResistPercent, pvpFireElementResistPercent, pvpNeutralElementReduction, pvpEarthElementReduction, pvpWaterElementReduction, pvpAirElementReduction, pvpFireElementReduction, spellModifications, probationTime) {
         this.protocolId = 8;
         this.experience = experience;
@@ -775,7 +774,7 @@ export class CharacterCharacteristicsInformations {
     }
 }
 
-export class CharacterBaseCharacteristic {
+class CharacterBaseCharacteristic {
     constructor(base, additionnal, objectsAndMountBonus, alignGiftBonus, contextModif) {
         this.protocolId = 4;
         this.base = base;
@@ -800,7 +799,7 @@ export class CharacterBaseCharacteristic {
     }
 }
 
-export class AbstractContactInformations {
+class AbstractContactInformations {
     constructor(accountId, accountName) {
         this.protocolId = 380;
         this.accountId = accountId;
@@ -822,7 +821,7 @@ export class AbstractContactInformations {
     }
 }
 
-export class FriendInformations extends AbstractContactInformations {
+class FriendInformations extends AbstractContactInformations {
     constructor(param1, param2, playerState, lastConnection, achievementPoints) {
 
         super(param1, param2);
@@ -854,7 +853,7 @@ export class FriendInformations extends AbstractContactInformations {
     }
 }
 
-export class FriendOnlineInformations extends FriendInformations {
+class FriendOnlineInformations extends FriendInformations {
     constructor(param1, param2, param3, param4, param5, playerId, playerName, level, alignmentSide, breed, sex, guildInfo, moodSmileyId, status) {
         super(param1, param2, param3, param4, param5);
         this.protocolId = 92;
@@ -889,7 +888,7 @@ export class FriendOnlineInformations extends FriendInformations {
     }
 }
 
-export class PlayerStatus {
+class PlayerStatus {
     constructor(statusId) {
         this.protocolId = 415;
         this.statusId = statusId;
@@ -905,7 +904,7 @@ export class PlayerStatus {
     }
 }
 
-export class AbstractSocialGroupInfos {
+class AbstractSocialGroupInfos {
     constructor() {
         this.protocolId = 416;
     }
@@ -915,7 +914,7 @@ export class AbstractSocialGroupInfos {
     }
 }
 
-export class BasicGuildInformations extends AbstractSocialGroupInfos {
+class BasicGuildInformations extends AbstractSocialGroupInfos {
     constructor(guildId, guildName, guildLevel) {
         super();
         this.protocolId = 365;
@@ -946,7 +945,7 @@ export class BasicGuildInformations extends AbstractSocialGroupInfos {
     }
 }
 
-export class GuildEmblem {
+class GuildEmblem {
     constructor(symbolShape, symbolColor, backgroundShape, backgroundColor) {
         this.protocolId = 87;
         this.symbolShape = symbolShape;
@@ -980,7 +979,7 @@ export class GuildEmblem {
     }
 }
 
-export class GuildInformations extends BasicGuildInformations {
+class GuildInformations extends BasicGuildInformations {
     constructor(param1, param2, param3, guildEmblem) {
         super(param1, param2, param3);
         this.protocolId = 127;
@@ -997,7 +996,7 @@ export class GuildInformations extends BasicGuildInformations {
     }
 }
 
-export class Item {
+class Item {
     constructor() {
         this.protocolId = 7;
     }
@@ -1007,7 +1006,7 @@ export class Item {
     }
 }
 
-export class ObjectItemMinimalInformation extends Item {
+class ObjectItemMinimalInformation extends Item {
     constructor(objectGID, effects) {
         super();
         this.objectGID = objectGID;
@@ -1029,7 +1028,7 @@ export class ObjectItemMinimalInformation extends Item {
         }
     }
 }
-export class ObjectItemToSellInNpcShop extends ObjectItemMinimalInformation {
+class ObjectItemToSellInNpcShop extends ObjectItemMinimalInformation {
     constructor(param1, param2, objectPrice, buyCriterion) {
         super(param1, param2);
         this.objectPrice = objectPrice;
@@ -1045,7 +1044,7 @@ export class ObjectItemToSellInNpcShop extends ObjectItemMinimalInformation {
         buffer.writeUTF(this.buyCriterion);
     }
 }
-export class ObjectItem extends Item {
+class ObjectItem extends Item {
     constructor(position, objectGID, effects, objectUID, quantity) {
         super();
         this.position = position;
@@ -1110,7 +1109,7 @@ export class ObjectItem extends Item {
     }
 }
 
-export class ObjectEffect {
+class ObjectEffect {
     constructor(actionId) {
         this.actionId = actionId;
         this.protocolId = 76;
@@ -1129,7 +1128,7 @@ export class ObjectEffect {
     }
 }
 
-export class ObjectEffectCreature extends ObjectEffect {
+class ObjectEffectCreature extends ObjectEffect {
     constructor(param1, monsterFamilyId) {
         super(param1);
         this.monsterFamilyId = monsterFamilyId;
@@ -1151,7 +1150,7 @@ export class ObjectEffectCreature extends ObjectEffect {
     }
 }
 
-export class ObjectEffectDate extends ObjectEffect {
+class ObjectEffectDate extends ObjectEffect {
     constructor(param1, year, month, day, hour, minute) {
         super(param1);
         this.year = year;
@@ -1209,7 +1208,7 @@ export class ObjectEffectDate extends ObjectEffect {
     }
 }
 
-export class ObjectEffectDice extends ObjectEffect {
+class ObjectEffectDice extends ObjectEffect {
     constructor(param1, diceNum, diceSide, diceConst) {
         super(param1);
         this.diceNum = diceNum;
@@ -1250,7 +1249,7 @@ export class ObjectEffectDice extends ObjectEffect {
     }
 }
 
-export class ObjectEffectDuration extends ObjectEffect {
+class ObjectEffectDuration extends ObjectEffect {
     constructor(param1, days, hours, minutes) {
         super(param1);
         this.days = days;
@@ -1290,7 +1289,7 @@ export class ObjectEffectDuration extends ObjectEffect {
     }
 }
 
-export class ObjectEffectInteger extends ObjectEffect {
+class ObjectEffectInteger extends ObjectEffect {
     constructor(param1, value) {
         super(param1);
         this.value = value;
@@ -1312,7 +1311,7 @@ export class ObjectEffectInteger extends ObjectEffect {
     }
 }
 
-export class ObjectEffectLadder extends ObjectEffectCreature {
+class ObjectEffectLadder extends ObjectEffectCreature {
     constructor(param1, param2, monsterCount) {
         super(param1, param2);
         this.monsterCount = monsterCount;
@@ -1334,7 +1333,7 @@ export class ObjectEffectLadder extends ObjectEffectCreature {
     }
 }
 
-export class ObjectEffectMinMax extends ObjectEffect {
+class ObjectEffectMinMax extends ObjectEffect {
     constructor(param1, min, max) {
         super(param1);
         this.min = min;
@@ -1365,7 +1364,7 @@ export class ObjectEffectMinMax extends ObjectEffect {
     }
 }
 
-export class ObjectEffectMount extends ObjectEffect {
+class ObjectEffectMount extends ObjectEffect {
     constructor(param1, mountId, date, modelId) {
         super(param1);
         this.mountId = mountId;
@@ -1405,7 +1404,7 @@ export class ObjectEffectMount extends ObjectEffect {
     }
 }
 
-export class ObjectEffectString extends ObjectEffect {
+class ObjectEffectString extends ObjectEffect {
     constructor(param1, value) {
         super(param1);
         this.value = value;
@@ -1420,7 +1419,7 @@ export class ObjectEffectString extends ObjectEffect {
         this.value = buffer.readUTF();
     }
 }
-export class InteractiveElement{
+class InteractiveElement{
 constructor(elementId,elementTypeId,enabledSkills,disabledSkills,onCurrentMap) {
 this.elementId = elementId;
 this.elementTypeId = elementTypeId;
@@ -1458,7 +1457,7 @@ this.disabledSkills[_loc3_].serialize(buffer);
          buffer.writeBoolean(this.onCurrentMap);
 }
 }
-export class InteractiveElementSkill{
+class InteractiveElementSkill{
 constructor(skillId,skillInstanceUid) {
 this.skillId = skillId;
 this.skillInstanceUid = skillInstanceUid;
@@ -1479,7 +1478,7 @@ serialize(buffer){
 
 }
 
-export class IgnoredInformations extends AbstractContactInformations {
+class IgnoredInformations extends AbstractContactInformations {
     constructor(param1, param2) {
         super(param1, param2);
         this.protocolId = 106;
@@ -1492,7 +1491,7 @@ export class IgnoredInformations extends AbstractContactInformations {
     }
 }
 
-export class IgnoredOnlineInformations extends IgnoredInformations {
+class IgnoredOnlineInformations extends IgnoredInformations {
     constructor(param1, param2, playerId, playerName, breed, sex) {
         super(param1, param2);
         this.playerId = playerId;
@@ -1526,7 +1525,7 @@ export class IgnoredOnlineInformations extends IgnoredInformations {
     }
 }
 
-export class SubEntity {
+class SubEntity {
     constructor(bindingPointCategory, bindingPointIndex, subEntityLook) {
         this.bindingPointCategory = bindingPointCategory;
         this.bindingPointIndex = bindingPointIndex;
@@ -1552,7 +1551,7 @@ export class SubEntity {
     }
 }
 
-export class SpellItem extends Item {
+class SpellItem extends Item {
     constructor(spellId, spellLevel) {
         super();
         this.spellId = spellId;
@@ -1578,7 +1577,7 @@ export class SpellItem extends Item {
 }
 
 
-export class PartyMemberInformations extends CharacterBaseInformations {
+class PartyMemberInformations extends CharacterBaseInformations {
     constructor(param1, param2, param3, param4, param5, param6, lifePoints, maxLifePoints, prospecting, regenRate, initiative, alignmentSide, worldX, worldY, mapId, subAreaId, status, companions) {
         super(param1, param2, param3, param4, param5, param6);
         this.lifePoints = lifePoints;
@@ -1691,7 +1690,7 @@ export class PartyMemberInformations extends CharacterBaseInformations {
     }
 }
 
-export class PartyCompanionBaseInformations {
+class PartyCompanionBaseInformations {
     constructor(indexId, companionGenericId, entityLook) {
         this.indexId = indexId;
         this.companionGenericId = companionGenericId;
@@ -1723,7 +1722,7 @@ export class PartyCompanionBaseInformations {
     }
 }
 
-export class PartyCompanionMemberInformations extends PartyCompanionBaseInformations {
+class PartyCompanionMemberInformations extends PartyCompanionBaseInformations {
     constructor(param1, param2, param3, initiative, lifePoints, maxLifePoints, prospecting, regenRate) {
         super(param1, param2, param3);
         this.initiative = initiative;
@@ -1781,7 +1780,7 @@ export class PartyCompanionMemberInformations extends PartyCompanionBaseInformat
     }
 }
 
-export class PartyGuestInformations {
+class PartyGuestInformations {
     constructor(guestId, hostId, name, guestLook, breed, sex, status, companions) {
         this.guestId = guestId;
         this.hostId = hostId;
@@ -1844,7 +1843,7 @@ export class PartyGuestInformations {
     }
 }
 
-export class GameFightFighterInformations extends GameContextActorInformations {
+class GameFightFighterInformations extends GameContextActorInformations {
     constructor(param1, param2, param3, teamId, wave, alive, stats, previousPositions) {
         super(param1, param2, param3);
         this.teamId = teamId;
@@ -1902,7 +1901,7 @@ export class GameFightFighterInformations extends GameContextActorInformations {
     }
 }
 
-export class GameFightFighterNamedInformations extends GameFightFighterInformations {
+class GameFightFighterNamedInformations extends GameFightFighterInformations {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, name, status) {
         super(param1, param2, param3, param4, param5, param6, param7, param8);
         this.name = name;
@@ -1922,7 +1921,7 @@ export class GameFightFighterNamedInformations extends GameFightFighterInformati
     }
 }
 
-export class GameFightMutantInformations extends GameFightFighterNamedInformations {
+class GameFightMutantInformations extends GameFightFighterNamedInformations {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, powerLevel) {
         super(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
         this.powerLevel = powerLevel;
@@ -1944,7 +1943,7 @@ export class GameFightMutantInformations extends GameFightFighterNamedInformatio
     }
 }
 
-export class GameFightCharacterInformations extends GameFightFighterNamedInformations {
+class GameFightCharacterInformations extends GameFightFighterNamedInformations {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, level, alignmentInfos, breed, sex) {
         super(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
         this.level = level;
@@ -1977,7 +1976,7 @@ export class GameFightCharacterInformations extends GameFightFighterNamedInforma
 }
 
 
-export class GameFightMinimalStats {
+class GameFightMinimalStats {
     constructor(lifePoints, maxLifePoints, baseMaxLifePoints, permanentDamagePercent, shieldPoints, actionPoints, maxActionPoints, movementPoints, maxMovementPoints, summoner, summoned, neutralElementResistPercent, earthElementResistPercent, waterElementResistPercent, airElementResistPercent, fireElementResistPercent, neutralElementReduction, earthElementReduction, waterElementReduction, airElementReduction, fireElementReduction, criticalDamageFixedResist, pushDamageFixedResist, pvpNeutralElementResistPercent, pvpEarthElementResistPercent, pvpWaterElementResistPercent, pvpAirElementResistPercent, pvpFireElementResistPercent, pvpNeutralElementReduction, pvpEarthElementReduction, pvpWaterElementReduction, pvpAirElementReduction, pvpFireElementReduction, dodgePALostProbability, dodgePMLostProbability, tackleBlock, tackleEvade, fixedDamageReflection, invisibilityState) {
         this.lifePoints = lifePoints;
         this.maxLifePoints = maxLifePoints;
@@ -2156,7 +2155,7 @@ export class GameFightMinimalStats {
 }
 
 // Generated by Noxus types
-export class GameFightMinimalStatsPreparation extends GameFightMinimalStats {
+class GameFightMinimalStatsPreparation extends GameFightMinimalStats {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26, param27, param28, param29, param30, param31, param32, param33, param34, param35, param36, param37, param38, param39, initiative) {
         super(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, param11, param12, param13, param14, param15, param16, param17, param18, param19, param20, param21, param22, param23, param24, param25, param26, param27, param28, param29, param30, param31, param32, param33, param34, param35, param36, param37, param38, param39);
         this.initiative = initiative;
@@ -2180,7 +2179,7 @@ export class GameFightMinimalStatsPreparation extends GameFightMinimalStats {
     }
 }
 
-export class IdentifiedEntityDispositionInformations extends EntityDispositionInformations {
+class IdentifiedEntityDispositionInformations extends EntityDispositionInformations {
     constructor(param1, param2, id) {
         super(param1, param2);
         this.id = id;
@@ -2202,7 +2201,7 @@ export class IdentifiedEntityDispositionInformations extends EntityDispositionIn
     }
 }
 
-export class FightCommonInformations {
+class FightCommonInformations {
     constructor(fightId, fightType, fightTeams, fightTeamsPositions, fightTeamsOptions) {
         this.fightId = fightId;
         this.fightType = fightType;
@@ -2277,7 +2276,7 @@ export class FightCommonInformations {
     }
 }
 
-export class AbstractFightTeamInformations {
+class AbstractFightTeamInformations {
     constructor(teamId, leaderId, teamSide, teamTypeId, nbWaves) {
         this.teamId = teamId;
         this.leaderId = leaderId;
@@ -2320,7 +2319,7 @@ export class AbstractFightTeamInformations {
     }
 }
 
-export class FightTeamInformations extends AbstractFightTeamInformations {
+class FightTeamInformations extends AbstractFightTeamInformations {
     constructor(param1, param2, param3, param4, param5, teamMembers) {
         super(param1, param2, param3, param4, param5);
         this.teamMembers = teamMembers;
@@ -2352,7 +2351,7 @@ export class FightTeamInformations extends AbstractFightTeamInformations {
     }
 }
 
-export class FightOptionsInformations {
+class FightOptionsInformations {
     constructor(isSecret, isRestrictedToPartyOnly, isClosed, isAskingForHelp) {
         this.isSecret = isSecret;
         this.isRestrictedToPartyOnly = isRestrictedToPartyOnly;
@@ -2377,7 +2376,7 @@ export class FightOptionsInformations {
     }
 }
 
-export class FightTeamMemberInformations {
+class FightTeamMemberInformations {
     constructor(id) {
         this.id = id;
         this.protocolId = 44;
@@ -2396,7 +2395,7 @@ export class FightTeamMemberInformations {
     }
 }
 
-export class FightTeamMemberCharacterInformations extends FightTeamMemberInformations {
+class FightTeamMemberCharacterInformations extends FightTeamMemberInformations {
     constructor(param1, name, level) {
         super(param1);
         this.name = name;
@@ -2421,7 +2420,7 @@ export class FightTeamMemberCharacterInformations extends FightTeamMemberInforma
     }
 }
 
-export class FightTeamMemberMonsterInformations extends FightTeamMemberInformations {
+class FightTeamMemberMonsterInformations extends FightTeamMemberInformations {
     constructor(param1, monsterId, grade) {
         super(param1);
         this.monsterId = monsterId;
@@ -2446,7 +2445,7 @@ export class FightTeamMemberMonsterInformations extends FightTeamMemberInformati
     }
 }
 
-export class GameFightAIInformations extends GameFightFighterInformations {
+class GameFightAIInformations extends GameFightFighterInformations {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8) {
         super(param1, param2, param3, param4, param5, param6, param7, param8);
         this.protocolId = 151;
@@ -2459,7 +2458,7 @@ export class GameFightAIInformations extends GameFightFighterInformations {
     }
 }
 
-export class GameFightMonsterInformations extends GameFightAIInformations {
+class GameFightMonsterInformations extends GameFightAIInformations {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, creatureGenericId, creatureGrade) {
         super(param1, param2, param3, param4, param5, param6, param7, param8);
         this.creatureGenericId = creatureGenericId;
@@ -2490,7 +2489,7 @@ export class GameFightMonsterInformations extends GameFightAIInformations {
     }
 }
 
-export class NamedPartyTeamWithOutcome {
+class NamedPartyTeamWithOutcome {
     constructor(team, outcome) {
         this.team = team;
         this.outcome = outcome;
@@ -2510,7 +2509,7 @@ export class NamedPartyTeamWithOutcome {
     }
 }
 
-export class NamedPartyTeam {
+class NamedPartyTeam {
     constructor(teamId, partyName) {
         this.teamId = teamId;
         this.partyName = partyName;
@@ -2529,7 +2528,7 @@ export class NamedPartyTeam {
     }
 }
 
-export class FightResultListEntry {
+class FightResultListEntry {
     constructor(outcome, wave, rewards) {
         this.outcome = outcome;
         this.wave = wave;
@@ -2558,7 +2557,7 @@ export class FightResultListEntry {
     }
 }
 
-export class FightResultFighterListEntry extends FightResultListEntry {
+class FightResultFighterListEntry extends FightResultListEntry {
     constructor(param1, param2, param3, id, alive) {
         super(param1, param2, param3);
         this.id = id;
@@ -2583,7 +2582,7 @@ export class FightResultFighterListEntry extends FightResultListEntry {
     }
 }
 
-export class FightResultMutantListEntry extends FightResultFighterListEntry {
+class FightResultMutantListEntry extends FightResultFighterListEntry {
     constructor(param1, param2, param3, param4, param5, level) {
         super(param1, param2, param3, param4, param5);
         this.level = level;
@@ -2605,7 +2604,7 @@ export class FightResultMutantListEntry extends FightResultFighterListEntry {
     }
 }
 
-export class FightResultPlayerListEntry extends FightResultFighterListEntry {
+class FightResultPlayerListEntry extends FightResultFighterListEntry {
     constructor(param1, param2, param3, param4, param5, level, additional) {
         super(param1, param2, param3, param4, param5);
         this.level = level;
@@ -2647,7 +2646,7 @@ export class FightResultPlayerListEntry extends FightResultFighterListEntry {
 }
 
 
-export class FightLoot {
+class FightLoot {
     constructor(objects, kamas) {
         this.objects = objects;
         this.kamas = kamas;
@@ -2687,7 +2686,7 @@ export class FightLoot {
     }
 }
 
-export class FightResultAdditionalData {
+class FightResultAdditionalData {
     constructor() {
         this.protocolId = 191;
     }
@@ -2697,7 +2696,7 @@ export class FightResultAdditionalData {
     }
 }
 
-export class FightResultExperienceData extends FightResultAdditionalData {
+class FightResultExperienceData extends FightResultAdditionalData {
     constructor(experience, showExperience, experienceLevelFloor, showExperienceLevelFloor, experienceNextLevelFloor, showExperienceNextLevelFloor, experienceFightDelta, showExperienceFightDelta, experienceForGuild, showExperienceForGuild, experienceForMount, showExperienceForMount, isIncarnationExperience, rerollExperienceMul) {
         super();
         this.experience = experience;
@@ -2797,7 +2796,7 @@ export class FightResultExperienceData extends FightResultAdditionalData {
     }
 }
 
-export class MapCoordinates {
+class MapCoordinates {
     constructor(worldX, worldY) {
         this.worldX = worldX;
         this.worldY = worldY;
@@ -2825,7 +2824,7 @@ export class MapCoordinates {
     }
 }
 
-export class PartyInvitationMemberInformations extends CharacterBaseInformations {
+class PartyInvitationMemberInformations extends CharacterBaseInformations {
     constructor(param1, param2, param3, param4, param5, param6, worldX, worldY, mapId, subAreaId, companions) {
         super(param1, param2, param3, param4, param5, param6);
         this.worldX = worldX;
@@ -2884,7 +2883,7 @@ export class PartyInvitationMemberInformations extends CharacterBaseInformations
     }
 }
 
-export class Shortcut {
+class Shortcut {
     constructor(slot) {
         this.slot = slot;
         this.protocolId = 369;
@@ -2903,7 +2902,7 @@ export class Shortcut {
     }
 }
 
-export class ShortcutEmote extends Shortcut {
+class ShortcutEmote extends Shortcut {
     constructor(param1, emoteId) {
         super(param1);
         this.emoteId = emoteId;
@@ -2925,7 +2924,7 @@ export class ShortcutEmote extends Shortcut {
     }
 }
 
-export class ShortcutObject extends Shortcut {
+class ShortcutObject extends Shortcut {
     constructor(param1) {
         super(param1);
         this.protocolId = 367;
@@ -2938,7 +2937,7 @@ export class ShortcutObject extends Shortcut {
     }
 }
 
-export class ShortcutObjectIdolsPreset extends ShortcutObject {
+class ShortcutObjectIdolsPreset extends ShortcutObject {
     constructor(param1, presetId) {
         super(param1);
         this.presetId = presetId;
@@ -2960,7 +2959,7 @@ export class ShortcutObjectIdolsPreset extends ShortcutObject {
     }
 }
 
-export class ShortcutObjectItem extends ShortcutObject {
+class ShortcutObjectItem extends ShortcutObject {
     constructor(param1, itemUID, itemGID) {
         super(param1);
         this.itemUID = itemUID;
@@ -2979,7 +2978,7 @@ export class ShortcutObjectItem extends ShortcutObject {
     }
 }
 
-export class ShortcutObjectPreset extends ShortcutObject {
+class ShortcutObjectPreset extends ShortcutObject {
     constructor(param1, presetId) {
         super(param1);
         this.presetId = presetId;
@@ -3001,7 +3000,7 @@ export class ShortcutObjectPreset extends ShortcutObject {
     }
 }
 
-export class ShortcutSmiley extends Shortcut {
+class ShortcutSmiley extends Shortcut {
     constructor(param1, smileyId) {
         super(param1);
         this.smileyId = smileyId;
@@ -3023,7 +3022,7 @@ export class ShortcutSmiley extends Shortcut {
     }
 }
 
-export class ShortcutSpell extends Shortcut {
+class ShortcutSpell extends Shortcut {
     constructor(param1, spellId) {
         super(param1);
         this.spellId = spellId;
@@ -3044,7 +3043,7 @@ export class ShortcutSpell extends Shortcut {
         }
     }
 }
-export class GameRolePlayNpcInformations extends GameRolePlayActorInformations {
+class GameRolePlayNpcInformations extends GameRolePlayActorInformations {
     constructor(param1, param2, param3, npcId, sex, specialArtworkId) {
         super(param1, param2, param3);
         this.npcId = npcId;
@@ -3066,7 +3065,7 @@ export class GameRolePlayNpcInformations extends GameRolePlayActorInformations {
     }
 }
 
-export class AbstractFightDispellableEffect {
+class AbstractFightDispellableEffect {
     constructor(uid, targetId, turnDuration, dispelable, spellId, effectId, parentBoostUid) {
         this.uid = uid;
         this.targetId = targetId;
@@ -3131,7 +3130,7 @@ export class AbstractFightDispellableEffect {
     }
 }
 
-export class FightTemporaryBoostEffect extends AbstractFightDispellableEffect {
+class FightTemporaryBoostEffect extends AbstractFightDispellableEffect {
     constructor(param1, param2, param3, param4, param5, param6, param7, delta) {
         super(param1, param2, param3, param4, param5, param6, param7);
         this.delta = delta;
@@ -3147,7 +3146,7 @@ export class FightTemporaryBoostEffect extends AbstractFightDispellableEffect {
     }
 }
 
-export class FightTemporaryBoostStateEffect extends FightTemporaryBoostEffect {
+class FightTemporaryBoostStateEffect extends FightTemporaryBoostEffect {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, stateId) {
         super(param1, param2, param3, param4, param5, param6, param7, param8);
         this.stateId = stateId;
@@ -3163,7 +3162,7 @@ export class FightTemporaryBoostStateEffect extends FightTemporaryBoostEffect {
     }
 }
 
-export class FightTemporarySpellBoostEffect extends FightTemporaryBoostEffect {
+class FightTemporarySpellBoostEffect extends FightTemporaryBoostEffect {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, boostedSpellId) {
         super(param1, param2, param3, param4, param5, param6, param7, param8);
         this.boostedSpellId = boostedSpellId;
@@ -3185,7 +3184,7 @@ export class FightTemporarySpellBoostEffect extends FightTemporaryBoostEffect {
     }
 }
 
-export class FightTriggeredEffect extends AbstractFightDispellableEffect {
+class FightTriggeredEffect extends AbstractFightDispellableEffect {
     constructor(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10, delay) {
         super(param1, param2, param3, param4, param5, param6, param7, param8, param9, param10);
         this.param8 = param8;
@@ -3210,7 +3209,7 @@ export class FightTriggeredEffect extends AbstractFightDispellableEffect {
     }
 }
 
-export class GameRolePlayGroupMonsterInformations extends GameRolePlayActorInformations {
+class GameRolePlayGroupMonsterInformations extends GameRolePlayActorInformations {
     constructor(param1, param2, param3, staticInfos, creationTime, ageBonusRate, lootShare, alignmentSide, keyRingBonus, hasHardcoreDrop, hasAVARewardToken) {
         super(param1, param2, param3);
         this.staticInfos = staticInfos;
@@ -3271,7 +3270,7 @@ export class GameRolePlayGroupMonsterInformations extends GameRolePlayActorInfor
     }
 }
 
-export class GroupMonsterStaticInformations {
+class GroupMonsterStaticInformations {
     constructor(mainCreatureLightInfos, underlings) {
         this.mainCreatureLightInfos = mainCreatureLightInfos;
         this.underlings = underlings;
@@ -3301,7 +3300,7 @@ export class GroupMonsterStaticInformations {
     }
 }
 
-export class MonsterInGroupLightInformations {
+class MonsterInGroupLightInformations {
     constructor(creatureGenericId, grade) {
         this.creatureGenericId = creatureGenericId;
         this.grade = grade;
@@ -3323,7 +3322,7 @@ export class MonsterInGroupLightInformations {
     }
 }
 
-export class MonsterInGroupInformations extends MonsterInGroupLightInformations {
+class MonsterInGroupInformations extends MonsterInGroupLightInformations {
     constructor(param1, param2, look) {
         super(param1, param2);
         this.look = look;
@@ -3340,7 +3339,7 @@ export class MonsterInGroupInformations extends MonsterInGroupLightInformations 
     }
 }
 
-export class GameActionMark {
+class GameActionMark {
     constructor(markAuthorId, markTeamId, markSpellId, markSpellLevel, markId, markType, markimpactCell, cells, active) {
         this.markAuthorId = markAuthorId;
         this.markTeamId = markTeamId;
@@ -3417,7 +3416,7 @@ export class GameActionMark {
     }
 }
 
-export class GameActionMarkedCell {
+class GameActionMarkedCell {
     constructor(cellId, zoneSize, cellColor, cellsType) {
         this.cellId = cellId;
         this.zoneSize = zoneSize;
@@ -3445,7 +3444,7 @@ export class GameActionMarkedCell {
     }
 }
 
-export class FinishMoveInformations {
+class FinishMoveInformations {
     constructor(finishMoveId, finishMoveState) {
         this.finishMoveId = finishMoveId;
         this.finishMoveState = finishMoveState;
@@ -3466,3 +3465,107 @@ export class FinishMoveInformations {
         this.finishMoveState = buffer.readBoolean();
     }
 }
+
+// ---- Exports ----
+exports.Version = Version;
+exports.VersionExtended = VersionExtended;
+exports.GameServerInformations = GameServerInformations;
+exports.EntityLook = EntityLook;
+exports.AbstractCharacterInformation = AbstractCharacterInformation;
+exports.CharacterBasicMinimalInformations = CharacterBasicMinimalInformations;
+exports.CharacterMinimalInformations = CharacterMinimalInformations;
+exports.CharacterMinimalPlusLookInformations = CharacterMinimalPlusLookInformations;
+exports.CharacterBaseInformations = CharacterBaseInformations;
+exports.GameContextActorInformations = GameContextActorInformations;
+exports.GameRolePlayActorInformations = GameRolePlayActorInformations;
+exports.GameRolePlayNamedActorInformations = GameRolePlayNamedActorInformations;
+exports.GameRolePlayHumanoidInformations = GameRolePlayHumanoidInformations;
+exports.GameRolePlayCharacterInformations = GameRolePlayCharacterInformations;
+exports.ActorAlignmentInformations = ActorAlignmentInformations;
+exports.ActorExtendedAlignmentInformations = ActorExtendedAlignmentInformations;
+exports.HumanInformations = HumanInformations;
+exports.ActorRestrictionsInformations = ActorRestrictionsInformations;
+exports.EntityDispositionInformations = EntityDispositionInformations;
+exports.ActorOrientation = ActorOrientation;
+exports.CharacterCharacteristicsInformations = CharacterCharacteristicsInformations;
+exports.CharacterBaseCharacteristic = CharacterBaseCharacteristic;
+exports.AbstractContactInformations = AbstractContactInformations;
+exports.FriendInformations = FriendInformations;
+exports.FriendOnlineInformations = FriendOnlineInformations;
+exports.PlayerStatus = PlayerStatus;
+exports.AbstractSocialGroupInfos = AbstractSocialGroupInfos;
+exports.BasicGuildInformations = BasicGuildInformations;
+exports.GuildEmblem = GuildEmblem;
+exports.GuildInformations = GuildInformations;
+exports.Item = Item;
+exports.ObjectItemMinimalInformation = ObjectItemMinimalInformation;
+exports.ObjectItemToSellInNpcShop = ObjectItemToSellInNpcShop;
+exports.ObjectItem = ObjectItem;
+exports.ObjectEffect = ObjectEffect;
+exports.ObjectEffectCreature = ObjectEffectCreature;
+exports.ObjectEffectDate = ObjectEffectDate;
+exports.ObjectEffectDice = ObjectEffectDice;
+exports.ObjectEffectDuration = ObjectEffectDuration;
+exports.ObjectEffectInteger = ObjectEffectInteger;
+exports.ObjectEffectLadder = ObjectEffectLadder;
+exports.ObjectEffectMinMax = ObjectEffectMinMax;
+exports.ObjectEffectMount = ObjectEffectMount;
+exports.ObjectEffectString = ObjectEffectString;
+exports.InteractiveElement = InteractiveElement;
+exports.InteractiveElementSkill = InteractiveElementSkill;
+exports.IgnoredInformations = IgnoredInformations;
+exports.IgnoredOnlineInformations = IgnoredOnlineInformations;
+exports.SubEntity = SubEntity;
+exports.SpellItem = SpellItem;
+exports.PartyMemberInformations = PartyMemberInformations;
+exports.PartyCompanionBaseInformations = PartyCompanionBaseInformations;
+exports.PartyCompanionMemberInformations = PartyCompanionMemberInformations;
+exports.PartyGuestInformations = PartyGuestInformations;
+exports.GameFightFighterInformations = GameFightFighterInformations;
+exports.GameFightFighterNamedInformations = GameFightFighterNamedInformations;
+exports.GameFightMutantInformations = GameFightMutantInformations;
+exports.GameFightCharacterInformations = GameFightCharacterInformations;
+exports.GameFightMinimalStats = GameFightMinimalStats;
+exports.GameFightMinimalStatsPreparation = GameFightMinimalStatsPreparation;
+exports.IdentifiedEntityDispositionInformations = IdentifiedEntityDispositionInformations;
+exports.FightCommonInformations = FightCommonInformations;
+exports.AbstractFightTeamInformations = AbstractFightTeamInformations;
+exports.FightTeamInformations = FightTeamInformations;
+exports.FightOptionsInformations = FightOptionsInformations;
+exports.FightTeamMemberInformations = FightTeamMemberInformations;
+exports.FightTeamMemberCharacterInformations = FightTeamMemberCharacterInformations;
+exports.FightTeamMemberMonsterInformations = FightTeamMemberMonsterInformations;
+exports.GameFightAIInformations = GameFightAIInformations;
+exports.GameFightMonsterInformations = GameFightMonsterInformations;
+exports.NamedPartyTeamWithOutcome = NamedPartyTeamWithOutcome;
+exports.NamedPartyTeam = NamedPartyTeam;
+exports.FightResultListEntry = FightResultListEntry;
+exports.FightResultFighterListEntry = FightResultFighterListEntry;
+exports.FightResultMutantListEntry = FightResultMutantListEntry;
+exports.FightResultPlayerListEntry = FightResultPlayerListEntry;
+exports.FightLoot = FightLoot;
+exports.FightResultAdditionalData = FightResultAdditionalData;
+exports.FightResultExperienceData = FightResultExperienceData;
+exports.MapCoordinates = MapCoordinates;
+exports.PartyInvitationMemberInformations = PartyInvitationMemberInformations;
+exports.Shortcut = Shortcut;
+exports.ShortcutEmote = ShortcutEmote;
+exports.ShortcutObject = ShortcutObject;
+exports.ShortcutObjectIdolsPreset = ShortcutObjectIdolsPreset;
+exports.ShortcutObjectItem = ShortcutObjectItem;
+exports.ShortcutObjectPreset = ShortcutObjectPreset;
+exports.ShortcutSmiley = ShortcutSmiley;
+exports.ShortcutSpell = ShortcutSpell;
+exports.GameRolePlayNpcInformations = GameRolePlayNpcInformations;
+exports.AbstractFightDispellableEffect = AbstractFightDispellableEffect;
+exports.FightTemporaryBoostEffect = FightTemporaryBoostEffect;
+exports.FightTemporaryBoostStateEffect = FightTemporaryBoostStateEffect;
+exports.FightTemporarySpellBoostEffect = FightTemporarySpellBoostEffect;
+exports.FightTriggeredEffect = FightTriggeredEffect;
+exports.GameRolePlayGroupMonsterInformations = GameRolePlayGroupMonsterInformations;
+exports.GroupMonsterStaticInformations = GroupMonsterStaticInformations;
+exports.MonsterInGroupLightInformations = MonsterInGroupLightInformations;
+exports.MonsterInGroupInformations = MonsterInGroupInformations;
+exports.GameActionMark = GameActionMark;
+exports.GameActionMarkedCell = GameActionMarkedCell;
+exports.FinishMoveInformations = FinishMoveInformations;

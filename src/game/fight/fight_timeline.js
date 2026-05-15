@@ -1,9 +1,8 @@
-import * as Messages from "../../io/dofus/messages"
-import * as Types from "../../io/dofus/types"
-import Logger from "../../io/logger"
-import WorldManager from "../../managers/world_manager"
-
-export default class FightTimeline {
+const Messages = require("../../io/dofus/messages")
+const Types = require("../../io/dofus/types")
+const Logger = require("../../io/logger")
+const WorldManager = require("../../managers/world_manager")
+class FightTimeline {
 
     static TURN_BASE_TIME = 35;
 
@@ -154,3 +153,4 @@ export default class FightTimeline {
         return Date.now() - this.startTime;
     }
 }
+module.exports = FightTimeline

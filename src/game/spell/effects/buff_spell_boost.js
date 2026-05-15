@@ -1,7 +1,6 @@
-import Basic from "../../../utils/basic"
-import BoostSpellBuff from "../buffs/boost_spell_buff"
-
-export default class BuffSpellBoost {
+const Basic = require("../../../utils/basic")
+const BoostSpellBuff = require("../buffs/boost_spell_buff")
+class BuffSpellBoost {
 
     static effectId = 293;
 

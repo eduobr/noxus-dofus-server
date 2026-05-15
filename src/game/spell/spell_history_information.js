@@ -1,4 +1,4 @@
-export default class SpellHistoryInformation{
+class SpellHistoryInformation{
 
     constructor(spell,target , round){
         this.spell = spell;
@@ -15,3 +15,4 @@ export default class SpellHistoryInformation{
         return (this.getRound(current) < this.spell.minCastInterval);
     }
 }
+module.exports = SpellHistoryInformation

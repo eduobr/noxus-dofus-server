@@ -256,6 +256,11 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           // AlmanachCalendarDateMessage: fecha del calendario
           log.dbg('AlmanachCalendarDate recibido');
         },
+        5689: (m) => {
+          // EmoteListMessage: lista de emotes del personaje
+          const count = m.bl >= 2 ? m.body.readUInt16BE(0) : 0;
+          log.dbg(`EmoteList: ${count} emote(s), ${m.bl} bytes`);
+        },
 
         // ===== Mensajes de configuración (ignorar) =====
         5637: () => { }, 6087: () => { }, 6339: () => { },

@@ -101,7 +101,9 @@ class WorldClient {
             Logger.network("Sended packet '" + packet.constructor.name + "' (id: " + packet.messageId + ", len: " + finalBuffer.length + " -- " + b.length + ")");
         }
         catch (e) {
-            Logger.error("Can't send packet to client because: " + e);
+            var pktName = (packet && packet.constructor && packet.constructor.name) ? packet.constructor.name : '?';
+            var pktId = (packet && packet.messageId != null) ? packet.messageId : '?';
+            Logger.error("Can't send packet '" + pktName + "' (id=" + pktId + "): " + e.message);
         }
     }
 }

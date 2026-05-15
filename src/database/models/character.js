@@ -47,7 +47,7 @@ class Character {
         this.dirId = raw.dirId;
         this.statsPoints = raw.statsPoints;
         this.spellPoints = raw.spellPoints;
-        this.emotes = raw.emotes;
+        this.emotes = raw.emotes ? raw.emotes : [];
         this.bagId = raw.bagId ? raw.bagId : -1;
         this.skins = [];
         this.skinsLook = [];

@@ -20,7 +20,7 @@ Flujo manual recomendado:
 1. Clonar el repositorio en el servidor.
 2. Activar Node 25.3.0.
 3. Instalar dependencias con `pnpm install`.
-4. Asegurar MongoDB 4.2 corriendo en `localhost:27017`.
+4. Asegurar MongoDB 8.0 corriendo en `localhost:27017`.
 5. Importar datos de juego a MongoDB desde `db/` si la base está vacía.
 6. Dar capability al binario de Node para puerto 443.
 7. Ejecutar `node src/app.js`.
@@ -33,9 +33,9 @@ export PATH="/home/enoh/.nvm/versions/node/v25.3.0/bin:$PATH"
 export DOCKER_HOST=unix:///home/enoh/.docker/desktop/docker.sock
 
 pnpm install
-docker start noxus-mongo 2>/dev/null || \
-  docker run -d --name noxus-mongo -p 27017:27017 \
-    -v noxus-mongo-data:/data/db mongo:4.2
+docker start noxus-mongo8 2>/dev/null || \
+  docker run -d --name noxus-mongo8 -p 27017:27017 \
+    -v noxus-mongo8-data:/data/db mongo:8.0
 
 node src/app.js
 ```
@@ -65,13 +65,13 @@ En producción se recomienda evaluar:
 
 ### MongoDB
 
-- Versión validada actual: MongoDB 4.2 en Docker (`mongo:4.2`).
-- Contenedor local: `noxus-mongo`.
-- Volumen local: `noxus-mongo-data`.
+- Versión validada actual: MongoDB 8.0 en Docker (`mongo:8.0`).
+- Contenedor local activo: `noxus-mongo8`.
+- Volumen local activo: `noxus-mongo8-data`.
 - Base por defecto: `Noxus`.
 - La app se conecta sin usuario/contraseña según `config.json`.
-- Hay plan preparado para migrar a MongoDB 8.0:
-  `.hermes/plans/2026-05-14_202655-migrar-mongodb-42-a-80.md`.
+- Rollback temporal: conservar `noxus-mongo` (`mongo:4.2`) detenido con su volumen original y volver a arrancarlo si MongoDB 8.0 falla.
+- Plan de migración ejecutado: `.hermes/plans/2026-05-14_202655-migrar-mongodb-42-a-80.md`.
 
 ### Variables de entorno
 
@@ -120,9 +120,9 @@ CMD ["node", "src/app.js"]
 ```yaml
 services:
   mongodb:
-    image: mongo:4.2
+    image: mongo:8.0
     volumes:
-      - noxus-mongo-data:/data/db
+      - noxus-mongo8-data:/data/db
     ports:
       - "27017:27017"
 
@@ -136,7 +136,7 @@ services:
     # Requiere ajustar config/env en una fase futura para conectar a host mongodb.
 
 volumes:
-  noxus-mongo-data:
+  noxus-mongo8-data:
 ```
 
 Nota: actualmente `config.json` apunta a `localhost`, por lo que un compose real

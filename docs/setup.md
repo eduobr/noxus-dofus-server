@@ -6,7 +6,7 @@
 |---|---|---|
 | Node.js | 25.3.0 | Instalado con nvm; `src/` corre directamente |
 | pnpm | 11.1.2 | Reemplaza npm en el flujo actual |
-| MongoDB | 4.2 | Docker recomendado; contenedor `noxus-mongo` |
+| MongoDB | 8.0 | Docker recomendado; contenedor `noxus-mongo8` |
 | Docker Desktop | Actual | En esta máquina usa socket `$HOME/.docker/desktop/docker.sock` |
 | SO | Linux / Windows | Validado en Arch Linux |
 
@@ -53,7 +53,7 @@ Dependencias runtime actuales:
 - `chalk` ^4.1.2 (CommonJS compatible)
 - `node-dijkstra` ^2.3.0
 
-### 4. Configurar MongoDB 4.2 con Docker
+### 4. Configurar MongoDB 8.0 con Docker
 
 En Docker Desktop de esta máquina:
 
@@ -64,17 +64,22 @@ export DOCKER_HOST=unix:///home/enoh/.docker/desktop/docker.sock
 Arrancar el contenedor existente o crearlo si no existe:
 
 ```bash
-docker start noxus-mongo 2>/dev/null || \
-  docker run -d --name noxus-mongo -p 27017:27017 \
-    -v noxus-mongo-data:/data/db mongo:4.2
+docker start noxus-mongo8 2>/dev/null || \
+  docker run -d --name noxus-mongo8 -p 27017:27017 \
+    -v noxus-mongo8-data:/data/db mongo:8.0
 ```
 
 Verificar:
 
 ```bash
-docker ps --filter name=noxus-mongo
-docker exec noxus-mongo mongo --quiet --eval 'db.adminCommand({ ping: 1 })'
+docker ps --filter name=noxus-mongo8
+docker exec noxus-mongo8 mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'
+docker exec noxus-mongo8 mongosh --quiet --eval 'db.version()'
 ```
+
+Rollback temporal: el contenedor legacy `noxus-mongo` (`mongo:4.2`) y su volumen
+se conservan detenidos. Para volver atrás, detener `noxus-mongo8` y arrancar
+`noxus-mongo`, manteniendo `config.json` igual porque ambos usan `localhost:27017`.
 
 ### 5. Importar datos de juego si la base está vacía
 
@@ -95,7 +100,7 @@ Colecciones conocidas:
 Ejemplo:
 
 ```bash
-docker exec -i noxus-mongo mongoimport --db Noxus --collection breeds \
+docker exec -i noxus-mongo8 mongoimport --db Noxus --collection breeds \
   --jsonArray --drop --file - < db/breeds.json
 ```
 
@@ -109,15 +114,15 @@ Colecciones conocidas:
 - `npcs_spawns`, `ornaments`, `smileys`, `subareas`
 - `accounts`, `accounts_friends`, `characters`, `areas`
 
-MongoDB 4.2+ no parsea directamente `NumberInt()`, `NumberLong()` ni
+MongoDB 8.0 no parsea directamente `NumberInt()`, `NumberLong()` ni
 `ObjectId()` desde estos JSON legacy. Limpia antes de importar:
 
 ```bash
 sed 's/ObjectId("[^"]*")/"0"/g; s/NumberInt(\([0-9-]*\))/\1/g; s/NumberLong(\([0-9-]*\))/\1/g' db/heads.json \
   | sed '/"_id"/d' > /tmp/heads-cleaned.json
 
-docker cp /tmp/heads-cleaned.json noxus-mongo:/tmp/heads-cleaned.json
-docker exec noxus-mongo mongoimport --db Noxus --collection heads \
+docker cp /tmp/heads-cleaned.json noxus-mongo8:/tmp/heads-cleaned.json
+docker exec noxus-mongo8 mongoimport --db Noxus --collection heads \
   --drop --file /tmp/heads-cleaned.json
 ```
 
@@ -235,8 +240,8 @@ Verificar Docker Desktop y contenedor:
 
 ```bash
 export DOCKER_HOST=unix:///home/enoh/.docker/desktop/docker.sock
-docker start noxus-mongo
-docker exec noxus-mongo mongo --quiet --eval 'db.adminCommand({ ping: 1 })'
+docker start noxus-mongo8
+docker exec noxus-mongo8 mongosh --quiet --eval 'db.adminCommand({ ping: 1 })'
 ```
 
 ### Error de colección vacía o `getHead(...).skins` undefined
@@ -244,7 +249,7 @@ docker exec noxus-mongo mongo --quiet --eval 'db.adminCommand({ ping: 1 })'
 Probablemente faltan datos estáticos, especialmente `heads`:
 
 ```bash
-docker exec noxus-mongo mongo --quiet Noxus --eval 'db.heads.count()'
+docker exec noxus-mongo8 mongosh --quiet Noxus --eval 'db.heads.countDocuments()'
 ```
 
 Debe devolver `272` en el entorno actual.

@@ -190,3 +190,28 @@ dependencias de testing.
 | Callbacks               | Compatible con Node 2016  | Legibilidad, error handling   |
 | Sin tests               | Velocidad de desarrollo   | Regresiones frecuentes        |
 | Contraseñas plain text  | Simplicidad               | Riesgo de seguridad crítico   |
+
+---
+
+## 11. MongoDB 8.0 por dump/restore
+
+**Decisión actual**: Ejecutar Noxus contra MongoDB 8.0 en Docker (`mongo:8.0`)
+usando un contenedor nuevo `noxus-mongo8` y un volumen nuevo `noxus-mongo8-data`.
+
+**Contexto**: El entorno previo usaba `mongo:4.2` en el contenedor
+`noxus-mongo`. La migración se hizo con backup lógico (`mongodump` desde 4.2 y
+`mongorestore` en 8.0), no reutilizando el volumen de datos de MongoDB 4.2.
+
+**Razones**:
+- Evita un upgrade in-place inseguro de archivos de datos entre versiones muy
+  separadas.
+- Mantiene `config.json` sin cambios porque la app sigue conectando a
+  `localhost:27017` y base `Noxus`.
+- Conserva `noxus-mongo` (`mongo:4.2`) detenido como rollback temporal.
+
+**Validación**: MongoDB 8.0.23 restauró 75.753 documentos; la cuenta `test` y el
+personaje `Bizelzapobany` (`_id:27`) siguen disponibles; `client-test.js` llegó
+a `🎉 ¡CONTEXTO DE JUEGO CREADO!`.
+
+**Trade-off**: Durante la transición existen dos contenedores/volúmenes locales.
+No eliminar `noxus-mongo` ni su volumen hasta validar varias sesiones reales.

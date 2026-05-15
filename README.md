@@ -15,7 +15,7 @@ selección de personaje y entrada al mundo validados con `client-test.js`.
 |-----------|-----------|
 | Runtime | Node.js 25.3.0 |
 | Package manager | pnpm 11.1.2 |
-| Base de datos | MongoDB 4.2 en Docker (`noxus-mongo`) |
+| Base de datos | MongoDB 8.0 en Docker (`noxus-mongo8`) |
 | Driver MongoDB | `mongodb` 6.x |
 | Protocolo | Dofus 2.39 (TCP binario, ID 1738) |
 | Build | Sin Babel — `src/` corre directamente en Node |
@@ -30,7 +30,7 @@ selección de personaje y entrada al mundo validados con `client-test.js`.
 - Node.js 25.3.0 ([nvm](https://github.com/nvm-sh/nvm) recomendado)
 - pnpm 11.1.2
 - Docker / Docker Desktop
-- MongoDB 4.2 vía contenedor Docker
+- MongoDB 8.0 vía contenedor Docker
 - `cap_net_bind_service` en el binario de Node para escuchar en puerto 443
 - Flash Player Projector y cliente Dofus 2.39 completo si quieres probar con el
   cliente real
@@ -58,11 +58,11 @@ nvm use 25.3.0
 npm install -g pnpm
 pnpm install
 
-# 4. MongoDB 4.2 (Docker Desktop)
+# 4. MongoDB 8.0 (Docker Desktop)
 export DOCKER_HOST=unix:///home/enoh/.docker/desktop/docker.sock
-docker start noxus-mongo 2>/dev/null || \
-  docker run -d --name noxus-mongo -p 27017:27017 \
-    -v noxus-mongo-data:/data/db mongo:4.2
+docker start noxus-mongo8 2>/dev/null || \
+  docker run -d --name noxus-mongo8 -p 27017:27017 \
+    -v noxus-mongo8-data:/data/db mongo:8.0
 
 # 5. Dar permiso al puerto 443 al Node 25
 sudo setcap 'cap_net_bind_service=+ep' /home/enoh/.nvm/versions/node/v25.3.0/bin/node
@@ -95,10 +95,10 @@ Los datos están en `db/`, pero no todos los JSON tienen el mismo formato:
 
 - JSON arrays: importar con `mongoimport --jsonArray`.
 - Extended JSON legacy (`NumberInt()`, `NumberLong()`, `ObjectId()`): limpiar
-  wrappers antes de importar en MongoDB 4.2+.
+  wrappers antes de importar en MongoDB 8.0.
 
 El entorno actual ya usa una base `Noxus` importada en el contenedor
-`noxus-mongo`. Para una importación desde cero, consulta:
+`noxus-mongo8`. El contenedor legacy `noxus-mongo` (`mongo:4.2`) se conserva detenido como rollback temporal. Para una importación desde cero, consulta:
 
 - `.hermes/plans/2026-05-14_120000-levantar-noxus.md`
 - `docs/setup.md`
@@ -140,12 +140,12 @@ La base local contiene una cuenta de prueba:
 | Password | `test` |
 | Personaje | `Bizelzapobany` (id=27, Feca, nivel 150) |
 
-Crear una cuenta manualmente en MongoDB 4.2:
+Crear una cuenta manualmente en MongoDB 8.0:
 
 ```bash
 export DOCKER_HOST=unix:///home/enoh/.docker/desktop/docker.sock
-docker exec -i noxus-mongo mongo Noxus --eval '
-db.accounts.insert({
+docker exec -i noxus-mongo8 mongosh Noxus --eval '
+db.accounts.insertOne({
   uid: 100, username: "miuser", password: "mipass",
   nickname: "MiNick", role: 4, locked: 0
 })'
@@ -174,7 +174,7 @@ Planes útiles:
 |---------|-----------|
 | `.hermes/plans/2026-05-14_120000-levantar-noxus.md` | Setup/import inicial |
 | `.hermes/plans/2026-05-14_220000-migrar-node25-pnpm.md` | Migración Node 25 + pnpm |
-| `.hermes/plans/2026-05-14_202655-migrar-mongodb-42-a-80.md` | Plan futuro MongoDB 8.0 |
+| `.hermes/plans/2026-05-14_202655-migrar-mongodb-42-a-80.md` | Migración MongoDB 4.2 → 8.0 ejecutada |
 
 ---
 

@@ -24,7 +24,7 @@ los clientes oficiales de Dofus pueden conectarse.
 | Transpilador    | Ninguno — Babel fue eliminado     |
 | Runtime         | Node.js 25.3.0                    |
 | Package manager | pnpm 11.1.2                       |
-| Base de datos   | MongoDB 4.2 en Docker             |
+| Base de datos   | MongoDB 8.0 en Docker             |
 | Driver MongoDB  | `mongodb` 6.x                     |
 | Serialización   | Binario manual (BigEndian + VarInt) |
 | Protocolo       | Dofus 2.39 (protocol ID 1738)     |

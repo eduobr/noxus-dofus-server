@@ -499,7 +499,7 @@ Game Logic → Managers / Database
 
 | Dependencia        | Versión    | Tipo        | Impacto si falta                          |
 |--------------------|------------|-------------|-------------------------------------------|
-| MongoDB            | 4.2        | Runtime     | El servidor no arranca.                   |
+| MongoDB            | 8.0        | Runtime     | El servidor no arranca.                   |
 | Node.js            | 25.3.0     | Runtime     | Ejecuta `src/app.js` directamente.        |
 | pnpm               | 11.1.2     | Dependencias| No se instalan paquetes reproducibles.    |
 | Cliente Dofus .swf | 2.39       | Runtime     | Sin cliente no hay forma de probar.       |

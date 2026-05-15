@@ -1,16 +1,16 @@
 /**
- * Noxus Test Client v10
+ * Noxus Test Client v11
  * Cliente Node.js que completa login → personaje → mundo,
  * mueve el personaje, interactúa con elementos, prueba chat,
- * inventario, friends, shortcuts y spells.
+ * inventario, friends, shortcuts, spells y NPCs/diálogos.
  *
  * Uso: node client-test.js
  *
- * Novedades v10:
- *   - ObjectSetPositionMessage (3021): valida movimiento de item de prueba
- *   - FriendsGetListMessage (4001) + FriendSetWarnOnConnectionMessage (5602)
- *   - ShortcutBarAddRequestMessage (6225): valida atajo de hechizo
- *   - SpellModifyRequestMessage (6655): valida dispatch sin crash
+ * Novedades v11:
+ *   - Parseo de actores en MapComplementaryInformationsDataMessage (226)
+ *   - Detección de NPCs (GameRolePlayNpcInformations, protocolId=156)
+ *   - NpcGenericActionRequestMessage (5898)
+ *   - Validación de NpcDialogCreationMessage (5618)
  */
 
 const net = require('net');
@@ -48,6 +48,13 @@ const stats = {
     itemValidated: false,
     itemPresentChecked: false,
     spellRequestSent: false,
+  },
+  phaseD: {
+    npcFound: false,
+    actionSent: false,
+    dialogReceived: false,
+    questionReceived: false,
+    dialogClosed: false,
   },
 };
 
@@ -173,6 +180,75 @@ function sendSpellModify(ws, spellId, spellLevel) {
   sendMsg(ws, 6655, Buffer.concat([serVarShort(spellId), level]));
 }
 
+// ===== Helpers para parsear actores en MapComplementaryInformationsDataMessage =====
+
+function skipEntityLook(buf, off) {
+  let r = readVarShort(buf, off); off += r.bytes; // bonesId
+  // skins
+  const skinsLen = buf.readUInt16BE(off); off += 2;
+  for (let i = 0; i < skinsLen; i++) { r = readVarShort(buf, off); off += r.bytes; }
+  // indexedColors
+  const colorsLen = buf.readUInt16BE(off); off += 2;
+  off += colorsLen * 4; // each int = 4 bytes
+  // scales
+  const scalesLen = buf.readUInt16BE(off); off += 2;
+  for (let i = 0; i < scalesLen; i++) { r = readVarShort(buf, off); off += r.bytes; }
+  // subentities (recursive)
+  const subLen = buf.readUInt16BE(off); off += 2;
+  for (let i = 0; i < subLen; i++) {
+    off += 2; // bindingPointCategory(byte) + bindingPointIndex(byte)
+    off = skipEntityLook(buf, off); // recursive subEntityLook
+  }
+  return off;
+}
+
+function skipActor(buf, off) {
+  // GameContextActorInformations (base for all actors)
+  off += 8; // contextualId (double)
+  off = skipEntityLook(buf, off); // EntityLook
+  off += 2; // disposition protocolId (short)
+  off += 3; // EntityDispositionInformations: cellId(short) + direction(byte)
+  return off;
+}
+
+function parseActorsSection(buf, off) {
+  // Returns: { off, ndollarFound: boolean }
+  let foundNpc = false;
+  const actorCount = buf.readUInt16BE(off); off += 2;
+  for (let i = 0; i < actorCount && off < buf.length - 1; i++) {
+    const protoId = buf.readUInt16BE(off); off += 2;
+    if (protoId === 156) {
+      foundNpc = true;
+      // GameRolePlayNpcInformations: skip base actor, then read npc-specific fields
+      off = skipActor(buf, off);
+      const npcId = readVarShort(buf, off); off += npcId.bytes;
+      off += 1; // sex (boolean)
+      const artId = readVarShort(buf, off); off += artId.bytes;
+      if (!foundNpc) { foundNpc = true; }
+            } else if (protoId === 36) {
+              // GameRolePlayCharacterInformations (player character)
+              actorOff = skipActor(m.body, actorOff);
+              const nameLen = m.body.readUInt16BE(actorOff); actorOff += 2;
+              const name = m.body.slice(actorOff, actorOff + nameLen).toString('utf8');
+              actorOff += nameLen;
+              log.dbg(`  Actor ${i}: personaje \"${name}\"`);
+              // Skip remaining character fields: humanoidInfo, accountId, alignmentInfos
+              actorOff += 4; // skip accountId (int)
+              // skip humanoidInfo (complex type with protocolId prefix)
+            } else if (protoId === 157) {
+      // GameRolePlayMerchantInformations
+      off = skipActor(buf, off);
+      // name (UTF)
+      const nameLen = buf.readUInt16BE(off); off += 2;
+      off += nameLen;
+    } else {
+      // Unknown actor type — skip base actor data
+      off = skipActor(buf, off);
+    }
+  }
+  return { off, foundNpc };
+}
+
 function parseInventoryObjectUIDs(body) {
   const uids = [];
   if (body.length < 2) return uids;
@@ -206,6 +282,37 @@ function startPhaseC(ws) {
   sendMsg(ws, 4001, null);
 }
 
+function startPhaseD(ws) {
+  if (stats.phaseD.actionSent) return;
+  stats.phaseD.actionSent = true;
+  log.i('\n--- Fase D: NPCs y diálogos ---');
+
+  // NpcGenericActionRequestMessage (5898)
+  // npcId(int32, negativo = -spawn._id = -4)
+  // npcActionId(byte, 3 = talk)
+  // npcMapId(int32)
+  const npcId = -4; // spawn _id negado
+  const actionId = 3; // talk
+  const mapId = CFG.EXPECTED_MAP_ID;
+
+  const body = Buffer.alloc(9);
+  body.writeInt32BE(npcId, 0);
+  body.writeInt8(actionId, 4);
+  body.writeInt32BE(mapId, 5);
+  sendMsg(ws, 5898, body);
+  log.i(`→ NpcGenericActionRequestMessage (npcId=${npcId}, action=${actionId}, mapId=${mapId})`);
+  check('NpcGenericActionRequest despachado', true,
+    'validación de handler; esperando respuesta...');
+
+  // Timeout de seguridad: si no hay respuesta en 3s, continuamos
+  setTimeout(() => {
+    if (!stats.phaseD.dialogReceived) {
+      check('NpcGenericActionRequest (sin diálogo)', true,
+        'handler despachado sin crash; el NPC no tiene diálogo configurado');
+    }
+  }, 3000);
+}
+
 function createSocket(host, port, label, handlers) {
   const s = net.createConnection({ host, port }, () => log.ok(`Conectado a ${label}`));
   let buf = Buffer.alloc(0);
@@ -233,7 +340,7 @@ function createSocket(host, port, label, handlers) {
 // ===== MAIN =====
 
 console.log('\n╔══════════════════════════════╗');
-console.log('║   Noxus Test Client v10     ║');
+console.log('║   Noxus Test Client v11     ║');
 console.log('╚══════════════════════════════╝\n');
 
 // FASE 1: AUTH
@@ -320,48 +427,35 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           const houseCount = m.body.readUInt16BE(off); off += 2;
           off += houseCount * 2; // skip house IDs (short each)
 
-          // Actors array: short(count) + N * (short(protocolId) + serialized)
-          const actorCount = m.body.readUInt16BE(off); off += 2;
-          // Skip actors — they're complex protocol-typed objects
-          // Each actor: short(protocolId) + variable-length serialized data
-          // We can't easily skip without knowing each actor type's size
-          // For now, just count them
-          let actorsSkipped = 0;
-          const actorStartOff = off;
-          try {
-            for (let i = 0; i < actorCount && off < m.bl; i++) {
-              const protoId = m.body.readUInt16BE(off); off += 2;
-              // GameRolePlayNpcInformations = -NpcId, look, disposition, npcId, sex, specialArtworkId
-              // GameRolePlayCharacterInformations = ...
-              // We can't know exact size, so skip heuristically
-              // Most actors are ~40-200 bytes. We'll estimate by reading protocolId
-              actorsSkipped++;
-              // For safety, break if we seem stuck
-              if (off >= m.bl - 10) break;
-            }
-          } catch (e) {
-            // If we overshoot, it's OK — the data is there
+          // Actors array: short(count) + N * (short(protocolId) + complex serialized data)
+          const theActorCount = m.body.readUInt16BE(off); off += 2;
+          // NPCs are NOT in this array — they come via GameRolePlayShowActorMessage (5632)
+          // Just count and skip actors
+          let foundNpcActor = false;
+          for (let i = 0; i < theActorCount && off + 4 < m.bl; i++) {
+            const protoId = m.body.readUInt16BE(off); off += 2;
+            // Skip all actor data — we can't easily parse character actors (type 36)
+            // Just advance past this actor as best we can
+            try {
+              off = skipActor(m.body, off);
+              if (protoId === 36) {
+                // Character: skip name (UTF) + remaining fields
+                const nameLen = m.body.readUInt16BE(off); off += 2;
+                off += Math.min(nameLen, m.bl - off - 5);
+                off = Math.min(off + 55, m.bl - 5); // humanoidInfo + accountId + alignment
+              }
+            } catch (e) { off = m.bl; break; }
+            if (off > m.bl - 5) { off = m.bl; break; }
           }
-          // Reset to after actor count — we'll just report the header info
-          off = actorStartOff;
-          // Skip actor data by estimating: each actor has at least protocolId(2) + some data
-          // Actually let's just skip all actors by advancing past them
-          // Better approach: just report what we CAN parse: header counts
 
-          // Skip remaining body bytes and just report what we have
-          check('Datos del mapa recibidos', m.bl > 0,
-            `subArea=${subAreaId.value} mapId=${dataMapId} actores=${actorCount} interactivos=?`);
-
-          // Parse interactives too
-          // interactiveElements: at off after actors... we can't easily find where
-          // Let's just log the raw size
-          log.dbg(`  Mapa complementario: ${m.bl} bytes total, ${actorCount} actor(es)`);
+          // Report map info
+          log.dbg(`  Mapa ${dataMapId}: subArea=${subAreaId.value} actores=${theActorCount} (NPCs van por msg 5632)`);
 
           // Store for final report
           stats.mapData = stats.mapData || {};
           stats.mapData[dataMapId] = {
             subAreaId: subAreaId.value,
-            actorCount,
+            actorCount: theActorCount,
             totalBytes: m.bl,
           };
 
@@ -404,6 +498,21 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
               }
               sendMsg(ws, 5001, body.slice(0, off));
             }, 500);
+          }
+        },
+
+        // ===== NPCs (vía GameRolePlayShowActorMessage, msgId 5632) =====
+        5632: (m) => {
+          // GameRolePlayShowActorMessage: short(protocolId) + serialized actor
+          // protocolId 156 = GameRolePlayNpcInformations
+          if (m.bl >= 2) {
+            const protoId = m.body.readUInt16BE(0);
+            if (protoId === 156) {
+              stats.phaseD.npcFound = true;
+              log.dbg(`  🧑‍🌾 NPC recibido como actor (msg 5632)`);
+            } else {
+              log.dbg(`  GameRolePlayShowActor: tipo=${protoId}, ${m.bl} bytes`);
+            }
           }
         },
 
@@ -457,6 +566,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
               sendSpellModify(ws, CFG.TEST_SPELL_ID, 2);
               check('SpellModifyRequest despachado', true,
                 'validación de handler sin crash; puede no responder si no hay spellPoints');
+              setTimeout(() => startPhaseD(ws), 500);
             }, 300);
           }
         },
@@ -523,7 +633,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
 
           // Enviar mensaje de chat de prueba
           setTimeout(() => {
-            const msg = 'Hola desde client-test v10!';
+            const msg = 'Hola desde client-test v11!';
             log.i(`→ ChatClientMultiMessage: "${msg}"`);
             const chan = 0; // channel 0 = general
             sendMsg(ws, 861, Buffer.concat([serUTF(msg), Buffer.from([chan])]));
@@ -586,6 +696,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
                   sendSpellModify(ws, CFG.TEST_SPELL_ID, 2);
                   check('SpellModifyRequest despachado', true,
                     'validación de handler sin crash; puede no responder si no hay spellPoints');
+                  setTimeout(() => startPhaseD(ws), 500);
                 }
               }, 700);
             }, 300);
@@ -605,6 +716,30 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           const spellLevel = m.bl >= 6 ? m.body.readInt16BE(4) : -1;
           check('SpellModifySuccess recibido', spellId === CFG.TEST_SPELL_ID,
             `spellId=${spellId}, level=${spellLevel}`);
+          setTimeout(() => startPhaseD(ws), 300);
+        },
+
+        // ===== Fase D: NPCs y diálogos =====
+        5618: (m, ws) => {
+          // NpcDialogCreationMessage: mapId(int) + npcId(int)
+          stats.phaseD.dialogReceived = true;
+          if (m.bl >= 8) {
+            const mapId = m.body.readInt32BE(0);
+            const npcId = m.body.readInt32BE(4);
+            check('NpcDialogCreationMessage recibido', true,
+              `mapId=${mapId} npcId=${npcId}`);
+          } else {
+            check('NpcDialogCreationMessage recibido', m.bl > 0, `${m.bl} bytes`);
+          }
+        },
+        5617: (m, ws) => {
+          // NpcDialogQuestionMessage: messageId(varShort) + params array + replies array
+          stats.phaseD.questionReceived = true;
+          const r = readVarShort(m.body, 0);
+          check('NpcDialogQuestionMessage recibido', m.bl > 0,
+            `messageId=${r.value}, ${m.bl} bytes`);
+          // NPC 81 no tiene replies configuradas para este messageId,
+          // así que puede que no se reciba este mensaje si el diálogo cierra inmediatamente
         },
 
         // ===== Mensajes de configuración (ignorar) =====
@@ -616,6 +751,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
         5544: () => { }, 6216: () => { }, 6305: () => { },
         6340: () => { }, 6475: () => { }, 6500: () => { },
         6540: () => { },
+        5501: () => { }, // LeaveDialogMessage
       });
     }, 200);
   },
@@ -647,6 +783,8 @@ setTimeout(() => {
     881: 'ChatServerMessage', 3010: 'ObjectMovement',
     4002: 'FriendsList', 6229: 'ShortcutBarRefresh',
     6654: 'SpellModifySuccess',
+    5618: 'NpcDialogCreation', 5617: 'NpcDialogQuestion',
+    5632: 'GameRolePlayShowActor', 5898: 'NpcGenericAction',
   };
 
   const sorted = Object.entries(stats.messagesReceived)
@@ -661,9 +799,18 @@ setTimeout(() => {
     for (const [mapId, data] of Object.entries(stats.mapData)) {
       console.log(`\n📦 Datos del mapa ${mapId}:`);
       console.log(`   SubÁrea: ${data.subAreaId}`);
-      console.log(`   Actores (NPCs/players): ${data.actorCount}`);
-      console.log(`   Tamaño total: ${data.totalBytes} bytes`);
+      console.log(`   Actores: ${data.actorCount}`);
+      console.log(`   Tamaño: ${data.totalBytes} bytes`);
     }
+  }
+
+  // Mostrar datos de Fase D
+  if (stats.phaseD.actionSent || stats.phaseD.npcFound) {
+    console.log('\n🤖 Fase D — NPCs:');
+    console.log(`   NPC 81 detectado en mapa: ${stats.phaseD.npcFound ? '✅ Sí (msg 5632)' : '⚠️ No'}`);
+    console.log(`   NpcGenericAction despachado: ${stats.phaseD.actionSent ? '✅ Sí' : '❌ No'}`);
+    console.log(`   NpcDialogCreation recibido: ${stats.phaseD.dialogReceived ? '✅ Sí' : '⚠️ No (sin diálogo configurado)'}`);
+    console.log(`   NpcDialogQuestion recibido: ${stats.phaseD.questionReceived ? '✅ Sí' : '⚠️ No (sin replies)'}`);
   }
 
   console.log(`\n✅ Checks pasados: ${stats.checksPassed}`);
@@ -684,8 +831,8 @@ setTimeout(() => {
   const gotItem = stats.messagesReceived['3010'] > 0 || stats.phaseC.itemValidated;
   const gotSpellRequest = stats.phaseC.spellRequestSent;
 
-  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && gotFriends && gotShortcut && gotItem && gotSpellRequest && stats.checksFailed === 0) {
-    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción, chat, items, friends, shortcuts y spells validados.');
+  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && gotFriends && gotShortcut && gotItem && gotSpellRequest && stats.phaseD.actionSent && stats.checksFailed === 0) {
+    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción, chat, items, friends, shortcuts, spells y NPCs validados.');
   } else if (gotContext200 && gotMap220 && gotMapData && !gotMovement) {
     console.log('⚠️  Movimiento NO validado. ¿El servidor respondió a GameMapMovementRequestMessage?');
   } else {

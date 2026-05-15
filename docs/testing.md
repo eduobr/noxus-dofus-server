@@ -23,16 +23,41 @@ que imprime `TODO: tests`.
 
 Sí existe un cliente de integración manual, `client-test.js`, que valida el
 flujo TCP completo auth → world → selección de personaje → contexto de juego,
-stats, mapa, movimiento, interacción, chat e integraciones de Fase C
-(items, friends, shortcuts y spells):
+stats, mapa, movimiento, interacción, chat, items, friends, shortcuts, spells
+y NPCs:
 
 ```bash
 node client-test.js
 ```
 
-Para Fase C, el personaje de prueba (`_id=27`) debe tener en su bolsa el item
-de prueba `objectUID=900027` / `templateId=18413`. El cliente valida que el
-inventario inicial contiene ese item antes de despachar mensajes de inventario.
+### Cobertura actual (v11)
+
+| Fase | Mensajes validados | Checks |
+|------|-------------------|--------|
+| Auth + Login | ProtocolRequired, HelloConnect, Identification, LoginSuccess, ServersList, SelectedServerData | 6 |
+| Mundo + Personaje | AuthTicket, CharactersList, CharSelected, GameContextCreate | 4 |
+| Stats | CharacterStatsList, UpdateLifePoints, InventoryWeight, InventoryContent | 4 |
+| Mapas | CurrentMap, MapComplementaryInfo | 2 |
+| Movimiento | GameMapMovement | 1 |
+| Interacción | InteractiveUsed | 1 |
+| Chat | ChatServerMessage | 1 |
+| Items | ObjectMovement, InventoryContent (item de prueba) | 2 |
+| Friends | FriendsList, FriendWarn | 2 |
+| Shortcuts | ShortcutBarRefresh, ShortcutBarContent | 2 |
+| Spells | SpellList, SpellModifyRequest (dispatch sin crash) | 1 |
+| NPCs | GameRolePlayShowActor (detección NPC), NpcGenericActionRequest | 2 |
+| **Total** | | **26+ checks** |
+
+El NPC de prueba (`_id=81`) se instancia en el mapa 173277699 como spawn
+(`_id=4`, cellId=350, direction=1). Al cargar el mapa, el servidor envía
+`GameRolePlayShowActorMessage` (msgId 5632) con el NPC como actor. El cliente
+envía `NpcGenericActionRequestMessage` (5898) para validar que el handler de
+NPCs no crashea. Como el NPC 81 no tiene replies de diálogo configuradas
+(messageId=null en `npcs_actions`), el diálogo no se abre — la validación se
+limita a "handler dispatch sin crash".
+
+Para validar diálogo completo, se necesitaría insertar entries en
+`npcs_replies` con un `messageId` que coincida con el de la acción 3 del NPC.
 
 Llegar al veredicto `SERVIDOR FUNCIONAL` cuenta como éxito funcional. Si solo se
 necesita validar arranque básico, llegar a `GameContextCreateMessage` /

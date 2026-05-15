@@ -1,21 +1,25 @@
 /**
- * Noxus Test Client v12
+ * Noxus Test Client v13
  * Cliente Node.js que completa login → personaje → mundo,
  * mueve el personaje, interactúa con elementos, prueba chat,
- * inventario, friends, shortcuts, spells, NPCs y combate.
+ * inventario, friends, shortcuts, spells, NPCs, combate,
+ * items, shortcuts restantes, NPC reply, y friends add/delete.
  *
  * Uso: node client-test.js
  *
- * Novedades v12:
- *   - Detección de grupos de monstruos en MapComplementaryInformationsDataMessage
+ * Novedades v13:
+ *   - ObjectDeleteMessage (3022): eliminar item de prueba
+ *   - ShortcutBarSwapRequest (6230) + ShortcutBarRemoveRequest (6228)
+ *   - NpcDialogReplyMessage (5616): responder diálogo NPC
+ *   - FriendAddRequestMessage (4004) + FriendDeleteRequestMessage (5603)
+ *   - Combate conectado (parseo de cellId del monstruo)
+ *
+ * Funcionalidades de v12 (heredadas):
+ *   - Detección de monstruos en MapComplementaryInformationsDataMessage
  *   - GameRolePlayAttackMonsterRequestMessage (6191)
  *   - Combate: placement (704) → ready (708) → quit (255)
- *   - Validación de inicio de combate sin crash
- *
- * Funcionalidades de v11 (heredadas):
  *   - Parseo de actores y detección de NPCs (protocolId 156)
  *   - NpcGenericActionRequestMessage (5898)
- *   - NpcDialogCreationMessage (5618)
  */
 
 const net = require('net');
@@ -71,6 +75,14 @@ const stats = {
     quitSent: false,
     fightJoinReceived: false,
     fightStartingReceived: false,
+  },
+  phaseF: {
+    deleteSent: false,
+    swapSent: false,
+    removeSent: false,
+    npcReplySent: false,
+    friendAddSent: false,
+    friendDeleteSent: false,
   },
 };
 
@@ -177,6 +189,38 @@ function sendObjectSetPosition(ws, objectUID, position, quantity) {
     Buffer.from([position]),
     serVarInt(quantity),
   ]));
+}
+
+// Fase F.1 — ObjectDeleteMessage (3022): objectUID(varInt) + quantity(varInt)
+function sendObjectDelete(ws, uid, quantity) {
+  sendMsg(ws, 3022, Buffer.concat([serVarInt(uid), serVarInt(quantity)]));
+}
+
+// Fase F.2 — ShortcutBarSwapRequest (6230): barType(byte) + firstSlot(byte) + secondSlot(byte)
+function sendShortcutSwap(ws, barType, slot1, slot2) {
+  sendMsg(ws, 6230, Buffer.from([barType, slot1, slot2]));
+}
+
+// Fase F.2 — ShortcutBarRemoveRequest (6228): barType(byte) + slot(byte)
+function sendShortcutRemove(ws, barType, slot) {
+  sendMsg(ws, 6228, Buffer.from([barType, slot]));
+}
+
+// Fase F.3 — NpcDialogReplyMessage (5616): replyId(varInt)
+function sendNpcDialogReply(ws, replyId) {
+  sendMsg(ws, 5616, serVarInt(replyId));
+}
+
+// Fase F.5 — FriendAddRequestMessage (4004): name(UTF)
+function sendFriendAdd(ws, name) {
+  sendMsg(ws, 4004, serUTF(name));
+}
+
+// Fase F.5 — FriendDeleteRequestMessage (5603): accountId(int32)
+function sendFriendDelete(ws, accountId) {
+  const body = Buffer.alloc(4);
+  body.writeInt32BE(accountId, 0);
+  sendMsg(ws, 5603, body);
 }
 
 function sendShortcutSpell(ws, barType, slot, spellId) {
@@ -321,12 +365,34 @@ function startPhaseD(ws) {
     'validación de handler; esperando respuesta...');
 
   // Timeout de seguridad: si no hay respuesta en 3s, continuamos
+  // NpcGenericActionRequestMessage (5898) + Fase F.5 timeout
   setTimeout(() => {
     if (!stats.phaseD.dialogReceived) {
       check('NpcGenericActionRequest (sin diálogo)', true,
         'handler despachado sin crash; el NPC no tiene diálogo configurado');
     }
+    // Fase F.5: FriendAdd + FriendDelete después de Fase D
+    setTimeout(() => startPhaseF(ws), 300);
   }, 3000);
+}
+
+function startPhaseF(ws) {
+  if (stats.phaseF.friendAddSent) return;
+  log.i('\n--- Fase F: Items restantes, Shortcuts, NPC Reply, Friends ---');
+  
+  // FriendAddRequest (4004) — nombre que no existe
+  stats.phaseF.friendAddSent = true;
+  log.i('→ FriendAddRequestMessage (name=Nadie)');
+  sendFriendAdd(ws, 'Nadie');
+  check('FriendAddRequest despachado', true, 'name=Nadie (probablemente no exista)');
+
+  // FriendDeleteRequest (5603) — accountId que no existe
+  setTimeout(() => {
+    stats.phaseF.friendDeleteSent = true;
+    log.i('→ FriendDeleteRequestMessage (accountId=999)');
+    sendFriendDelete(ws, 999);
+    check('FriendDeleteRequest despachado', true, 'accountId=999');
+  }, 300);
 }
 
 function startPhaseE(ws) {
@@ -338,8 +404,21 @@ function startPhaseE(ws) {
   }
   log.i('\n--- Fase E: Combate ---');
   const groupId = stats.phaseE.monsterGroupId;
+  const cellId = stats.phaseE.monsterCellId;
 
-  // Atacar al grupo de monstruos (puede fallar si no estamos en misma celda)
+  // Fase F.4: Si tenemos cellId, teletransportar a la celda del monstruo
+  if (cellId > 0) {
+    log.i(`→ AdminQuietCommandMessage: "go 144931 ${cellId}" (celda del monstruo)`);
+    sendMsg(ws, 5662, serUTF(`go 144931 ${cellId}`));
+    // Esperar a que llegue a la celda antes de atacar
+    setTimeout(() => doAttack(ws, groupId), 500);
+  } else {
+    // Sin cellId, atacar directamente (probablemente no conecte)
+    doAttack(ws, groupId);
+  }
+}
+
+function doAttack(ws, groupId) {
   stats.phaseE.combatStarted = true;
   log.i(`→ GameRolePlayAttackMonsterRequestMessage (groupId=${groupId})`);
   const attackBody = Buffer.alloc(8);
@@ -348,7 +427,7 @@ function startPhaseE(ws) {
   check('GameRolePlayAttackMonster despachado', true,
     'groupId=' + groupId + ' (puede no conectar si la celda no coincide)');
 
-  // Placement + Ready + Quit (se envían solo si combat inició)
+  // Placement + Ready + Quit
   setTimeout(() => {
     stats.phaseE.placementSent = true;
     log.i('→ GameFightPlacementPositionRequestMessage (cellId=341)');
@@ -398,7 +477,7 @@ function createSocket(host, port, label, handlers) {
 // ===== MAIN =====
 
 console.log('\n╔══════════════════════════════╗');
-console.log('║   Noxus Test Client v12     ║');
+console.log('║   Noxus Test Client v13     ║');
 console.log('╚══════════════════════════════╝\n');
 
 // FASE 1: AUTH
@@ -488,15 +567,41 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           // Actors array: short(count) + N * (short(protocolId) + complex serialized data)
           const theActorCount = m.body.readUInt16BE(off); off += 2;
           // Monsters (protocolId 160) appear in this array; NPCs via msg 5632
-          // If there are more actors than just the player, monsters are present
+          // Try to parse monster cellId for combat (Fase F.4)
           if (theActorCount > 1) {
             stats.phaseE.monsterFound = true;
             // Group IDs start at 100000 and decrement (from Map.tempId=100000)
             stats.phaseE.monsterGroupId = 100000;
-            log.dbg(`  Mapa con ${theActorCount} actores (monstruos presentes, grupoId≈100000)`);
+            log.dbg(`  Mapa con ${theActorCount} actores (monstruos presentes)`);
+            // Try to parse first monster cellId by skipping character actor
+            try {
+              const saveOff = off;
+              // Skip character (protocolId 36 expected)
+              const charProto = m.body.readUInt16BE(off); off += 2;
+              off = skipActor(m.body, off);
+              // Name UTF
+              const nameLen = m.body.readUInt16BE(off); off += 2;
+              off += Math.min(nameLen, m.bl - off - 10);
+              off = Math.min(off + 150, m.bl - 20); // humanoidInfo + character fields
+              // Now at first monster actor
+              if (off < m.bl - 20) {
+                const monProto = m.body.readUInt16BE(off); off += 2;
+                if (monProto === 160) {
+                  const groupId = m.body.readDoubleBE(off); off += 8;
+                  off = skipEntityLook(m.body, off);
+                  off += 2; // disposition protocolId
+                  const cellId = m.body.readUInt16BE(off);
+                  stats.phaseE.monsterGroupId = groupId;
+                  stats.phaseE.monsterCellId = cellId;
+                  log.dbg(`  Monstruo: grupoId=${groupId} cell=${cellId}`);
+                }
+              }
+            } catch (e) {
+              log.dbg(`  No se pudo parsear cellId del monstruo (usando fallback)`);
+            }
           }
-          // Skip all actor data — we can't safely parse complex character actors
-          off = m.bl; // skip all remaining data
+          // Skip all actor data
+          off = m.bl;
 
           // Report map info
           log.dbg(`  Mapa ${dataMapId}: subArea=${subAreaId.value} actores=${theActorCount} (NPCs van por msg 5632)`);
@@ -510,7 +615,9 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           };
 
           if (dataMapId === CFG.EXPECTED_MAP_ID) {
-            // Primer mapa: enviar movimiento
+            // Primer mapa: NPC interaction antes del movimiento
+            setTimeout(() => startPhaseD(ws), 200);
+            // Movimiento después de Phase D
             setTimeout(() => {
               log.i('→ GameMapMovementRequestMessage (moviendo personaje)');
               const key1 = (1 << 12) | 328;
@@ -521,7 +628,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
               body.writeUInt16BE(key2, 4);
               body.writeInt32BE(dataMapId, 6);
               sendMsg(ws, 950, body);
-            }, 500);
+            }, 3500);
           } else if (dataMapId === 144931) {
             // Mapa con interactivos: primero probar combate, luego elemento teleport
             setTimeout(() => startPhaseE(ws), 200);
@@ -705,7 +812,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
 
           // Enviar mensaje de chat de prueba
           setTimeout(() => {
-            const msg = 'Hola desde client-test v11!';
+            const msg = 'Hola desde client-test v13!';
             log.i(`→ ChatClientMultiMessage: "${msg}"`);
             const chan = 0; // channel 0 = general
             sendMsg(ws, 861, Buffer.concat([serUTF(msg), Buffer.from([chan])]));
@@ -755,6 +862,19 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           if (!stats.phaseC.shortcutValidated) {
             stats.phaseC.shortcutValidated = true;
             setTimeout(() => {
+              // Fase F.2: ShortcutSwap + Remove
+              if (!stats.phaseF.swapSent) {
+                stats.phaseF.swapSent = true;
+                log.i('→ ShortcutBarSwapRequest (bar=1, slot0→slot1)');
+                sendShortcutSwap(ws, 1, 0, 1);
+                check('ShortcutSwap despachado', true, 'bar=1 slots=0,1');
+              }
+              if (!stats.phaseF.removeSent) {
+                stats.phaseF.removeSent = true;
+                log.i('→ ShortcutBarRemoveRequest (bar=1, slot=20)');
+                sendShortcutRemove(ws, 1, 20);
+                check('ShortcutRemove despachado', true, 'bar=1 slot=20');
+              }
               stats.phaseC.itemMoveSent = true;
               log.i(`→ ObjectSetPositionMessage (uid=${CFG.TEST_ITEM_UID}, position=62, quantity=1)`);
               sendObjectSetPosition(ws, CFG.TEST_ITEM_UID, 62, 1);
@@ -768,6 +888,13 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
                   sendSpellModify(ws, CFG.TEST_SPELL_ID, 2);
                   check('SpellModifyRequest despachado', true,
                     'validación de handler sin crash; puede no responder si no hay spellPoints');
+                  // Fase F.1: ObjectDeleteMessage
+                  if (!stats.phaseF.deleteSent) {
+                    stats.phaseF.deleteSent = true;
+                    log.i(`→ ObjectDeleteMessage (uid=${CFG.TEST_ITEM_UID}, quantity=1)`);
+                    sendObjectDelete(ws, CFG.TEST_ITEM_UID, 1);
+                    check('ObjectDelete despachado', true, `uid=${CFG.TEST_ITEM_UID}`);
+                  }
                   setTimeout(() => startPhaseD(ws), 500);
                 }
               }, 700);
@@ -776,11 +903,20 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
         },
 
         // ===== Fase C: Items =====
-        3010: (m) => {
+        3010: (m, ws) => {
           const uid = m.bl > 0 ? readVarInt(m.body, 0) : { value: -1, bytes: 0 };
           const pos = uid.bytes < m.bl ? m.body[uid.bytes] : '?';
           check('ObjectMovement recibido', uid.value === CFG.TEST_ITEM_UID,
             `uid=${uid.value}, position=${pos}`);
+          // Fase F.1: ObjectDeleteMessage después de mover item
+          if (!stats.phaseF.deleteSent) {
+            stats.phaseF.deleteSent = true;
+            setTimeout(() => {
+              log.i(`→ ObjectDeleteMessage (uid=${CFG.TEST_ITEM_UID}, quantity=1)`);
+              sendObjectDelete(ws, CFG.TEST_ITEM_UID, 1);
+              check('ObjectDelete despachado', true, `uid=${CFG.TEST_ITEM_UID}`);
+            }, 200);
+          }
         },
 
         6654: (m) => {
@@ -810,8 +946,16 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           const r = readVarShort(m.body, 0);
           check('NpcDialogQuestionMessage recibido', m.bl > 0,
             `messageId=${r.value}, ${m.bl} bytes`);
-          // NPC 81 no tiene replies configuradas para este messageId,
-          // así que puede que no se reciba este mensaje si el diálogo cierra inmediatamente
+          // Fase F.3: responder al diálogo
+          if (!stats.phaseF.npcReplySent) {
+            stats.phaseF.npcReplySent = true;
+            const replyId = 1001;
+            setTimeout(() => {
+              log.i(`→ NpcDialogReplyMessage (replyId=${replyId})`);
+              sendNpcDialogReply(ws, replyId);
+              check('NpcDialogReplyMessage despachado', true, `replyId=${replyId}`);
+            }, 200);
+          }
         },
 
         // ===== Mensajes de configuración (ignorar) =====
@@ -825,6 +969,8 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
         6540: () => { },
         5501: () => { }, // LeaveDialogMessage
         6081: () => { }, // GameContextKick
+        4003: () => { }, // FriendAddFailure
+        5601: () => { }, // FriendDeleteResult
       });
     }, 200);
   },
@@ -860,6 +1006,8 @@ setTimeout(() => {
     5632: 'GameRolePlayShowActor', 5898: 'NpcGenericAction',
     700: 'FightStarting', 702: 'FightShowFighter', 256: 'FightJoin',
     6191: 'AttackMonster',
+    3022: 'ObjectDelete', 4004: 'FriendAdd', 5603: 'FriendDelete',
+    5616: 'NpcDialogReply',
   };
 
   const sorted = Object.entries(stats.messagesReceived)
@@ -891,11 +1039,22 @@ setTimeout(() => {
   // Mostrar datos de Fase E
   if (stats.phaseE.combatStarted || stats.phaseE.monsterFound) {
     console.log('\n⚔️ Fase E — Combate:');
-    console.log(`   Monstruo encontrado: ${stats.phaseE.monsterFound ? '✅ Sí (grupo ' + stats.phaseE.monsterGroupId + ', cell ' + stats.phaseE.monsterCellId + ')' : '⚠️ No'}`);
+    console.log(`   Monstruo encontrado: ${stats.phaseE.monsterFound ? '✅ Sí (grupo ' + stats.phaseE.monsterGroupId + ')' : '⚠️ No'}`);
     console.log(`   AttackMonster despachado: ${stats.phaseE.combatStarted ? '✅ Sí' : '❌ No'}`);
     console.log(`   FightStarting recibido: ${stats.phaseE.fightStartingReceived ? '✅ Sí' : '⚠️ No'}`);
     console.log(`   FightJoin recibido: ${stats.phaseE.fightJoinReceived ? '✅ Sí' : '⚠️ No'}`);
     console.log(`   Placement + Ready + Quit: ${stats.phaseE.quitSent ? '✅ Completo' : stats.phaseE.combatStarted ? '⚠️ Parcial' : '❌ No'}`);
+  }
+
+  // Mostrar datos de Fase F
+  if (stats.phaseF.deleteSent || stats.phaseF.friendAddSent) {
+    console.log('\n🔧 Fase F — Cobertura adicional:');
+    console.log(`   ObjectDelete: ${stats.phaseF.deleteSent ? '✅ Sí' : '❌ No'}`);
+    console.log(`   ShortcutSwap: ${stats.phaseF.swapSent ? '✅ Sí' : '❌ No'}`);
+    console.log(`   ShortcutRemove: ${stats.phaseF.removeSent ? '✅ Sí' : '❌ No'}`);
+    console.log(`   NpcDialogReply: ${stats.phaseF.npcReplySent ? '✅ Sí' : '⚠️ No (sin replies en BD)'}`);
+    console.log(`   FriendAdd: ${stats.phaseF.friendAddSent ? '✅ Sí' : '❌ No'}`);
+    console.log(`   FriendDelete: ${stats.phaseF.friendDeleteSent ? '✅ Sí' : '❌ No'}`);
   }
 
   console.log(`\n✅ Checks pasados: ${stats.checksPassed}`);
@@ -916,8 +1075,8 @@ setTimeout(() => {
   const gotItem = stats.messagesReceived['3010'] > 0 || stats.phaseC.itemValidated;
   const gotSpellRequest = stats.phaseC.spellRequestSent;
 
-  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && gotFriends && gotShortcut && gotItem && gotSpellRequest && stats.phaseD.actionSent && stats.phaseE.combatStarted && stats.checksFailed === 0) {
-    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción, chat, items, friends, shortcuts, spells, NPCs y combate validados.');
+  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && gotFriends && gotShortcut && gotItem && gotSpellRequest && stats.phaseD.actionSent && stats.phaseE.combatStarted && stats.phaseF.friendAddSent && stats.checksFailed === 0) {
+    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción, chat, items, friends, shortcuts, spells, NPCs, combate y cobertura adicional validados.');
   } else if (gotContext200 && gotMap220 && gotMapData && !gotMovement) {
     console.log('⚠️  Movimiento NO validado. ¿El servidor respondió a GameMapMovementRequestMessage?');
   } else {

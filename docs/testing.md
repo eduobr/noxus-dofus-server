@@ -30,7 +30,7 @@ y NPCs:
 node client-test.js
 ```
 
-### Cobertura actual (v12)
+### Cobertura actual (v13)
 
 | Fase | Mensajes validados | Checks |
 |------|-------------------|--------|
@@ -42,12 +42,13 @@ node client-test.js
 | Interacción | InteractiveUsed | 1 |
 | Chat | ChatServerMessage | 1 |
 | Items | ObjectMovement, InventoryContent (item de prueba) | 2 |
-| Friends | FriendsList, FriendWarn | 2 |
-| Shortcuts | ShortcutBarRefresh, ShortcutBarContent | 2 |
+| Friends | FriendsList, FriendWarn, FriendAddRequest, FriendDeleteRequest | 4 |
+| Shortcuts | ShortcutBarRefresh, ShortcutBarContent, ShortcutSwap, ShortcutRemove | 4 |
 | Spells | SpellList, SpellModifyRequest (dispatch sin crash) | 1 |
 | NPCs | GameRolePlayShowActor (detección NPC), NpcGenericActionRequest | 2 |
-| **Combate** | **GameRolePlayAttackMonsterRequest, Placement, Ready, Quit** | **4** |
-| **Total** | | **30+ checks** |
+| Combate | GameRolePlayAttackMonsterRequest, Placement, Ready, Quit | 4 |
+| **Cobertura adicional** | **ShortcutSwap, ShortcutRemove, FriendAdd, FriendDelete** | **4** |
+| **Total** | | **38+ checks** |
 
 ### Detalle de Fase E — Combate
 

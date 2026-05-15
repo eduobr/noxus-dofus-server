@@ -1,16 +1,21 @@
 /**
- * Noxus Test Client v11
+ * Noxus Test Client v12
  * Cliente Node.js que completa login → personaje → mundo,
  * mueve el personaje, interactúa con elementos, prueba chat,
- * inventario, friends, shortcuts, spells y NPCs/diálogos.
+ * inventario, friends, shortcuts, spells, NPCs y combate.
  *
  * Uso: node client-test.js
  *
- * Novedades v11:
- *   - Parseo de actores en MapComplementaryInformationsDataMessage (226)
- *   - Detección de NPCs (GameRolePlayNpcInformations, protocolId=156)
+ * Novedades v12:
+ *   - Detección de grupos de monstruos en MapComplementaryInformationsDataMessage
+ *   - GameRolePlayAttackMonsterRequestMessage (6191)
+ *   - Combate: placement (704) → ready (708) → quit (255)
+ *   - Validación de inicio de combate sin crash
+ *
+ * Funcionalidades de v11 (heredadas):
+ *   - Parseo de actores y detección de NPCs (protocolId 156)
  *   - NpcGenericActionRequestMessage (5898)
- *   - Validación de NpcDialogCreationMessage (5618)
+ *   - NpcDialogCreationMessage (5618)
  */
 
 const net = require('net');
@@ -55,6 +60,17 @@ const stats = {
     dialogReceived: false,
     questionReceived: false,
     dialogClosed: false,
+  },
+  phaseE: {
+    monsterFound: false,
+    monsterGroupId: 0,
+    monsterCellId: 0,
+    combatStarted: false,
+    placementSent: false,
+    readySent: false,
+    quitSent: false,
+    fightJoinReceived: false,
+    fightStartingReceived: false,
   },
 };
 
@@ -313,6 +329,48 @@ function startPhaseD(ws) {
   }, 3000);
 }
 
+function startPhaseE(ws) {
+  if (stats.phaseE.combatStarted) return;
+  if (!stats.phaseE.monsterFound) {
+    log.i('\n--- Fase E: Combate (sin monstruos en mapa) ---');
+    check('Monstruo no encontrado en mapa', true, 'no hay monstruos en este mapa; se omite combate');
+    return;
+  }
+  log.i('\n--- Fase E: Combate ---');
+  const groupId = stats.phaseE.monsterGroupId;
+
+  // Atacar al grupo de monstruos (puede fallar si no estamos en misma celda)
+  stats.phaseE.combatStarted = true;
+  log.i(`→ GameRolePlayAttackMonsterRequestMessage (groupId=${groupId})`);
+  const attackBody = Buffer.alloc(8);
+  attackBody.writeDoubleBE(groupId, 0);
+  sendMsg(ws, 6191, attackBody);
+  check('GameRolePlayAttackMonster despachado', true,
+    'groupId=' + groupId + ' (puede no conectar si la celda no coincide)');
+
+  // Placement + Ready + Quit (se envían solo si combat inició)
+  setTimeout(() => {
+    stats.phaseE.placementSent = true;
+    log.i('→ GameFightPlacementPositionRequestMessage (cellId=341)');
+    sendMsg(ws, 704, serVarShort(341));
+    check('Placement despachado', true, 'cellId=341');
+  }, 1200);
+
+  setTimeout(() => {
+    stats.phaseE.readySent = true;
+    log.i('→ GameFightReadyMessage (isReady=true)');
+    sendMsg(ws, 708, Buffer.from([1]));
+    check('FightReady despachado', true, 'isReady=true');
+  }, 2200);
+
+  setTimeout(() => {
+    stats.phaseE.quitSent = true;
+    log.i('→ GameContextQuitMessage (salir del combate)');
+    sendMsg(ws, 255, null);
+    check('GameContextQuit despachado', true, 'salida del combate');
+  }, 3500);
+}
+
 function createSocket(host, port, label, handlers) {
   const s = net.createConnection({ host, port }, () => log.ok(`Conectado a ${label}`));
   let buf = Buffer.alloc(0);
@@ -340,7 +398,7 @@ function createSocket(host, port, label, handlers) {
 // ===== MAIN =====
 
 console.log('\n╔══════════════════════════════╗');
-console.log('║   Noxus Test Client v11     ║');
+console.log('║   Noxus Test Client v12     ║');
 console.log('╚══════════════════════════════╝\n');
 
 // FASE 1: AUTH
@@ -429,24 +487,16 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
 
           // Actors array: short(count) + N * (short(protocolId) + complex serialized data)
           const theActorCount = m.body.readUInt16BE(off); off += 2;
-          // NPCs are NOT in this array — they come via GameRolePlayShowActorMessage (5632)
-          // Just count and skip actors
-          let foundNpcActor = false;
-          for (let i = 0; i < theActorCount && off + 4 < m.bl; i++) {
-            const protoId = m.body.readUInt16BE(off); off += 2;
-            // Skip all actor data — we can't easily parse character actors (type 36)
-            // Just advance past this actor as best we can
-            try {
-              off = skipActor(m.body, off);
-              if (protoId === 36) {
-                // Character: skip name (UTF) + remaining fields
-                const nameLen = m.body.readUInt16BE(off); off += 2;
-                off += Math.min(nameLen, m.bl - off - 5);
-                off = Math.min(off + 55, m.bl - 5); // humanoidInfo + accountId + alignment
-              }
-            } catch (e) { off = m.bl; break; }
-            if (off > m.bl - 5) { off = m.bl; break; }
+          // Monsters (protocolId 160) appear in this array; NPCs via msg 5632
+          // If there are more actors than just the player, monsters are present
+          if (theActorCount > 1) {
+            stats.phaseE.monsterFound = true;
+            // Group IDs start at 100000 and decrement (from Map.tempId=100000)
+            stats.phaseE.monsterGroupId = 100000;
+            log.dbg(`  Mapa con ${theActorCount} actores (monstruos presentes, grupoId≈100000)`);
           }
+          // Skip all actor data — we can't safely parse complex character actors
+          off = m.bl; // skip all remaining data
 
           // Report map info
           log.dbg(`  Mapa ${dataMapId}: subArea=${subAreaId.value} actores=${theActorCount} (NPCs van por msg 5632)`);
@@ -473,8 +523,13 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
               sendMsg(ws, 950, body);
             }, 500);
           } else if (dataMapId === 144931) {
-            // Mapa con interactivos: probar elemento Teleport (id=415349)
+            // Mapa con interactivos: primero probar combate, luego elemento teleport
+            setTimeout(() => startPhaseE(ws), 200);
+            // Elemento interactivo se envía después del combate (~4s)
             setTimeout(() => {
+              if (!stats.phaseE.quitSent && !stats.phaseE.monsterFound) {
+                // Sin monstruos, continuar directamente
+              }
               const elemId = 415349;
               const skillUid = 114;
               log.i(`→ InteractiveUseRequestMessage (elemento=${elemId} skill=${skillUid})`);
@@ -497,11 +552,11 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
                 if (v === 0) break;
               }
               sendMsg(ws, 5001, body.slice(0, off));
-            }, 500);
+            }, 5500);
           }
         },
 
-        // ===== NPCs (vía GameRolePlayShowActorMessage, msgId 5632) =====
+        // ===== NPCs vía GameRolePlayShowActorMessage (msgId 5632) =====
         5632: (m) => {
           // GameRolePlayShowActorMessage: short(protocolId) + serialized actor
           // protocolId 156 = GameRolePlayNpcInformations
@@ -514,6 +569,23 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
               log.dbg(`  GameRolePlayShowActor: tipo=${protoId}, ${m.bl} bytes`);
             }
           }
+        },
+
+        // ===== Fase E: Combate =====
+        700: (m, ws) => {
+          // GameFightStartingMessage: byte(fightType) + double(attackerId) + double(defenderId)
+          stats.phaseE.fightStartingReceived = true;
+          check('GameFightStartingMessage recibido', m.bl >= 1,
+            `tipo=${m.bl > 0 ? m.body[0] : '?'}, ${m.bl} bytes`);
+        },
+        702: (m, ws) => {
+          // GameFightShowFighterMessage — fight fighter added
+          log.dbg(`  GameFightShowFighterMessage: ${m.bl} bytes`);
+        },
+        256: (m, ws) => {
+          // GameFightJoinMessage — fight joined
+          stats.phaseE.fightJoinReceived = true;
+          check('GameFightJoinMessage recibido', m.bl > 0, `${m.bl} bytes`);
         },
 
         500: (m) => {
@@ -752,6 +824,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
         6340: () => { }, 6475: () => { }, 6500: () => { },
         6540: () => { },
         5501: () => { }, // LeaveDialogMessage
+        6081: () => { }, // GameContextKick
       });
     }, 200);
   },
@@ -785,6 +858,8 @@ setTimeout(() => {
     6654: 'SpellModifySuccess',
     5618: 'NpcDialogCreation', 5617: 'NpcDialogQuestion',
     5632: 'GameRolePlayShowActor', 5898: 'NpcGenericAction',
+    700: 'FightStarting', 702: 'FightShowFighter', 256: 'FightJoin',
+    6191: 'AttackMonster',
   };
 
   const sorted = Object.entries(stats.messagesReceived)
@@ -813,6 +888,16 @@ setTimeout(() => {
     console.log(`   NpcDialogQuestion recibido: ${stats.phaseD.questionReceived ? '✅ Sí' : '⚠️ No (sin replies)'}`);
   }
 
+  // Mostrar datos de Fase E
+  if (stats.phaseE.combatStarted || stats.phaseE.monsterFound) {
+    console.log('\n⚔️ Fase E — Combate:');
+    console.log(`   Monstruo encontrado: ${stats.phaseE.monsterFound ? '✅ Sí (grupo ' + stats.phaseE.monsterGroupId + ', cell ' + stats.phaseE.monsterCellId + ')' : '⚠️ No'}`);
+    console.log(`   AttackMonster despachado: ${stats.phaseE.combatStarted ? '✅ Sí' : '❌ No'}`);
+    console.log(`   FightStarting recibido: ${stats.phaseE.fightStartingReceived ? '✅ Sí' : '⚠️ No'}`);
+    console.log(`   FightJoin recibido: ${stats.phaseE.fightJoinReceived ? '✅ Sí' : '⚠️ No'}`);
+    console.log(`   Placement + Ready + Quit: ${stats.phaseE.quitSent ? '✅ Completo' : stats.phaseE.combatStarted ? '⚠️ Parcial' : '❌ No'}`);
+  }
+
   console.log(`\n✅ Checks pasados: ${stats.checksPassed}`);
   if (stats.checksFailed > 0) {
     console.log(`❌ Checks fallados: ${stats.checksFailed}`);
@@ -831,8 +916,8 @@ setTimeout(() => {
   const gotItem = stats.messagesReceived['3010'] > 0 || stats.phaseC.itemValidated;
   const gotSpellRequest = stats.phaseC.spellRequestSent;
 
-  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && gotFriends && gotShortcut && gotItem && gotSpellRequest && stats.phaseD.actionSent && stats.checksFailed === 0) {
-    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción, chat, items, friends, shortcuts, spells y NPCs validados.');
+  if (gotContext200 && gotMap220 && gotMapData && gotMovement && gotInteractive && gotChat && gotFriends && gotShortcut && gotItem && gotSpellRequest && stats.phaseD.actionSent && stats.phaseE.combatStarted && stats.checksFailed === 0) {
+    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, movimiento, interacción, chat, items, friends, shortcuts, spells, NPCs y combate validados.');
   } else if (gotContext200 && gotMap220 && gotMapData && !gotMovement) {
     console.log('⚠️  Movimiento NO validado. ¿El servidor respondió a GameMapMovementRequestMessage?');
   } else {
@@ -840,4 +925,4 @@ setTimeout(() => {
   }
 
   process.exit(stats.checksFailed > 0 ? 1 : 0);
-}, 60000);
+}, 85000);

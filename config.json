@@ -25,6 +25,10 @@
 	"seek": "30",
 	"global_time_per_message": "0.5",
 	"global_time_on_exceeded": "10"
+  },
+  "monsters": {
+    "groups_per_map": 3,
+    "monsters_per_group": 4
   }
 }
 

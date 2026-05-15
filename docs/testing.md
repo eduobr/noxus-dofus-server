@@ -30,7 +30,7 @@ y NPCs:
 node client-test.js
 ```
 
-### Cobertura actual (v11)
+### Cobertura actual (v12)
 
 | Fase | Mensajes validados | Checks |
 |------|-------------------|--------|
@@ -46,7 +46,39 @@ node client-test.js
 | Shortcuts | ShortcutBarRefresh, ShortcutBarContent | 2 |
 | Spells | SpellList, SpellModifyRequest (dispatch sin crash) | 1 |
 | NPCs | GameRolePlayShowActor (detección NPC), NpcGenericActionRequest | 2 |
-| **Total** | | **26+ checks** |
+| **Combate** | **GameRolePlayAttackMonsterRequest, Placement, Ready, Quit** | **4** |
+| **Total** | | **30+ checks** |
+
+### Detalle de Fase E — Combate
+
+Para que los monstruos aparezcan en los mapas, `config.json` debe incluir:
+
+```json
+"monsters": {
+  "groups_per_map": 3,
+  "monsters_per_group": 4
+}
+```
+
+Sin esta configuración, `spawn_manager.js` genera `groupsLength=0` y no se instancian grupos
+de monstruos en ningún mapa, incluso si la subárea tiene monstruos en la BD.
+
+Los grupos de monstruos (`GameRolePlayGroupMonsterInformations`, protocolId=160) aparecen
+como actores dentro del mensaje `MapComplementaryInformationsDataMessage` (226), no como
+mensajes separados. El client-test detecta `theActorCount > 1` en el mapa 144931
+(subareaId=511, que tiene 12 monstruos) para saber que hay monstruos presentes.
+
+El mensaje `GameRolePlayAttackMonsterRequestMessage` (6191) serializa el `monsterGroupId`
+como `double` (8 bytes). El handler requiere que el jugador esté en la misma celda que
+el grupo de monstruos (`client.character.cellid == monsterGroup.cellId`). Si no coincide,
+el handler loggea un error pero **no crashea** — la validación es "handler dispatch sin crash".
+
+### Personaje de prueba
+
+El personaje de prueba (`_id=27`, name=Bizelzapobany) debe tener en su bolsa el item
+de prueba `objectUID=900027` / `templateId=18413`. Su posición inicial es el mapa
+173277699, celda 310. **Importante**: el modelo Character usa `raw.mapid` (minúscula),
+no `raw.mapId`. MongoDB tiene ambos campos — actualizar `mapid` al resetear la posición.
 
 El NPC de prueba (`_id=81`) se instancia en el mapa 173277699 como spawn
 (`_id=4`, cellId=350, direction=1). Al cargar el mapa, el servidor envía

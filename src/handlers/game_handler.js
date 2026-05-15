@@ -6,12 +6,12 @@ const Formatter = require("../utils/formatter")
 const DBManager = require("../database/dbmanager")
 const Datacenter = require("../database/datacenter")
 const ConfigManager = require("../utils/configmanager")
-// Lazy require para romper ciclo: world → world_client → processor → handlers → world
+// Lazy requires para romper ciclos: world → world_client → processor → handlers → world
 function getWorldServer() { return require("../network/world"); }
+function getWorldManager() { return require("../managers/world_manager"); }
 const AuthServer = require("../network/auth")
 const PlayableBreedEnum = require("../enums/playable_breed_enum")
 const Character = require("../database/models/character")
-const WorldManager = require("../managers/world_manager")
 const CharacterManager = require("../managers/character_manager")
 const Loader = require("../managers/loader_manager")
 const FriendHandler = require("../handlers/friend_handler")
@@ -30,7 +30,7 @@ class GameHandler {
         if(client.character.firstContext) {
 			Loader.LoadCharacterData(client, function()
 			{
-				WorldManager.teleportClient(client, client.character.mapid, client.character.cellid, function(result){
+				getWorldManager().teleportClient(client, client.character.mapid, client.character.cellid, function(result){
 					if (result)
 					{
 						client.character.firstContext = false;
@@ -99,7 +99,7 @@ class GameHandler {
                 var skill = element.skillId.toString().split(".");
                 if (skill.length > 1) {
                 	if (skill[0] == 339 && client.character.cellid == parseInt(skill[1])) {// trigger
-                        WorldManager.teleportClient(client, element.optionalValue1, element.optionalValue2, null);
+                        getWorldManager().teleportClient(client, element.optionalValue1, element.optionalValue2, null);
                     }
 				}
             }
@@ -156,18 +156,18 @@ class GameHandler {
 			Logger.debug('Override move map by scroll action : ' + toMap);
 		}
 		client.character.cellid = toCellId;
-		WorldManager.teleportClient(client, toMap, client.character.cellid, function() {
+		getWorldManager().teleportClient(client, toMap, client.character.cellid, function() {
             var cells = client.character.getMap().cells;
 
 			if (!cells[client.character.cellid]._mov) {
 				var newCell = Pathfinding.findClosestWalkableCell(client);
                 if (newCell != 0 && cells[newCell]._mov) {
-                    WorldManager.teleportClient(client, client.character.getMap()._id, newCell, function(){
+                    getWorldManager().teleportClient(client, client.character.getMap()._id, newCell, function(){
                     });
 				}
 				else
 				{
-                    WorldManager.teleportClient(client, ConfigManager.configData.characters_start.startMap, ConfigManager.configData.characters_start.startCell, function(){
+                    getWorldManager().teleportClient(client, ConfigManager.configData.characters_start.startMap, ConfigManager.configData.characters_start.startCell, function(){
                     	client.character.replyError("Une erreur de cellule vous a obligé à revenir sur la map de départ !");
                     });
 				}

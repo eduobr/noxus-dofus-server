@@ -13,7 +13,6 @@ const ChatChannel = require("../enums/chat_activable_channels_enum")
 const Character = require("../database/models/character")
 const AccountRole = require("../enums/account_role_enum")
 const Common = require("../common")
-const WorldManager = require("../managers/world_manager")
 const FriendHandler = require("../handlers/friend_handler")
 class LoaderManager {
 

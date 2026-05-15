@@ -125,7 +125,7 @@ class InteractiveHandler {
 
     static checkIfCharacterHaveZaap(client, map)
     {
-        if (ConfigManager.configData.zaaps.all_zaaps == false  && map.zaap != null)
+        if (ConfigManager.configData.zaaps && ConfigManager.configData.zaaps.all_zaaps == false  && map.zaap != null)
         {
             var zaapKnows = client.character.zaapKnows.indexOf(map._id);
             if(zaapKnows == -1)

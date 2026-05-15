@@ -1,15 +1,16 @@
 const Logger = require("../../io/logger")
-const Datacenter = require("../../database/datacenter")
+// Lazy requires para romper ciclos con world.js y datacenter
+function getDatacenter() { return require("../../database/datacenter"); }
+function getWorldServer() { return require("../../network/world"); }
+function getInteractiveHandler() { return require("../../handlers/interactive_handler"); }
+function getFight() { return require("../../game/fight/fight"); }
+function getMonstersGroup() { return require("../../game/monsters/monsters_group"); }
+function getMonstersManager() { return require("../../game/monsters/monsters_manager"); }
+function getSpawnManager() { return require("../../managers/spawn_manager"); }
 const Messages = require("../../io/dofus/messages")
 const Types = require("../../io/dofus/types")
 const DataMapProvider = require("../../game/pathfinding/data_map_provider")
 const ConfigManager = require("../../utils/configmanager")
-const InteractiveHandler = require("../../handlers/interactive_handler")
-const Fight = require("../../game/fight/fight")
-const MonstersGroup = require("../../game/monsters/monsters_group")
-const MonstersManager = require("../../game/monsters/monsters_manager")
-const SpawnManager = require("../../managers/spawn_manager")
-const WorldServer = require("../../network/world")
 var zlib = require('zlib');
 
 class Map {
@@ -38,14 +39,14 @@ class Map {
     init() {
         this.cells = JSON.parse(zlib.inflateSync(new Buffer(this.cellsRaw, 'base64')).toString());
         this.zaap = this.getZaap();
-        var result = Datacenter.getNpcsMap(this._id);
+        var result = getDatacenter().getNpcsMap(this._id);
         for (var i in result) {
             this.npcs.npcs.push(result[i]);
             this.npcs.packet.push(new Messages.GameRolePlayShowActorMessage(new Types.GameRolePlayNpcInformations(-result[i]._id, result[i].realLook.toEntityLook(), new Types.EntityDispositionInformations(result[i].cellId, result[i].direction), result[i].npcId, false, 0)));
         }
         //this.refillMapWithMonstersGroups();
-        SpawnManager.getMonstersAndGenerateGroups(this);
-        WorldServer.instanciedMaps.push(this);
+        getSpawnManager().getMonstersAndGenerateGroups(this);
+        getWorldServer().instanciedMaps.push(this);
     }
 
     getAvailableCells() {
@@ -80,7 +81,7 @@ class Map {
             this.send(new Messages.GameRolePlayShowActorMessage(client.character.getGameRolePlayCharacterInformations(client.account)));
             this.clients.push(client);
             client.send(new Messages.CurrentMapMessage(this._id, Map.MAP_DECRYPT_KEY));
-            InteractiveHandler.checkIfCharacterHaveZaap(client, this);
+            getInteractiveHandler().checkIfCharacterHaveZaap(client, this);
         } else {
             client.character.dispose();
         }
@@ -127,7 +128,7 @@ class Map {
     }
 
     sendComplementaryInformations(client) {
-        var Interactives = Datacenter.getInteractivesMap(this._id);
+        var Interactives = getDatacenter().getInteractivesMap(this._id);
         var result = new Array();
         if (Interactives != null) {
             for (var i in Interactives) {
@@ -137,7 +138,7 @@ class Map {
         client.send(new Messages.MapComplementaryInformationsDataMessage(this.subareaId, this._id, [], this.getMapActors(), result, [], [], [], false));
 
         for(var fight of this.fights) {
-            if(fight.fightState == Fight.FIGHT_STATES.STARTING) {
+            if(fight.fightState == getFight().FIGHT_STATES.STARTING) {
                 client.send(new Messages.GameRolePlayShowChallengeMessage(fight.getFightCommonInformations()));
             }
         }
@@ -150,19 +151,19 @@ class Map {
     }
 
     getZaap() {
-        for (var i in Datacenter.interactivesObjects) {
+        for (var i in getDatacenter().interactivesObjects) {
 
-            if (Datacenter.interactivesObjects[i].mapId == this._id && Datacenter.interactivesObjects[i].actionType == "Zaap")
-                return Datacenter.interactivesObjects[i];
+            if (getDatacenter().interactivesObjects[i].mapId == this._id && getDatacenter().interactivesObjects[i].actionType == "Zaap")
+                return getDatacenter().interactivesObjects[i];
         }
         return null;
     }
 
     getZaapi() {
-        for (var i in Datacenter.interactivesObjects) {
+        for (var i in getDatacenter().interactivesObjects) {
 
-            if (Datacenter.interactivesObjects[i].mapId == this._id && Datacenter.interactivesObjects[i].actionType == "Zaapi")
-                return Datacenter.interactivesObjects[i];
+            if (getDatacenter().interactivesObjects[i].mapId == this._id && getDatacenter().interactivesObjects[i].actionType == "Zaapi")
+                return getDatacenter().interactivesObjects[i];
         }
         return null;
     }
@@ -175,7 +176,7 @@ class Map {
     }
 
     getMapPosition() {
-        var mapsPositions = Datacenter.maps_positions;
+        var mapsPositions = getDatacenter().maps_positions;
         for (var i in mapsPositions) {
             if (mapsPositions[i]._id == this._id)
                 return mapsPositions[i];
@@ -215,7 +216,7 @@ class Map {
         if (index != -1) {
             this.monstersGroups.splice(index, 1);
         }
-        var group = SpawnManager.generateGroup(this, true);
+        var group = getSpawnManager().generateGroup(this, true);
         this.monstersGroups.push(group);
         this.send(new Messages.GameRolePlayShowActorMessage(group.getGameRolePlayGroupMonsterInformations()));
     }

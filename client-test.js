@@ -1,13 +1,13 @@
 /**
- * Noxus Test Client v6
- * Cliente Node.js que completa login → personaje → mundo
- * y solicita datos del mapa (NPCs, interactivos).
+ * Noxus Test Client v7
+ * Cliente Node.js que completa login → personaje → mundo,
+ * solicita datos del mapa y envía un movimiento de prueba.
  *
  * Uso: node client-test.js
  *
- * Novedades v6:
- *   - Envía MapInformationsRequestMessage (225) tras entrar al mapa
- *   - Parsea MapComplementaryInformationsDataMessage (226): NPCs, interactivos
+ * Novedades v7:
+ *   - GameMapMovementRequestMessage (950) tras recibir datos del mapa
+ *   - Valida GameMapMovementMessage (951) de respuesta del servidor
  *   - Helpers readVarShort/readVarInt para protocolo Dofus
  */
 
@@ -159,7 +159,7 @@ function createSocket(host, port, label, handlers) {
 // ===== MAIN =====
 
 console.log('\n╔══════════════════════════════╗');
-console.log('║   Noxus Test Client v6      ║');
+console.log('║   Noxus Test Client v7      ║');
 console.log('╚══════════════════════════════╝\n');
 
 // FASE 1: AUTH
@@ -229,7 +229,7 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           }, 300);
         },
 
-        226: (m) => {
+        226: (m, ws) => {
           // MapComplementaryInformationsDataMessage
           // Formato: varShort(subAreaId) + int(mapId) + arrays...
           let off = 0;
@@ -285,6 +285,21 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
             actorCount,
             totalBytes: m.bl,
           };
+
+          // Enviar movimiento de prueba tras recibir datos del mapa
+          setTimeout(() => {
+            log.i('→ GameMapMovementRequestMessage (moviendo personaje)');
+            // keyMovement = (direction << 12) | cellId
+            // Desde cellId 328, dir=1 (DOWN_RIGHT), hacia cellId 329
+            const key1 = (1 << 12) | 328;  // start: dir=DOWN_RIGHT, cell=328
+            const key2 = (0 << 12) | 329;  // end: dir=RIGHT, cell=329
+            const body = Buffer.alloc(2 + 2 + 2 + 4);  // count(short) + 2×keys(short) + mapId(int)
+            body.writeUInt16BE(2, 0);       // 2 key movements
+            body.writeUInt16BE(key1, 2);    // first key
+            body.writeUInt16BE(key2, 4);    // second key
+            body.writeInt32BE(dataMapId, 6); // mapId
+            sendMsg(ws, 950, body);
+          }, 500);
         },
 
         500: (m) => {
@@ -344,6 +359,14 @@ const auth = createSocket(CFG.AUTH_HOST, CFG.AUTH_PORT, 'Auth', {
           const count = m.bl >= 2 ? m.body.readUInt16BE(0) : 0;
           log.dbg(`EmoteList: ${count} emote(s), ${m.bl} bytes`);
         },
+        951: (m) => {
+          // GameMapMovementMessage: respuesta del servidor al movimiento
+          const keyCount = m.bl >= 2 ? m.body.readUInt16BE(0) : 0;
+          const actorId = m.bl >= 2 + keyCount * 2 + 8
+            ? m.body.readDoubleBE(2 + keyCount * 2) : 0;
+          check('Movimiento aceptado', keyCount > 0,
+            `${keyCount} keys, actorId=${actorId}`);
+        },
 
         // ===== Mensajes de configuración (ignorar) =====
         5637: () => { }, 6087: () => { }, 6339: () => { },
@@ -380,7 +403,7 @@ setTimeout(() => {
     5684: 'LifePointsRegenBegin', 5689: 'EmoteList',
     6231: 'ShortcutBarContent', 6267: 'TrustStatus',
     6339: 'CharCapabilities', 6341: 'AlmanachCalendar',
-    6471: 'CharLoadingComplete',
+    6471: 'CharLoadingComplete', 951: 'GameMapMovement',
   };
 
   const sorted = Object.entries(stats.messagesReceived)
@@ -408,11 +431,12 @@ setTimeout(() => {
   const gotContext200 = stats.messagesReceived['200'] > 0;
   const gotMap220 = stats.messagesReceived['220'] > 0;
   const gotStats = stats.messagesReceived['500'] > 0;
+  const gotMovement = stats.messagesReceived['951'] > 0;
 
-  if (gotContext200 && gotMap220 && gotMapData && gotStats && stats.checksFailed === 0) {
-    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats y datos del mapa validados.');
-  } else if (gotContext200 && gotMap220 && gotStats && !gotMapData) {
-    console.log('⚠️  Datos del mapa NO recibidos. ¿El servidor respondió a MapInformationsRequest?');
+  if (gotContext200 && gotMap220 && gotMapData && gotMovement && stats.checksFailed === 0) {
+    console.log('✅ SERVIDOR FUNCIONAL: contexto, mapa, stats, datos del mapa y movimiento validados.');
+  } else if (gotContext200 && gotMap220 && gotMapData && !gotMovement) {
+    console.log('⚠️  Movimiento NO validado. ¿El servidor respondió a GameMapMovementRequestMessage?');
   } else {
     console.log('⚠️  Hay validaciones pendientes. Revisar checks fallados.');
   }
